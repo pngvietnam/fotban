@@ -95,6 +95,14 @@ The per-club page gathers everything about one club in one place: header (league
 - Squad and positions come from the data provider's last sync and can lag transfers. Club data tabs (fixtures, squad) are indexable; tabs with publisher text are `noindex`.
 - Product direction: a compact "football social network" without likes, comments or interaction: one fast, concise place per club, league and player.
 
+### Personal feed (`/following`)
+
+A signed-in reader sees one personal page built from what they follow (M15 follows): a summary with links to followed league and club hubs, the next and last matches of followed clubs, **new stories** linked to followed clubs, players or leagues (a followed league brings its whole news stream), followed **transfers**, and **fun** pieces. A guest is redirected to sign-in with a return to `/following`; with no follows the page offers clubs to pick. The navigation link "Bảng tin của tôi" replaces "Tài khoản / Theo dõi"; follow management stays at `/account`.
+
+- The page is `noindex`, `Cache-Control: private, no-store`, evaluated per request and reads only the signed-in user's own follows. It adds no tracking and no new stored data: nothing is recorded about what the reader opens.
+- Player follows match stories that link the player; players have no hub page yet and appear as plain text.
+- The page-level sign-in flow is exercised with a real Google account only; the data layer is covered by deterministic tests. `auth:smoke` was not extended in this step.
+
 ### Ranking, detail context, homepage and scheduling
 
 - **Ranking** (`lib/feed-card-ranking.ts`): editorial importance = distinct publishers x 3 + media bonus + a recency term that halves every 6 hours. Roundups (schedules, results, tables) come last because FotBan has its own match data. No publisher leads three cards in a row while another candidate is close. The top multi-publisher story is shown at full width. This is an editorial order, not a truth or reliability score.

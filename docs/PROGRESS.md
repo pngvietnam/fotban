@@ -1,5 +1,14 @@
 # Milestone progress
 
+## Personal feed (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.
+
+- `/following` is now the reader's personal feed (it used to redirect to the account page): followed clubs' next/last matches, new stories for followed clubs/players/leagues, followed transfers and fun pieces, with links to the club and league hubs. Guests go to sign-in and back; empty follows get a "pick clubs" state. Private, `noindex`, `no-store`, no new tracking or stored data. Navigation link changed to "Bảng tin của tôi".
+- Feed filter `follow` (entities or leagues) added; data helpers `summarizeFollows` and `followFixtures`.
+- Tab "Vui" kept as is (owner chose to accept sparse publisher-written lighthearted content; no fan/social ingestion).
+- Validation: lint PASS, typecheck PASS, tests **708 / 44 files PASS** (3 new), production build PASS. Production server: guest redirected to `/login?returnTo=/following` with no private content; `/news` unaffected. The signed-in rendering was not exercised against real Google sign-in in this environment.
+
 ## Product direction + club hub (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.

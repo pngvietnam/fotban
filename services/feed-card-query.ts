@@ -73,6 +73,7 @@ export class FeedCardQueryService {
         return { key, lead: publicView(lead), others: others.map(publicView), latestAt: members.map((member) => member.publishedAt).sort().at(-1)! };
       }).filter((group) => filters.league === "all" || [group.lead, ...group.others].some((card) => card.leagueSlugs.includes(filters.league)))
         .filter((group) => !filters.clubId || [group.lead, ...group.others].some((card) => card.entities.some((entity) => entity.kind === "club" && entity.id === filters.clubId)))
+        .filter((group) => !filters.follow || [group.lead, ...group.others].some((card) => card.entities.some((entity) => entity.id && filters.follow!.entityIds.includes(entity.id) && entity.kind !== "league") || card.leagueSlugs.some((slug) => filters.follow!.leagueSlugs.includes(slug))))
         .filter((group) => !filters.storyType || [group.lead, ...group.others].some((card) => card.storyType === filters.storyType));
       const groups = rankFeedGroups(built.map((group) => ({ ...group, leadTitle: group.lead.title, leadPublisher: group.lead.publisher, publishers: [group.lead, ...group.others].map((card) => card.publisher), hasMedia: [group.lead, ...group.others].some((card) => card.label === "MEDIA") })), now)
         .map(({ key, lead, others, latestAt }): FeedGroupView => ({ key, lead, others, latestAt }));
