@@ -18,6 +18,6 @@ export function SportsShell({ children, section }: { children: ReactNode; sectio
       </div>
     </header>
     <main id={contentId} tabIndex={-1} className={`mx-auto max-w-6xl px-4 pb-16 sm:px-6 ${section === "home" ? "pt-5 sm:pt-8" : "pt-8 sm:pt-12"}`}>{children}</main>
-    <footer className="border-t border-slate-200 px-4 py-6 text-center text-xs leading-6 text-slate-500">Football Morning Brief · Một góc nhìn gọn hơn về bóng đá.<br />Giờ hiển thị: Việt Nam (UTC+7).</footer>
+    <footer className="border-t border-slate-200 px-4 py-6 text-center text-xs leading-6 text-slate-500">Football Morning Brief · Một góc nhìn gọn hơn về bóng đá.<br />Giờ hiển thị: Việt Nam (UTC+7).<br /><Link href="/ghi-cong-anh" className="underline underline-offset-4">Ghi công ảnh</Link></footer>
   </div>;
 }

@@ -34,5 +34,5 @@ export const positionGroup = (position: string | null) => groups.find(([, patter
 export const positionOrder = [...groups.map(([name]) => name), "Khác"];
 /** Current squad: open PlayerClub memberships, as last listed by the data provider. */
 export async function clubSquad(tx: SqlExecutor, clubId: string): Promise<SquadPlayer[]> {
-  return tx.query<SquadPlayer>(`SELECT p.id AS "playerId",p.name,p.position,p.nationality FROM "PlayerClub" pc JOIN "Player" p ON p.id=pc."playerId" WHERE pc."clubId"=$1::uuid AND pc."endsAt" IS NULL ORDER BY p.name,p.id LIMIT 80`, [clubId]);
+  return tx.query<SquadPlayer>(`SELECT p.id AS "playerId",p.name,p.position,p.nationality,i."thumbUrl" AS "photoUrl" FROM "PlayerClub" pc JOIN "Player" p ON p.id=pc."playerId" LEFT JOIN "PlayerImage" i ON i."playerId"=p.id AND i.status='FOUND' WHERE pc."clubId"=$1::uuid AND pc."endsAt" IS NULL ORDER BY p.name,p.id LIMIT 80`, [clubId]);
 }

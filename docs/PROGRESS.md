@@ -1,5 +1,14 @@
 # Milestone progress
 
+## Club crests and player photos (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started. Details: [IMAGES.md](IMAGES.md).
+
+- Owner decision: crests and player photos must be shown, no abbreviations. **Crests**: the stored football-data crest link is shown by the reader's browser on standings, fixtures, club/player/match pages, card chips and homepage match cards (letters only when missing or failing; host allowlist; no rehosting). The provider's terms say consent must come from the crest owners; the owner accepted the risk.
+- **Photos**: no provider has them, so a Wikimedia Commons pipeline was added (migration `20261019150000_player_images`, additive): Wikidata match only with an identical birth date, free licences only, credit enforced by a CHECK, hotlinked thumbnails, credit on the player page, `/ghi-cong-anh` credits page and a footer link. Players without a free photo show a neutral outline. Live run in progress: first 83 players gave 49 photos (59%).
+- Worker now also runs a small time-boxed photo batch per pass.
+- Validation: lint PASS, typecheck PASS, tests **729 / 48 files PASS** (15 new), production build pending the final run.
+
 ## Admin access and the homepage "Đội của tôi" block (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.

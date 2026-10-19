@@ -317,6 +317,7 @@ model Player {
   createdAt     DateTime           @default(now()) @db.Timestamptz(3)
   updatedAt     DateTime           @updatedAt @db.Timestamptz(3)
   clubs         PlayerClub[]
+  image         PlayerImage?
   events        MatchEvent[]       @relation("EventPlayer")
   relatedEvents MatchEvent[]       @relation("RelatedPlayer")
   stats         MatchStat[]
@@ -324,6 +325,26 @@ model Player {
   follows       UserFollow[]
   identities    ExternalIdentity[]
   transfers     Transfer[]
+}
+
+// Wikimedia Commons photo found for a player. Only matched by Wikidata with an identical birth date and
+// only under a free licence; the file is hotlinked by readers, never stored by FotBan. CHECKs in the migration.
+model PlayerImage {
+  playerId       String   @id @db.Uuid
+  status         String
+  wikidataId     String?
+  fileName       String?
+  thumbUrl       String?
+  descriptionUrl String?
+  author         String?
+  licenseName    String?
+  licenseUrl     String?
+  checkedAt      DateTime @db.Timestamptz(3)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+  player         Player   @relation(fields: [playerId], references: [id], onDelete: Restrict)
+
+  @@index([status, checkedAt])
 }
 
 model PlayerClub {

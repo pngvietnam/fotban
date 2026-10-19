@@ -10,6 +10,7 @@ import { vietnameseSource } from "../providers/news/vietnamese-sources";
 import { publishFeedCards } from "../services/feed-cards";
 import { syncMatches } from "../services/match-sync";
 import { syncNews } from "../services/news-sync";
+import { syncPlayerImages, wikimediaApi } from "../services/player-images";
 import { abortableSleep, runLoop } from "../services/worker-loop";
 
 const lockKey = 91531121;
@@ -41,7 +42,9 @@ async function main() {
   const database = prismaSyncDatabase(db);
   const news = createNewsRuntime(db, { wikimediaUserAgent: env.WIKIMEDIA_USER_AGENT });
   const match = env.FOOTBALL_DATA_API_KEY ? createMatchRuntime(db, env) : null;
-  logger.info({ matches: Boolean(match) }, "worker.started");
+  const photoApi = env.WIKIMEDIA_USER_AGENT ? wikimediaApi(env.WIKIMEDIA_USER_AGENT) : null;
+  let photosPausedUntil = 0;
+  logger.info({ matches: Boolean(match), photos: Boolean(photoApi) }, "worker.started");
   try {
     await runLoop(async () => {
       let ok = true;
@@ -63,6 +66,14 @@ async function main() {
             await syncMatches(match.provider, match.store, { mode: "standings", competition }, logger, { ttlMs: standingsTtlMs });
           } catch { ok = false; } // Provider errors are recorded by the sync; keep the news loop alive.
         }
+      }
+      // Free-licence player photos: a small, time-boxed batch per pass; pauses for 30 minutes when Wikimedia pushes back.
+      if (photoApi && Date.now() >= photosPausedUntil) {
+        try {
+          const photos = await syncPlayerImages(database, { api: photoApi, limit: 8, timeBudgetMs: 20_000 });
+          if (photos.stopped === "RATE_LIMITED" || photos.stopped === "NETWORK") photosPausedUntil = Date.now() + 30 * 60_000;
+          if (photos.examined) logger.info({ ...photos }, "worker.photos");
+        } catch { photosPausedUntil = Date.now() + 30 * 60_000; }
       }
       if (synced.length || !ok) logger.info({ synced: synced.length, created: synced.reduce((sum, result) => sum + (result.created ?? 0), 0), failed: results.filter((result) => result.status === "failed").length, busy: results.filter((result) => result.code === "BUSY").length, published: cards.published, held: cards.held }, "worker.pass");
       return { ok };

@@ -8,6 +8,7 @@ import { formatMatchDate, formatMatchTime } from "../../lib/match-presentation";
 import { positionGroup, positionOrder } from "../../services/club-hub";
 import { FollowLink } from "../account/follow-link";
 import { TeamBadge } from "../ui/team-badge";
+import { PlayerPhoto } from "../ui/player-photo";
 import { FixtureItem, FormChips } from "../league/league-hub";
 
 const Stat = ({ label, value }: { label: string; value: string }) => <div className="rounded-xl bg-slate-50 px-3 py-2 text-center"><dt className="text-[11px] text-slate-500">{label}</dt><dd className="text-lg font-bold tabular-nums">{value}</dd></div>;
@@ -36,6 +37,6 @@ export function Squad({ players }: { players: SquadPlayer[] }) {
   if (!players.length) return <p role="status" className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-8 text-center text-sm text-slate-600">Chưa có danh sách cầu thủ.</p>;
   const groups = positionOrder.map((name) => [name, players.filter((player) => positionGroup(player.position) === name)] as const).filter(([, items]) => items.length);
   return <div className="space-y-6">{groups.map(([name, items]) => <section key={name} aria-labelledby={`squad-${name}`}><h2 id={`squad-${name}`} className="mb-2 text-sm font-bold">{name} ({items.length})</h2>
-    <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{items.map((player) => <li key={player.playerId} className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><span className="min-w-0"><Link href={playerPath(player.playerId)} className="block break-words text-sm font-semibold hover:underline">{player.name}</Link><span className="block text-xs text-slate-500">{player.nationality ?? "Chưa rõ quốc tịch"}</span></span><FollowLink type="PLAYER" entityId={player.playerId} name={player.name} /></li>)}</ul></section>)}
-    <p className="text-[11px] text-slate-500">Danh sách theo lần đồng bộ gần nhất của nhà cung cấp dữ liệu; có thể chưa phản ánh chuyển nhượng mới.</p></div>;
+    <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{items.map((player) => <li key={player.playerId} className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><span className="flex min-w-0 items-center gap-3"><PlayerPhoto photoUrl={player.photoUrl} size="md" /><span className="min-w-0"><Link href={playerPath(player.playerId)} className="block break-words text-sm font-semibold hover:underline">{player.name}</Link><span className="block text-xs text-slate-500">{player.nationality ?? "Chưa rõ quốc tịch"}</span></span></span><FollowLink type="PLAYER" entityId={player.playerId} name={player.name} /></li>)}</ul></section>)}
+    <p className="text-[11px] text-slate-500">Danh sách theo lần đồng bộ gần nhất của nhà cung cấp dữ liệu; có thể chưa phản ánh chuyển nhượng mới. Ảnh cầu thủ từ Wikimedia Commons, <Link href="/ghi-cong-anh" className="underline underline-offset-4">xem ghi công ảnh</Link>.</p></div>;
 }

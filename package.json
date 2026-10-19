@@ -21,6 +21,7 @@
     "news:sync": "tsx --env-file-if-exists=.env scripts/sync-news.ts",
     "news:grant": "tsx --env-file-if-exists=.env scripts/grant-news-source.ts",
     "news:worker": "tsx --env-file-if-exists=.env scripts/news-worker.ts",
+    "players:images": "tsx --env-file-if-exists=.env scripts/player-images.ts",
     "news:tick": "tsx --env-file-if-exists=.env scripts/sync-news.ts vietnamese",
     "news:cards": "tsx --env-file-if-exists=.env scripts/feed-cards.ts",
     "news:preview-vietnamese": "tsx --env-file-if-exists=.env scripts/preview-vietnamese-news.ts",
