@@ -12,7 +12,7 @@ const group = (title: string): FeedGroupView => {
   return { key: "k", lead, others: [], latestAt: lead.publishedAt };
 };
 const ready = (overrides: Partial<Extract<MyTeams, { kind: "ready" }>> = {}): MyTeams => ({ kind: "ready", summary: { clubs: [{ id: "c1", name: "Man City" }], players: [], leagues: [{ id: "l1", slug: "premier-league", name: "Premier League" }], entityIds: ["c1"], leagueSlugs: ["premier-league"] },
-  upcoming: [{ slug: "m1", kickoffAt: "2026-10-25T19:00:00.000Z", status: "SCHEDULED", round: null, home: { name: "Man City", tla: "MCI" }, away: { name: "Arsenal", tla: "ARS" }, homeScore: null, awayScore: null }], groups: [group("Man City thắng đậm")], ...overrides });
+  upcoming: [{ slug: "m1", kickoffAt: "2026-10-25T19:00:00.000Z", status: "SCHEDULED", round: null, home: { name: "Man City", tla: "MCI", crestUrl: null }, away: { name: "Arsenal", tla: "ARS", crestUrl: null }, homeScore: null, awayScore: null }], groups: [group("Man City thắng đậm")], ...overrides });
 
 describe("homepage 'Đội của tôi' block", () => {
   it("links followed clubs and leagues, upcoming matches and the newest stories to the full feed", () => {

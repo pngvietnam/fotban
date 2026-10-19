@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { FeedCardView, FeedGroupView } from "../../types/feed-card";
 import { feedCertaintyText, feedLabelText, feedTransferText, officialWordingNotice } from "../../lib/feed-card-presentation";
+import { TeamBadge } from "../ui/team-badge";
 import { clubPath } from "../../lib/club-presentation";
 import { playerPath } from "../../lib/player-presentation";
 import { newsAbsoluteTime, newsRelativeTime, storyLabels } from "../../lib/news-presentation";
@@ -22,7 +23,7 @@ export function FeedEntities({ card }: { card: FeedCardView }) {
   const shown = card.entities.filter((entity) => entity.kind !== "league").slice(0, 4);
   if (!shown.length) return null;
   return <ul aria-label="Đội bóng và cầu thủ liên quan" className="flex flex-wrap gap-2">
-    {shown.map((entity) => <li key={`${entity.kind}-${entity.id ?? entity.name}`} className="inline-flex max-w-full items-center gap-2 rounded-md bg-slate-100 px-2 py-1.5 text-xs font-medium text-slate-700"><span aria-hidden="true" className="grid h-6 min-w-6 place-items-center rounded bg-white px-1 text-[10px] font-bold text-slate-600">{entity.initials}</span>{entity.id && (entity.kind === "club" || entity.kind === "player") ? <Link href={entity.kind === "club" ? clubPath(entity.id) : playerPath(entity.id)} className="break-words hover:underline">{entity.name}</Link> : <span className="break-words">{entity.name}</span>}</li>)}
+    {shown.map((entity) => <li key={`${entity.kind}-${entity.id ?? entity.name}`} className="inline-flex max-w-full items-center gap-2 rounded-md bg-slate-100 px-2 py-1.5 text-xs font-medium text-slate-700">{entity.kind === "club" ? <TeamBadge name={entity.name} tla={entity.tla} crestUrl={entity.crestUrl} /> : <span aria-hidden="true" className="grid h-8 min-w-8 place-items-center rounded-lg bg-white px-1 text-[10px] font-bold text-slate-600">{entity.initials}</span>}{entity.id && (entity.kind === "club" || entity.kind === "player") ? <Link href={entity.kind === "club" ? clubPath(entity.id) : playerPath(entity.id)} className="break-words hover:underline">{entity.name}</Link> : <span className="break-words">{entity.name}</span>}</li>)}
   </ul>;
 }
 /** featured: the top story, reported by several publishers, spans the full grid width. */

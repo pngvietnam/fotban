@@ -64,6 +64,10 @@ Requests use a 10-second abort timeout covering body receipt. Temporary network/
 
 ProviderStatus tracks latest health/check, successful/failed sync times, last data receipt, records processed, cooldown and safe error code/message. JobRun records attempts, lease, correlation ID, counts and a normalized checkpoint. Only controlled metadata is logged, never raw exception text/DTOs/key material. Successful cached returns process zero new records and make zero external calls. There is no background retry daemon in this milestone.
 
+## Club crests (owner decision, 2026-10-19)
+
+**Supersedes the paragraphs below about crests.** The owner decided that club crests must be shown. The football-data crest link already stored in `Club.externalCrestUrl` is displayed by the reader's browser (`components/ui/team-badge.tsx`): FotBan does not download, cache, proxy or rehost any crest, the request carries no referrer, and only HTTPS files on `crests.football-data.org` are accepted (`lib/crest.ts`) whatever is stored. Letters appear only when no usable crest exists or it fails to load. The provider terms (section 9.2) say crests are owned by their legal owners and that consent must be obtained from them; the owner accepted that risk, and a rights holder's request must be honoured by removing the crest (set `externalCrestUrl` to null, or disable the component). `/api/matches` now includes the crest link of each club.
+
 ## Read APIs, attribution and images
 
 Internal data-only read endpoints:

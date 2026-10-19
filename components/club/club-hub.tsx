@@ -7,9 +7,9 @@ import { leagueHref } from "../../lib/league-presentation";
 import { formatMatchDate, formatMatchTime } from "../../lib/match-presentation";
 import { positionGroup, positionOrder } from "../../services/club-hub";
 import { FollowLink } from "../account/follow-link";
+import { TeamBadge } from "../ui/team-badge";
 import { FixtureItem, FormChips } from "../league/league-hub";
 
-const monogram = (name: string, tla: string | null) => (tla?.trim() || name.split(/\s+/).slice(0, 2).map((word) => Array.from(word)[0]).join("")).slice(0, 4).toLocaleUpperCase("vi-VN");
 const Stat = ({ label, value }: { label: string; value: string }) => <div className="rounded-xl bg-slate-50 px-3 py-2 text-center"><dt className="text-[11px] text-slate-500">{label}</dt><dd className="text-lg font-bold tabular-nums">{value}</dd></div>;
 
 /** Club "profile": identity, table position, form, next match and the tabs. Text badge only, no crest. */
@@ -17,7 +17,7 @@ export function ClubHeader({ club, standing, next, active }: { club: ClubProfile
   const row = standing?.row; const display = club.shortName?.trim() || club.name;
   return <header className="mb-6 rounded-2xl border border-slate-200 bg-white px-5 pt-5 sm:px-6">
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="flex min-w-0 items-center gap-4"><span aria-hidden="true" className="grid h-14 min-w-14 place-items-center rounded-2xl bg-slate-950 px-1 text-sm font-bold text-[#c7f36b]">{monogram(club.name, club.tla)}</span>
+      <div className="flex min-w-0 items-center gap-4"><TeamBadge name={club.name} tla={club.tla} crestUrl={club.crestUrl} size="lg" />
         <div className="min-w-0"><h1 className="break-words text-2xl font-bold tracking-tight sm:text-3xl">{club.name}</h1>
           <p className="text-sm text-slate-500">{club.league ? <Link href={leagueHref(club.league.slug)} className="underline underline-offset-4">{club.league.name}</Link> : null}{club.league?.seasonName ? ` · ${club.league.seasonName}` : ""}{club.venue ? ` · Sân ${club.venue}` : ""}</p></div></div>
       <FollowLink type="CLUB" entityId={club.clubId} name={display} />

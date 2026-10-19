@@ -3,7 +3,7 @@ import { z } from "zod";
 import { dataSources } from "../lib/data-sources";
 import { dateBounds, matchTimeZone } from "../lib/match-presentation";
 
-const clubSelect = { id: true, slug: true, name: true, shortName: true, tla: true } as const;
+const clubSelect = { id: true, slug: true, name: true, shortName: true, tla: true, externalCrestUrl: true } as const;
 const matchSelect = {
   id: true, slug: true, kickoffAt: true, status: true, round: true, venue: true,
   homeScore: true, awayScore: true, homeExtraTimeScore: true, awayExtraTimeScore: true,

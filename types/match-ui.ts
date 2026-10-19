@@ -1,7 +1,7 @@
 import type { MatchStatus } from "@prisma/client";
 
 export type MatchDate = Date | string;
-export type MatchTeam = { id?: string; name?: string | null; shortName?: string | null; tla?: string | null };
+export type MatchTeam = { id?: string; name?: string | null; shortName?: string | null; tla?: string | null; externalCrestUrl?: string | null };
 export type MatchSummary = {
   id: string; slug: string; status: MatchStatus; kickoffAt: MatchDate;
   round?: string | null; venue?: string | null;

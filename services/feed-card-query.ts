@@ -32,9 +32,9 @@ async function publicCards(tx: SqlExecutor, where: string, params: unknown[], no
     ORDER BY a."publishedAt" DESC,a.id LIMIT ${maxCards}`, [now, ...params]);
   const permitted = rows.filter((row) => vietnameseSource(row.slug) && permittedFeedSnapshot({ ...row, id: row.articleId }, row.source, row.snapshot));
   const ids = permitted.map((row) => row.articleId);
-  const entities = ids.length ? await tx.query<{ articleId: string; id: string; kind: NewsEntity["kind"]; name: string; tla: string | null }>(`SELECT e."articleId",c.id,'club' AS kind,c.name,c.tla FROM "ArticleEntity" e JOIN "Club" c ON c.id=e."clubId" WHERE e."articleId"=ANY($1::uuid[])
-    UNION ALL SELECT e."articleId",p.id,'player',p.name,NULL FROM "ArticleEntity" e JOIN "Player" p ON p.id=e."playerId" WHERE e."articleId"=ANY($1::uuid[])
-    UNION ALL SELECT e."articleId",l.id,'league',l.name,NULL FROM "ArticleEntity" e JOIN "League" l ON l.id=e."leagueId" WHERE e."articleId"=ANY($1::uuid[]) ORDER BY kind,name`, [ids]) : [];
+  const entities = ids.length ? await tx.query<{ articleId: string; id: string; kind: NewsEntity["kind"]; name: string; tla: string | null; crest: string | null }>(`SELECT e."articleId",c.id,'club' AS kind,c.name,c.tla,c."externalCrestUrl" AS crest FROM "ArticleEntity" e JOIN "Club" c ON c.id=e."clubId" WHERE e."articleId"=ANY($1::uuid[])
+    UNION ALL SELECT e."articleId",p.id,'player',p.name,NULL,NULL FROM "ArticleEntity" e JOIN "Player" p ON p.id=e."playerId" WHERE e."articleId"=ANY($1::uuid[])
+    UNION ALL SELECT e."articleId",l.id,'league',l.name,NULL,NULL FROM "ArticleEntity" e JOIN "League" l ON l.id=e."leagueId" WHERE e."articleId"=ANY($1::uuid[]) ORDER BY kind,name`, [ids]) : [];
   // Competition context: a direct league link, a linked club's season membership, or a linked player's club then.
   const leagues = ids.length ? await tx.query<{ articleId: string; slug: string }>(`SELECT DISTINCT e."articleId",l.slug FROM "ArticleEntity" e JOIN "Article" a ON a.id=e."articleId" JOIN "League" l ON l.id=e."leagueId"
       OR l.id IN (SELECT cs."leagueId" FROM "ClubSeason" cs JOIN "Season" s ON s.id=cs."seasonId" WHERE a."publishedAt" BETWEEN s."startsAt" AND s."endsAt"
@@ -44,7 +44,7 @@ async function publicCards(tx: SqlExecutor, where: string, params: unknown[], no
     slug: feedSlug(row.articleId), articleId: row.articleId, title: row.titleOriginal, description: stripPublisherPrefix(row.excerptOriginal),
     publisher: row.name, publisherSlug: row.slug, attribution: row.attributionText, url: safeNewsUrl(row.sourceUrl), publishedAt: new Date(row.publishedAt).toISOString(),
     label: row.label, certainty: row.certainty, storyType: row.storyType, transferStage: row.transferStage, originHint: row.originHint, officialWording: headlineClaimsOfficial(row.titleOriginal),
-    entities: entities.filter((entity) => entity.articleId === row.articleId && entity.name.trim()).map((entity) => ({ id: entity.id, kind: entity.kind, name: entity.name, initials: entity.tla?.trim() || entity.name.split(/\s+/).slice(0, 2).map((word) => Array.from(word)[0]).join("").toLocaleUpperCase("vi-VN") })),
+    entities: entities.filter((entity) => entity.articleId === row.articleId && entity.name.trim()).map((entity) => ({ id: entity.id, kind: entity.kind, name: entity.name, crestUrl: entity.crest, tla: entity.tla, initials: entity.tla?.trim() || entity.name.split(/\s+/).slice(0, 2).map((word) => Array.from(word)[0]).join("").toLocaleUpperCase("vi-VN") })),
     leagueSlugs: leagues.filter((league) => league.articleId === row.articleId).map((league) => league.slug).sort(),
     match: row.matchSlug && row.home && row.away && row.kickoffAt ? { slug: row.matchSlug, home: row.home, away: row.away, kickoffAt: new Date(row.kickoffAt).toISOString() } : null,
     groupKey: row.groupKey ?? row.articleId, priority: row.newsPriority,
