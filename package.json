@@ -20,6 +20,7 @@
     "provider:sync": "tsx --env-file-if-exists=.env scripts/sync-matches.ts",
     "news:sync": "tsx --env-file-if-exists=.env scripts/sync-news.ts",
     "news:grant": "tsx --env-file-if-exists=.env scripts/grant-news-source.ts",
+    "news:cards": "tsx --env-file-if-exists=.env scripts/feed-cards.ts",
     "news:preview-vietnamese": "tsx --env-file-if-exists=.env scripts/preview-vietnamese-news.ts",
     "news:diagnose": "tsx --env-file-if-exists=.env scripts/diagnose-news.ts",
     "news:coverage": "tsx --env-file-if-exists=.env scripts/check-wikinews-coverage.ts",

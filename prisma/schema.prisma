@@ -147,24 +147,25 @@ enum ProviderHealth {
 }
 
 model User {
-  id              String          @id @default(uuid()) @db.Uuid
-  authProvider    String          @default("better-auth")
-  authSubject     String          @default(uuid())
-  email           String?         @unique
-  displayName     String          @default("")
-  emailVerified   Boolean         @default(false)
-  avatarUrl       String?
-  lastLoginAt     DateTime?       @db.Timestamptz(3)
-  role            UserRole        @default(USER)
-  locale          String          @default("vi-VN")
-  timezone        String          @default("Asia/Ho_Chi_Minh")
-  createdAt       DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime        @updatedAt @db.Timestamptz(3)
-  preference      UserPreference?
-  auditLogs       AdminAuditLog[]
-  sessions        AuthSession[]
-  accounts        AuthAccount[]
-  publishedBriefs BriefRevision[] @relation("BriefPublisher")
+  id                String          @id @default(uuid()) @db.Uuid
+  authProvider      String          @default("better-auth")
+  authSubject       String          @default(uuid())
+  email             String?         @unique
+  displayName       String          @default("")
+  emailVerified     Boolean         @default(false)
+  avatarUrl         String?
+  lastLoginAt       DateTime?       @db.Timestamptz(3)
+  role              UserRole        @default(USER)
+  locale            String          @default("vi-VN")
+  timezone          String          @default("Asia/Ho_Chi_Minh")
+  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(3)
+  preference        UserPreference?
+  auditLogs         AdminAuditLog[]
+  sessions          AuthSession[]
+  accounts          AuthAccount[]
+  publishedBriefs   BriefRevision[] @relation("BriefPublisher")
+  feedCardDecisions FeedCard[]      @relation("FeedCardDecider")
 
   @@unique([authProvider, authSubject])
 }
@@ -407,6 +408,7 @@ model Match {
   events             MatchEvent[]
   stats              MatchStat[]
   entities           ArticleEntity[]
+  feedCards          FeedCard[]
   videos             Video[]
   videoSyncState     VideoSyncState?
   evidence           ClaimEvidence[]
@@ -596,6 +598,7 @@ model Article {
   urls                   ArticleUrl[]
   discoveries            ArticleDiscovery[]
   feedSnapshot           ArticleFeedSnapshot?
+  feedCard               FeedCard?
   reliabilityAssessments ReliabilityAssessment[]
 
   @@index([publicationStatus, publishedAt])
@@ -649,6 +652,32 @@ model ArticleFeedSnapshot {
   evidenceReferences String[] @default([])
   collectedAt        DateTime @default(now()) @db.Timestamptz(3)
   article            Article  @relation(fields: [articleId], references: [id], onDelete: Restrict)
+}
+
+// Attributed publisher RSS card (headline + permitted description, linked to the original).
+// A separate, lower publication class than verified ArticleCluster stories: it is never
+// OFFICIAL/CONFIRMED and never feeds the evidence-gated pipeline. CHECKs live in the migration.
+model FeedCard {
+  articleId     String    @id @db.Uuid
+  status        String
+  storyType     String
+  label         String
+  certainty     String
+  transferStage String?
+  originHint    String?
+  holdReasons   String[]  @default([])
+  groupKey      String?   @db.Uuid
+  matchId       String?   @db.Uuid
+  decidedById   String?   @db.Uuid
+  decidedAt     DateTime? @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(3)
+  article       Article   @relation(fields: [articleId], references: [id], onDelete: Restrict)
+  match         Match?    @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  decidedBy     User?     @relation("FeedCardDecider", fields: [decidedById], references: [id], onDelete: Restrict)
+
+  @@index([status, groupKey])
+  @@index([matchId])
 }
 
 model ArticleCluster {

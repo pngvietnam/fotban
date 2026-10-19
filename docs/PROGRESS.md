@@ -1,5 +1,16 @@
 # Milestone progress
 
+## Vietnamese news step 2 — attributed publisher cards on /news (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. **Step 2: DONE — Vietnamese publisher news is public on `/news`.** Milestone 17 not started.
+
+- New publication class `FeedCard` (additive migration `20261019120000_feed_cards`, no drift): publisher's exact headline + RSS description with attribution, labels "Báo chí"/"Cộng đồng" and "Đang đưa tin"/"Chưa xác nhận", wording-only transfer stage; `OFFICIAL` and `CONFIRMED` are impossible by CHECK. Evidence-gated verified stories, M7/M8 and Brief evidence rules are unchanged.
+- Auto-publish with sensitive-term holds; audited operator approve/hide via `news:cards`; every public read rechecks status, hidden article and the current publisher grant. `news:sync -- vietnamese` publishes cards after ingestion.
+- Duplicate grouping and Vietnamese story types. Real data: 51 cards, 0 held, **39 groups**; the 4 merged groups were all correct (Real–Sevilla ×5 publishers, Arsenal–Forest ×4, MU–Leeds ×5, EPL table ×2) while interview/controversy angles stayed separate. Types: 29 match, 6 interview, 4 off-field, 2 manager, 2 discipline, 1 transfer, 1 injury, 6 other.
+- UI: `/news` section "Tin từ báo chí Việt Nam" (24 groups/page; league filter), `/news/bao-<uuid>` detail with other coverage, entities, match link and a small footer "Xem bài gốc" (`nofollow`); card pages `noindex` with the original as canonical.
+- Production server check: `/news` 200 with 24 + 15 groups across two pages, La Liga filter 15, no empty state; detail of the Dân trí Arsenal report lists 3 other publishers and links the Forest–Arsenal match.
+- Validation: lint PASS, typecheck PASS, tests **685 / 41 files PASS** (17 new), production build PASS. Visual browser review at 360px/1280px is still to be done by the owner (no browser automation in this session).
+
 ## Vietnamese news step 1 — live RSS ingestion (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. Implementation moved from Codex to Claude; the project is now a git repository (baseline commit `8b6eb12`). **Step 1 (ingestion): DONE. Publication of RSS cards: next step.** Milestone 17 not started.

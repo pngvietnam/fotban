@@ -35,16 +35,18 @@ export function inputHash(article: ProcessingArticle, input: AIInput, providerId
 export function makeInput(article: ProcessingArticle, entities: EntityCandidate[]): AIInput {
   return { articleId: article.id, title: article.titleOriginal, excerpt: article.excerptOriginal ?? "", language: article.language, sourceUrl: article.sourceUrl, entities };
 }
+/** Canonical entity catalog (clubs, players, leagues, matches) for alias matching. */
+export async function entityCatalog(db: SqlExecutor): Promise<EntityCandidate[]> {
+  const basic = await db.query<EntityCandidate>(`SELECT id,'club' AS kind,name,aliases || ARRAY[COALESCE("shortName",''),COALESCE(tla,'')] AS aliases FROM "Club" UNION ALL SELECT id,'player' AS kind,name,aliases FROM "Player" UNION ALL SELECT id,'league' AS kind,name,aliases FROM "League"`);
+  // Match association requires an explicit internal slug in source text; no guessed pairing.
+  const matches = await db.query<EntityCandidate>(`SELECT id,'match' AS kind,slug AS name,ARRAY[]::text[] AS aliases FROM "Match"`);
+  return [...basic, ...matches].sort((a, b) => a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id));
+}
 export class AIProcessingStore {
   constructor(readonly db: SyncDatabase) {}
   async article(id: string, tx: SqlExecutor = this.db) { return (await tx.query<ProcessingArticle>(articleSql, [id]))[0]; }
   async candidates(limit: number, window: { since?: Date; before?: Date } = {}) { return this.db.query<{ id: string }>('SELECT id FROM "Article" WHERE "publicationStatus"=\'DRAFT\' AND "manualOverrideAt" IS NULL AND ($2::timestamptz IS NULL OR "collectedAt">=$2::timestamptz) AND ($3::timestamptz IS NULL OR "collectedAt"<=$3::timestamptz) ORDER BY "collectedAt",id LIMIT $1', [limit, window.since ?? null, window.before ?? null]); }
-  async catalog(): Promise<EntityCandidate[]> {
-    const basic = await this.db.query<EntityCandidate>(`SELECT id,'club' AS kind,name,aliases || ARRAY[COALESCE("shortName",''),COALESCE(tla,'')] AS aliases FROM "Club" UNION ALL SELECT id,'player' AS kind,name,aliases FROM "Player" UNION ALL SELECT id,'league' AS kind,name,aliases FROM "League"`);
-    // Match association requires an explicit internal slug in source text; no guessed pairing.
-    const matches = await this.db.query<EntityCandidate>(`SELECT id,'match' AS kind,slug AS name,ARRAY[]::text[] AS aliases FROM "Match"`);
-    return [...basic, ...matches].sort((a, b) => a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id));
-  }
+  async catalog(): Promise<EntityCandidate[]> { return entityCatalog(this.db); }
   async claim(articleId: string, hash: string, provider: string, model: string, retry: boolean, snapshot: Record<string, unknown>) {
     return this.db.transaction(async (tx) => {
       await tx.query('SELECT id FROM "Article" WHERE id=$1::uuid FOR UPDATE', [articleId]);

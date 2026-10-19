@@ -46,7 +46,27 @@ Entity matching (`providers/ai/rules.ts`), used for relevance and entity links:
 - A short alias inside another club's longer name is ignored ("Real" in "Real Betis").
 - Squad players come from football-data (`provider:sync -- teams PL|PD`) with a surname alias ("Haaland"). A surname next to a different capitalised name is someone else ("Roy Keane", "David Beckham").
 
-The first live sync stored 51 relevant articles from 8 publishers (all with feed snapshots, all `PENDING`). They are not public yet: publication of attributed RSS cards is the next step.
+The first live sync stored 51 relevant articles from 8 publishers (all with feed snapshots).
+
+## Publisher cards (FeedCard)
+
+Granted feed articles are published as **attributed publisher cards**, a separate and lower publication class than verified ArticleCluster stories. A card shows the publisher's exact headline and RSS description, never rewritten or translated, with its attribution. It does not enter the evidence-gated pipeline (M6–M8 approvals, Brief evidence), and the evidence gates are unchanged.
+
+- `FeedCard` (migration `20261019120000_feed_cards`) stores status `PUBLISHED | HELD | HIDDEN`, label `MEDIA | COMMUNITY`, certainty `REPORTED | UNCONFIRMED`, a wording-based transfer stage `INTEREST | NEGOTIATION | RUMOR`, cited origin (e.g. "Fabrizio Romano"), hold reasons, linked match and duplicate-group key. Database CHECKs make `OFFICIAL` labels and a `CONFIRMED` stage impossible.
+- Policy (`lib/feed-card-policy.ts`): community-tier sources (Thể Thao 247) are "Cộng đồng", others "Báo chí". Vietnamese hedging/interest/question wording gives "Chưa xác nhận". "CHÍNH THỨC:" headlines get a notice that the wording is the publisher's, not verified official evidence. Sensitive terms (death, crime, sexual, drugs, accusation, discrimination, violence, self-harm) **hold** a card for an operator instead of publishing it.
+- Grouping (`lib/feed-card-grouping.ts`): complete-linkage, never within one publisher. Plain result reports of the same match are merged; other angles (interviews, controversy, ratings, roundups) stay separate unless headlines clearly overlap with a shared club/player.
+- Every public read rechecks: card `PUBLISHED`, article not `HIDDEN`, publication time not in the future, and the publisher grant still matching the frozen feed snapshot. Hide, article hiding and `news:grant -- revoke` take effect immediately.
+- `/news` shows verified stories first, then "Tin từ báo chí Việt Nam" (24 groups per page, `?bao=` offset, same league filter). `/news/bao-<article-uuid>` shows the card, the other publishers' coverage, linked clubs/players/match and a small "Xem bài gốc" credit link (`nofollow`). Card pages are `noindex` with the original article as canonical.
+
+```powershell
+npm.cmd run news:sync -- vietnamese      # sync, then publish cards automatically
+npm.cmd run news:cards -- publish         # recompute cards/groups only
+npm.cmd run news:cards -- held            # list cards held for review
+npm.cmd run news:cards -- approve <article-uuid> --reviewer "FotBan" --reason "<reason>" --confirm
+npm.cmd run news:cards -- hide <article-uuid> --reviewer "FotBan" --reason "<reason>" --confirm
+```
+
+Operator decisions are audited (`FEED_CARD_APPROVE` / `FEED_CARD_HIDE`) and are never overwritten by later publish runs.
 
 Vietnamese publisher RSS feeds are the primary **planned production** news path. Official league/club adapters remain evidence candidates; permitted international sources remain secondary. GDELT DOC is optional discovery metadata, not an editorial publisher or a publisher reuse licence. No external provider runs during `/news` rendering.
 

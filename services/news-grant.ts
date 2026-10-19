@@ -1,8 +1,8 @@
-import { randomUUID } from "node:crypto";
-import type { SqlExecutor, SyncDatabase } from "../lib/sync-database";
+import type { SyncDatabase } from "../lib/sync-database";
 import { publisherFeedAllowed } from "../lib/publisher-feed-permission";
 import { vietnameseSources } from "../providers/news/vietnamese-sources";
 import { adminAudit } from "./admin-access";
+import { operatorIdentity, validReviewer } from "./operator-identity";
 
 export type GrantInput = { slugs: string[] | "all"; reviewer: string; reason: string; maxExcerptChars?: number };
 export type GrantResult = { slug: string; status: "granted" | "revoked" | "unchanged" | "skipped"; code?: "NO_FEED" | "NOT_REGISTERED" | "UNKNOWN_SOURCE" };
@@ -14,19 +14,10 @@ const selected = (slugs: GrantInput["slugs"]) => {
   return slugs;
 };
 function validate(input: GrantInput) {
-  if (!/^[\p{L}\p{N} ._@-]{2,80}$/u.test(input.reviewer.trim()) || input.reason.trim().length < 10 || input.reason.length > 1000) throw new NewsGrantError("INVALID_INPUT");
+  if (!validReviewer(input.reviewer) || input.reason.trim().length < 10 || input.reason.length > 1000) throw new NewsGrantError("INVALID_INPUT");
   const max = input.maxExcerptChars ?? 280;
   if (!Number.isInteger(max) || max < 1 || max > 280) throw new NewsGrantError("INVALID_INPUT");
   return max;
-}
-/** The CLI operator is an audit identity only: no AuthAccount, so it can never sign in, and role USER. */
-async function operator(tx: SqlExecutor, reviewer: string) {
-  const subject = `operator:${reviewer.trim()}`;
-  const existing = await tx.query<{ id: string }>('SELECT id FROM "User" WHERE "authProvider"=\'operator\' AND "authSubject"=$1', [subject]);
-  if (existing[0]) return existing[0].id;
-  const id = randomUUID();
-  await tx.query('INSERT INTO "User" (id,"authProvider","authSubject","displayName","updatedAt") VALUES ($1::uuid,\'operator\',$2,$3,now())', [id, subject, reviewer.trim()]);
-  return id;
 }
 const summary = (row: Record<string, unknown>) => Object.fromEntries(["enabled", "termsReviewed", "ingestionAllowed", "permissionStatus", "commercialReuseAllowed", "permissionScope", "maxExcerptChars", "feedUrl", "attributionRequirement", "permissionReference", "reviewer", "lastTermsReviewAt"].map((key) => [key, row[key] instanceof Date ? (row[key] as Date).toISOString() : row[key] ?? null]));
 
@@ -41,7 +32,7 @@ export async function grantVietnameseSources(db: SyncDatabase, input: GrantInput
     // Same locks as the admin source editor, so CLI and console edits serialize.
     await tx.query("SELECT 1 AS locked FROM pg_advisory_xact_lock(91531108)");
     await tx.query("SELECT 1 AS locked FROM pg_advisory_xact_lock(91531112)");
-    const actorId = await operator(tx, input.reviewer);
+    const actorId = await operatorIdentity(tx, input.reviewer);
     const results: GrantResult[] = [];
     for (const slug of selected(input.slugs)) {
       const definition = vietnameseSources.find((source) => source.slug === slug);
@@ -71,7 +62,7 @@ export async function revokeVietnameseSource(db: SyncDatabase, input: Omit<Grant
   return db.transaction(async (tx) => {
     await tx.query("SELECT 1 AS locked FROM pg_advisory_xact_lock(91531108)");
     await tx.query("SELECT 1 AS locked FROM pg_advisory_xact_lock(91531112)");
-    const actorId = await operator(tx, input.reviewer);
+    const actorId = await operatorIdentity(tx, input.reviewer);
     const results: GrantResult[] = [];
     for (const slug of selected(input.slugs)) {
       const [before] = await tx.query<Record<string, unknown>>('SELECT * FROM "NewsSource" WHERE slug=$1 FOR UPDATE', [slug]);

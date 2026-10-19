@@ -4,6 +4,8 @@ import { createLogger } from "../lib/logging";
 import { createNewsRuntime } from "../lib/news-runtime";
 import { syncNews } from "../services/news-sync";
 import { vietnameseSource } from "../providers/news/vietnamese-sources";
+import { prismaSyncDatabase } from "../lib/sync-database";
+import { publishFeedCards } from "../services/feed-cards";
 
 async function main() {
   const [mode, slug, ...extra] = process.argv.slice(2);
@@ -25,6 +27,8 @@ async function main() {
     if (!selected.length) { console.error("No configured news source matches this selection."); process.exitCode = 1; return; }
     const results = await syncNews(selected, store, createProvider, { limit: mode === "smoke" ? 2 : 20, logger: createLogger(env.LOG_LEVEL) });
     for (const result of results) console.log(JSON.stringify(result));
+    // Vietnamese feed articles become attributed cards right after ingestion.
+    if (mode === "vietnamese") console.log(JSON.stringify({ feedCards: await publishFeedCards(prismaSyncDatabase(db)) }));
     if (results.some((result) => result.status === "failed" || result.rejected || result.conflicts)) process.exitCode = 1;
     if (mode === "source" && results.every((result) => result.status === "skipped")) process.exitCode = 1;
     if (mode === "smoke") {
