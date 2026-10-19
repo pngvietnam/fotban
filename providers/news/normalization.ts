@@ -30,16 +30,49 @@ export function articleUrl(value: unknown, definition: SourceDefinition) {
   url.searchParams.sort();
   return url.href;
 }
-function publicationDate(value: unknown) {
-  if (typeof value !== "string" || !/(?:Z|[+-]\d{2}:?\d{2}|GMT|UTC)$/i.test(value.trim())) return null;
-  const date = new Date(value);
+const pad = (value: string | number) => String(value).padStart(2, "0");
+/** Naive feed dates are only accepted with an explicitly configured publisher offset.
+ * Supported: US "M/D/YYYY h:mm[:ss] AM|PM" and "YYYY/MM/DD HH:mm[:ss]" / ISO without offset. */
+function naiveDate(value: string, offset: string) {
+  let parts: number[];
+  const us = /^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2})(?::(\d{2}))? ?(AM|PM)$/i.exec(value);
+  const ymd = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(value);
+  if (us) {
+    const hour12 = Number(us[4]);
+    if (hour12 < 1 || hour12 > 12) return null;
+    parts = [Number(us[3]), Number(us[1]), Number(us[2]), hour12 % 12 + (us[7].toUpperCase() === "PM" ? 12 : 0), Number(us[5]), Number(us[6] ?? 0)];
+  } else if (ymd) parts = ymd.slice(1, 7).map((part) => Number(part ?? 0));
+  else return null;
+  const [year, month, day, hour, minute, second] = parts;
+  // Reject calendar overflow such as 2/31 that Date would silently roll forward.
+  const calendar = new Date(Date.UTC(year, month - 1, day));
+  if (calendar.getUTCMonth() !== month - 1 || calendar.getUTCDate() !== day || hour > 23 || minute > 59 || second > 59) return null;
+  return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:${pad(second)}${offset}`;
+}
+function publicationDate(value: unknown, naiveOffset?: string) {
+  if (typeof value !== "string") return null;
+  // Some .NET/ICU feeds put a narrow no-break space (U+202F) before AM/PM.
+  const trimmed = value.replace(/[   ]/g, " ").trim();
+  const input = /(?:Z|[+-]\d{2}(?::?\d{2})?|GMT|UTC)$/i.test(trimmed) ? trimmed : naiveOffset ? naiveDate(trimmed, naiveOffset) : null;
+  if (!input) return null;
+  const date = new Date(input);
   return Number.isFinite(date.getTime()) ? date : null;
 }
-export function normalizeNewsArticle(raw: { url: unknown; canonical?: unknown; title: unknown; excerpt?: unknown; published?: unknown }, source: NewsSourceConfig, definition: SourceDefinition, collectedAt: Date): NormalizedArticle {
+/** Shortens permitted text at a sentence or word boundary and marks the cut. */
+export function boundedExcerpt(text: string, max: number) {
+  if (text.length <= max) return text;
+  if (max < 2) return "";
+  const cut = text.slice(0, max - 1);
+  const sentence = Math.max(...[". ", "! ", "? ", "… "].map((mark) => cut.lastIndexOf(mark)));
+  if (sentence >= max / 2) return cut.slice(0, sentence + 1);
+  const space = cut.lastIndexOf(" ");
+  return `${(space >= max / 2 ? cut.slice(0, space) : cut).replace(/[\s,;:–-]+$/u, "")}…`;
+}
+export function normalizeNewsArticle(raw: { url: unknown; canonical?: unknown; title: unknown; excerpt?: unknown; published?: unknown }, source: NewsSourceConfig, definition: SourceDefinition, collectedAt: Date, options: { naiveOffset?: string } = {}): NormalizedArticle {
   const sourceUrl = articleUrl(raw.url, definition);
   const canonicalUrl = raw.canonical ? articleUrl(raw.canonical, definition) : null;
-  const excerpt = plainText(raw.excerpt).slice(0, source.maxExcerptChars);
+  const excerpt = boundedExcerpt(plainText(raw.excerpt), source.maxExcerptChars);
   return normalizedArticleSchema.parse({ sourceName: source.name, sourceUrl, canonicalUrl,
     titleOriginal: plainText(raw.title), excerptOriginal: excerpt || null, language: source.language ?? "und",
-    publishedAt: publicationDate(raw.published), collectedAt });
+    publishedAt: publicationDate(raw.published, options.naiveOffset), collectedAt });
 }

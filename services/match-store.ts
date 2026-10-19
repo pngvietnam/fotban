@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { SqlExecutor, SyncDatabase } from "../lib/sync-database";
 export { prismaSyncDatabase, type SqlExecutor, type SyncDatabase } from "../lib/sync-database";
-import type { CompetitionData, CompetitionRef, NormalizedMatch, SeasonRef, StandingRow, TeamRef } from "../types/match-provider";
+import type { CompetitionData, CompetitionRef, NormalizedMatch, PlayerRef, SeasonRef, StandingRow, TeamRef } from "../types/match-provider";
 import { ProviderError } from "../providers/errors";
 
 type Target = "leagueId" | "seasonId" | "clubId" | "matchId";
@@ -45,6 +45,36 @@ async function upsertTeam(db: SqlExecutor, provider: string, team: TeamRef, leag
   return id;
 }
 
+// Plain-ASCII Vietnamese words that would otherwise collide with a surname alias in Vietnamese text.
+const vietnameseWords = new Set(["anh", "banh", "binh", "bong", "canh", "chanh", "chung", "cong", "danh", "dong", "dung", "hanh", "hoang", "hong", "hung", "kinh", "linh", "long", "manh", "minh", "nguyen", "nhanh", "phong", "quang", "sang", "sinh", "song", "thang", "thanh", "tinh", "trang", "tranh", "trong", "tung", "vinh", "xanh"]);
+/** Vietnamese press usually names foreign players by surname ("Haaland"); mononyms stay as the name. */
+export function playerAliases(name: string) {
+  const parts = name.trim().split(/\s+/);
+  const surname = parts.at(-1) ?? "";
+  if (parts.length < 2 || surname.length < 4 || /[^\p{L}'-]/u.test(surname) || vietnameseWords.has(surname.toLowerCase())) return [];
+  return [surname];
+}
+async function upsertSquad(db: SqlExecutor, provider: string, clubId: string, squad: PlayerRef[], observedAt: Date, sourceUrl: string) {
+  const seen: string[] = [];
+  for (const player of squad) {
+    const mapped = await db.query<{ playerId: string | null }>('SELECT "playerId" FROM "ExternalIdentity" WHERE provider=$1 AND "entityType"=\'PLAYER\' AND "externalId"=$2', [provider, player.externalId]);
+    const id = mapped[0]?.playerId ?? randomUUID();
+    // Missing optional values never erase known ones; aliases are only appended.
+    await db.query(`INSERT INTO "Player" (id,slug,name,aliases,position,nationality,"birthDate","updatedAt") VALUES ($1::uuid,$2,$3,$4::text[],$5,$6,$7::date,now())
+      ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name,aliases=ARRAY(SELECT DISTINCT unnest("Player".aliases || EXCLUDED.aliases) ORDER BY 1),position=COALESCE(EXCLUDED.position,"Player".position),nationality=COALESCE(EXCLUDED.nationality,"Player".nationality),"birthDate"=COALESCE(EXCLUDED."birthDate","Player"."birthDate"),"updatedAt"=now()`,
+      [id, `player-${id}`, player.name, playerAliases(player.name), player.position ?? null, player.nationality ?? null, player.birthDate ?? null]);
+    if (!mapped[0]) await db.query('INSERT INTO "ExternalIdentity" (id,provider,"entityType","externalId","playerId","updatedAt") VALUES ($1::uuid,$2,\'PLAYER\',$3,$4::uuid,now()) ON CONFLICT (provider,"entityType","externalId") DO NOTHING', [randomUUID(), provider, player.externalId, id]);
+    // Membership starts when it is first observed; an earlier joining date is not invented.
+    // A player listed by a different club is closed at the old club (transfer/loan observed).
+    await db.query('UPDATE "PlayerClub" SET "endsAt"=GREATEST($3::timestamptz,"startsAt"),"updatedAt"=now() WHERE "playerId"=$1::uuid AND "clubId"<>$2::uuid AND "endsAt" IS NULL', [id, clubId, observedAt]);
+    await db.query('INSERT INTO "PlayerClub" (id,"playerId","clubId","startsAt","sourceUrl","updatedAt") SELECT $1::uuid,$2::uuid,$3::uuid,$4::timestamptz,$5,now() WHERE NOT EXISTS (SELECT 1 FROM "PlayerClub" WHERE "playerId"=$2::uuid AND "clubId"=$3::uuid AND "endsAt" IS NULL)', [randomUUID(), id, clubId, observedAt, sourceUrl]);
+    seen.push(id);
+  }
+  // Only a non-empty squad can end memberships; a missing/partial squad never removes players.
+  if (seen.length) await db.query('UPDATE "PlayerClub" SET "endsAt"=GREATEST($3::timestamptz,"startsAt"),"updatedAt"=now() WHERE "clubId"=$1::uuid AND "endsAt" IS NULL AND NOT ("playerId"=ANY($2::uuid[]))', [clubId, seen, observedAt]);
+  return seen.length;
+}
+
 export type SyncPayload =
   | { mode: "competitions"; items: CompetitionData[] }
   | { mode: "teams"; competition: CompetitionRef; season: SeasonRef; teams: TeamRef[] }
@@ -65,7 +95,10 @@ export async function persistMatchPayload(db: SqlExecutor, provider: string, pay
   } else if (payload.mode === "teams") {
     const leagueId = await upsertCompetition(db, provider, payload.competition);
     const seasonId = await upsertSeason(db, provider, leagueId, payload.season);
-    for (const team of payload.teams) { await upsertTeam(db, provider, team, leagueId, seasonId); records++; }
+    for (const team of payload.teams) {
+      const clubId = await upsertTeam(db, provider, team, leagueId, seasonId); records++;
+      if (team.squad?.length) records += await upsertSquad(db, provider, clubId, team.squad, fetchedAt, `https://api.football-data.org/v4/teams/${team.externalId}`);
+    }
   } else if (payload.mode === "matches") {
     for (const m of payload.items) {
       const leagueId = await upsertCompetition(db, provider, m.competition);

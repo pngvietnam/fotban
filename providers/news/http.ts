@@ -57,8 +57,10 @@ export class NewsHttp {
     if (!/^text\/plain\b/i.test(policy.contentType) || /<html|<!doctype html/i.test(policy.text)) throw new NewsError("ROBOTS_DENIED");
     const robots = robotsParser(robotsUrl, policy.text);
     if (robots.isAllowed(definition.endpoint, newsUserAgent) === false) throw new NewsError("ROBOTS_DENIED");
+    // Each run makes only robots + one listing request, so a crawl-delay of up to 30s is honored by waiting;
+    // longer requirements mark the source unavailable rather than being shortened.
     const delay = robots.getCrawlDelay(newsUserAgent) ?? 0;
-    if (delay > 10) throw new NewsError("ROBOTS_DENIED");
+    if (delay > 30) throw new NewsError("ROBOTS_DENIED");
     await this.pause(Math.max(1000, delay * 1000));
     return this.request(definition.endpoint, 2000000, cursor);
   }

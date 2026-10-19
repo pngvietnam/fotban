@@ -38,7 +38,8 @@ export async function syncNews(sources: NewsSourceConfig[], store: NewsSyncStore
       }
       const allowedUrl = (value: string) => { const url = new URL(value); return url.protocol === "https:" && url.hostname === source.domain && !url.username && !url.password && !url.port; };
       if (articles.some((article) => article.sourceName !== source.name || (article.excerptOriginal?.length ?? 0) > source.maxExcerptChars || !allowedUrl(article.sourceUrl) || article.canonicalUrl && !allowedUrl(article.canonicalUrl))) throw new NewsError("INVALID_ARTICLE");
-      const counts = await store.complete(job, source, articles, page.rejected, cursor.data, page.notModified);
+      const stats = z.record(z.string().regex(/^[a-zA-Z]{1,40}$/), z.number().int().min(0).max(100000)).optional().safeParse(page.stats);
+      const counts = await store.complete(job, source, articles, page.rejected, cursor.data, page.notModified, stats.success ? stats.data : undefined);
       results.push({ source: source.slug, status: "synced", ...counts });
       options.logger?.info({ source: source.slug, jobId: job.id, ...counts }, "news.sync_completed");
     } catch (error) {

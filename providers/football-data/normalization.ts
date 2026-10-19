@@ -13,7 +13,12 @@ const scoreValue = z.number().int().nonnegative().nullish();
 const pairSchema = z.object({ home: scoreValue, away: scoreValue }).nullish();
 const seasonSchema = z.object({ id: id.nullish(), startDate: z.iso.date(), endDate: z.iso.date().nullish() });
 const competitionSchema = z.object({ id, code: text, name: text, area, currentSeason: seasonSchema.nullish() });
-const teamSchema = z.object({ id, name: text, shortName: optionalText, tla: optionalText, area, venue: optionalText, crest: z.url().nullish() });
+// Squad entries without a usable id/name are dropped individually; nothing is guessed.
+const squadSchema = z.array(z.unknown()).nullish().transform((items) => items?.flatMap((item) => {
+  const player = z.object({ id, name: text, position: optionalText, nationality: optionalText, dateOfBirth: z.iso.date().nullish() }).safeParse(item);
+  return player.success ? [player.data] : [];
+}));
+const teamSchema = z.object({ id, name: text, shortName: optionalText, tla: optionalText, area, venue: optionalText, crest: z.url().nullish(), squad: squadSchema });
 const matchSchema = z.object({
   id, competition: competitionSchema, season: seasonSchema,
   homeTeam: teamSchema, awayTeam: teamSchema,
@@ -61,7 +66,8 @@ export function normalizeTeam(input: unknown): TeamRef {
   const t = parse(teamSchema, input);
   // Store a reference only. Never put this in Club.logoUrl or download the asset.
   const crest = t.crest && ["http:", "https:"].includes(new URL(t.crest).protocol) ? t.crest : undefined;
-  return { externalId: t.id.toString(), name: t.name, shortName: t.shortName ?? undefined, tla: t.tla ?? undefined, country: t.area?.name ?? undefined, venue: t.venue ?? undefined, externalCrestUrl: crest };
+  const squad = t.squad?.map((player) => ({ externalId: player.id.toString(), name: player.name, position: player.position ?? undefined, nationality: player.nationality ?? undefined, birthDate: player.dateOfBirth ?? undefined }));
+  return { externalId: t.id.toString(), name: t.name, shortName: t.shortName ?? undefined, tla: t.tla ?? undefined, country: t.area?.name ?? undefined, venue: t.venue ?? undefined, externalCrestUrl: crest, ...(squad?.length ? { squad } : {}) };
 }
 
 const statusMap: Record<string, NormalizedMatch["status"]> = {

@@ -1,5 +1,53 @@
 # Vietnamese-first news operations
 
+## Owner grant and live feeds (19 October 2026)
+
+The owner decided, after legal review by their counsel, to use Vietnamese publisher RSS **title + description** with per-publisher attribution and a link to the original article. No article bodies or images are fetched or stored. The grant is recorded per source by `news:grant` (reviewer `FotBan`, AdminAuditLog action `SOURCE_GRANT`); the review table further below is the earlier pre-grant assessment and is kept for history.
+
+| Source | Feed (verified 2026-10-19) | State |
+| --- | --- | --- |
+| VnExpress | `https://vnexpress.net/rss/the-thao.rss` | Granted |
+| Thanh Niên | `https://thanhnien.vn/rss/the-thao/bong-da-quoc-te.rss` | Granted |
+| VTV | `https://vtv.vn/rss/the-thao.rss` | Granted (mostly V-League; few EPL/La Liga items) |
+| Dân trí | `https://dantri.com.vn/rss/the-thao.rss` | Granted |
+| Thể Thao 247 | `https://thethao247.vn/bong-da-quoc-te-c2.rss` | Granted, COMMUNITY tier |
+| Tuổi Trẻ | `https://tuoitre.vn/rss/the-thao.rss` | Granted; dates have no timezone and are read as UTC+7 |
+| VTC News | `https://vtcnews.vn/rss/the-thao.rss` | Granted |
+| VOV | `https://vov.vn/rss/the-thao.rss` | Granted; robots.txt `Crawl-delay: 20` is honored |
+| Bóng đá 24h | none current (European feed last updated 2022-07-22) | Disabled |
+| Bóng Đá Plus, Lao Động | no RSS directory/feed published | Disabled |
+| VietNamNet | RSS host did not respond | Disabled |
+| PLO | RSS redirects to tuoitre.vn/plo and returns 404 | Disabled |
+
+```powershell
+# Read-only: fetch each verified feed once and print what the relevance filter keeps.
+npm.cmd run news:preview-vietnamese
+npm.cmd run news:preview-vietnamese -- vnexpress-sport
+# Record or withdraw the owner's grant (audited; sources without a verified feed are skipped).
+npm.cmd run news:grant -- grant all --reviewer "FotBan" --reason "<reason>" --confirm
+npm.cmd run news:grant -- revoke vnexpress-sport --reviewer "FotBan" --reason "<reason>" --confirm
+npm.cmd run news:sync -- vietnamese
+```
+
+`news:grant` writes as a CLI operator identity (`User.authProvider='operator'`, role USER, no AuthAccount, so it cannot sign in). A revoke takes effect immediately on public reads because every read rechecks the feed snapshot against the current grant. `RSS_SUMMARY` now requires `maxExcerptChars > 0`; a zero cap used to drop every summary silently.
+
+Ingestion details added with the grant:
+
+- RSS sources refresh every 30 minutes (API/HTML sources keep 6 hours), with ETag/Last-Modified. A robots.txt crawl-delay up to 30 seconds is waited out; longer delays mark the source unavailable.
+- Dates: `+07`-style offsets are accepted; feeds without a timezone are read as Vietnam time only for these publisher feeds (US `M/D/YYYY h:mm AM` and `YYYY/MM/DD HH:mm`, including the U+202F space before AM/PM). Impossible dates are rejected.
+- Descriptions are cut at a sentence or word boundary with "…" instead of mid-word.
+- Livestream links, betting tips and odds pieces ("link xem trực tiếp", "soi kèo", "nhận định bóng đá", ...) are excluded.
+- Job checkpoints record `examined/relevant/irrelevant/stale/overLimit` per source.
+
+Entity matching (`providers/ai/rules.ts`), used for relevance and entity links:
+
+- Vietnamese club names and nicknames live in `providers/news/vietnamese-aliases.ts`, keyed by football-data club ID, and are appended to `Club.aliases` on `news:sync`. Shared nicknames ("Gà trống", "Đại bàng") are deliberately excluded.
+- Upper-case codes (MU, CHE, SAN) match case-sensitively, so "che chắn"/"san bằng" are not Chelsea/Santander. Latin accents are folded (Barça = Barca, Mbappé = Mbappe).
+- A short alias inside another club's longer name is ignored ("Real" in "Real Betis").
+- Squad players come from football-data (`provider:sync -- teams PL|PD`) with a surname alias ("Haaland"). A surname next to a different capitalised name is someone else ("Roy Keane", "David Beckham").
+
+The first live sync stored 51 relevant articles from 8 publishers (all with feed snapshots, all `PENDING`). They are not public yet: publication of attributed RSS cards is the next step.
+
 Vietnamese publisher RSS feeds are the primary **planned production** news path. Official league/club adapters remain evidence candidates; permitted international sources remain secondary. GDELT DOC is optional discovery metadata, not an editorial publisher or a publisher reuse licence. No external provider runs during `/news` rendering.
 
 ## Review on 19 October 2026

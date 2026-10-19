@@ -28,6 +28,8 @@ npm.cmd run provider:sync -- competitions
 # Complete club metadata/membership for each current season (one request each).
 npm.cmd run provider:sync -- teams PL
 npm.cmd run provider:sync -- teams PD
+# The teams response also carries squads: players, PLAYER identities and observed
+# PlayerClub memberships (start = first observed, end = no longer listed) are stored.
 # Date-bounded fixtures/results; defaults to UTC today-7 through today+14.
 npm.cmd run provider:sync -- matches PL
 npm.cmd run provider:sync -- matches PD

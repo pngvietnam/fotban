@@ -6,6 +6,7 @@ import { NewsError } from "../providers/news/errors";
 import { wikinewsConfig } from "../providers/wikimedia/config";
 import { parseReusableLicense } from "../lib/news-licenses";
 import { vietnameseSources } from "../providers/news/vietnamese-sources";
+import { vietnameseClubAliases } from "../providers/news/vietnamese-aliases";
 import { publisherFeedAllowed, permittedFeedSnapshot } from "../lib/publisher-feed-permission";
 
 export type NewsCounts = { created: number; duplicates: number; conflicts: number };
@@ -47,8 +48,21 @@ export async function persistNewsArticles(tx: SqlExecutor, source: NewsSourceCon
 }
 
 export class NewsSyncStore {
-  constructor(private readonly db: SyncDatabase, private readonly cacheMs = 6 * 3600000, private readonly failureCooldownMs = 5 * 60000) {}
+  // Publisher RSS changes throughout the day and supports conditional requests, so it refreshes
+  // every 30 minutes; API/HTML sources keep the longer snapshot interval.
+  private readonly rssCacheMs: number;
+  constructor(private readonly db: SyncDatabase, private readonly cacheMs = 6 * 3600000, private readonly failureCooldownMs = 5 * 60000, rssCacheMs = 30 * 60000) { this.rssCacheMs = Math.min(cacheMs, rssCacheMs); }
+  /** Appends reviewed Vietnamese-press club names; existing (operator) aliases are kept. */
+  async registerClubAliases() {
+    let updated = 0;
+    for (const [externalId, aliases] of Object.entries(vietnameseClubAliases)) {
+      const rows = await this.db.query<{ id: string }>(`UPDATE "Club" c SET aliases=ARRAY(SELECT DISTINCT unnest(c.aliases || $2::text[]) ORDER BY 1),"updatedAt"=now() FROM "ExternalIdentity" e WHERE e."clubId"=c.id AND e.provider='FOOTBALL_DATA' AND e."entityType"='CLUB' AND e."externalId"=$1 AND NOT c.aliases @> $2::text[] RETURNING c.id`, [externalId, [...aliases]]);
+      updated += rows.length;
+    }
+    return updated;
+  }
   async registerSources() {
+    await this.registerClubAliases();
     for (const source of vietnameseSources) {
       await this.db.query(`INSERT INTO "NewsSource" (id,slug,name,domain,type,"sourceTier","reliabilityScore",rationale,reviewer,"reviewedAt","accessPolicy",language,country,"termsReviewed","permissionStatus","permissionReference","feedUrl","attributionRequirement","lastTermsReviewAt","newsPriority","ingestionNotes","ingestionMethod","updatedAt") SELECT $1::uuid,$2,$3,$4,$5::"SourceType",$6::"SourceTier",$7,$8,CASE WHEN $9 THEN 'published-policy-review' ELSE NULL END,CASE WHEN $9 THEN now() ELSE NULL END,$8,'vi','VN',$9,$10::"NewsPermissionStatus",$11,$12,$13,CASE WHEN $9 THEN now() ELSE NULL END,$14,$8,'RSS',now() WHERE NOT EXISTS(SELECT 1 FROM "NewsSource" WHERE slug=$2 OR domain=$4)`, [randomUUID(), source.slug, source.name, source.domain, source.tier === "COMMUNITY" ? "SOCIAL" : "PUBLICATION", source.tier, source.score, source.notes, source.termsReviewed, source.termsReviewed ? "RESTRICTED" : "UNREVIEWED", source.termsUrl, source.feedUrl, source.attribution, source.priority]);
     }
@@ -74,13 +88,13 @@ export class NewsSyncStore {
     if (cooldown.length) throw new NewsError("RATE_LIMITED");
     const rows = await this.db.query<{ id: string }>(`INSERT INTO "JobRun" (id,"jobName","logicalKey",status,"startedAt",attempts,"correlationId","leaseOwner","leaseExpiresAt","updatedAt") VALUES ($1::uuid,'news-sync',$2,'RUNNING',now(),1,$3::uuid,$4,now()+interval '5 minutes',now())
       ON CONFLICT ("jobName","logicalKey") DO UPDATE SET status='RUNNING',"startedAt"=now(),"finishedAt"=NULL,"recordsProcessed"=0,attempts="JobRun".attempts+1,"correlationId"=EXCLUDED."correlationId","leaseOwner"=$4,"leaseExpiresAt"=now()+interval '5 minutes',"errorCode"=NULL,"errorSafe"=NULL,"updatedAt"=now()
-      WHERE ("JobRun"."leaseExpiresAt" IS NULL OR "JobRun"."leaseExpiresAt"<=now()) AND ("JobRun"."finishedAt" IS NULL OR "JobRun"."finishedAt"<=now()-(CASE WHEN "JobRun".status='SUCCEEDED' AND "JobRun"."errorCode" IS NULL THEN $5::int ELSE $6::int END)*interval '1 millisecond') RETURNING id`, [randomUUID(), source.slug, randomUUID(), owner, this.cacheMs, this.failureCooldownMs]);
+      WHERE ("JobRun"."leaseExpiresAt" IS NULL OR "JobRun"."leaseExpiresAt"<=now()) AND ("JobRun"."finishedAt" IS NULL OR "JobRun"."finishedAt"<=now()-(CASE WHEN "JobRun".status='SUCCEEDED' AND "JobRun"."errorCode" IS NULL THEN $5::int ELSE $6::int END)*interval '1 millisecond') RETURNING id`, [randomUUID(), source.slug, randomUUID(), owner, source.ingestionMethod === "RSS" ? this.rssCacheMs : this.cacheMs, this.failureCooldownMs]);
     const previous = await this.db.query<{ checkpoint: { cursor?: NewsCursor } | null; status: string; errorCode: string | null; leaseOwner: string | null; id: string }>('SELECT id,checkpoint,status,"errorCode","leaseOwner" FROM "JobRun" WHERE "jobName"=\'news-sync\' AND "logicalKey"=$1', [source.slug]);
     if (!rows.length && previous[0]?.leaseOwner) throw new NewsError("BUSY");
     const cached = !rows.length && previous[0]?.status === "SUCCEEDED" && !previous[0]?.errorCode;
     return { id: rows[0]?.id ?? previous[0].id, owner, cached, cooldown: !rows.length && !cached, cursor: previous[0]?.checkpoint?.cursor };
   }
-  async complete(job: NewsJob, source: NewsSourceConfig, articles: NormalizedArticle[], rejected: number, cursor: NewsCursor, notModified: boolean) {
+  async complete(job: NewsJob, source: NewsSourceConfig, articles: NormalizedArticle[], rejected: number, cursor: NewsCursor, notModified: boolean, stats?: Record<string, number>) {
     return this.db.transaction(async (tx) => {
       const owned = await tx.query('SELECT id FROM "JobRun" WHERE id=$1::uuid AND "leaseOwner"=$2 AND status=\'RUNNING\' AND "leaseExpiresAt">now() FOR UPDATE', [job.id, job.owner]);
       if (!owned.length) throw new NewsError("BUSY");
@@ -94,7 +108,7 @@ export class NewsSyncStore {
       if (source.requiresReusableLicense && articles.length && articles.every((article) => article.license?.commercialReuseAllowed)) await tx.query('UPDATE "NewsSource" SET "commercialReuseAllowed"=true,"updatedAt"=now() WHERE id=$1::uuid', [source.id]);
       const partial = rejected > 0 || counts.conflicts > 0;
       const processed = articles.length - counts.conflicts;
-      const checkpoint = JSON.stringify({ ...counts, rejected, notModified, cursor: partial ? {} : cursor });
+      const checkpoint = JSON.stringify({ ...counts, rejected, notModified, cursor: partial ? {} : cursor, ...(stats ? { stats } : {}) });
       await tx.query('UPDATE "JobRun" SET status=\'SUCCEEDED\',"finishedAt"=now(),"recordsProcessed"=$3,"checkpoint"=$4::jsonb,"errorCode"=$5,"leaseOwner"=NULL,"leaseExpiresAt"=NULL,"updatedAt"=now() WHERE id=$1::uuid AND "leaseOwner"=$2', [job.id, job.owner, processed, checkpoint, partial ? "PARTIAL" : null]);
       await tx.query('UPDATE "ProviderStatus" SET health=$2::"ProviderHealth",enabled=true,"lastSuccessAt"=now(),"lastCheckedAt"=now(),"recordsProcessed"=$3,"errorCode"=$4,"errorSafe"=NULL,checkpoint=$5::jsonb,"updatedAt"=now() WHERE provider=$1', [`NEWS:${source.slug}`, partial ? "WARNING" : "HEALTHY", processed, partial ? "PARTIAL" : null, checkpoint]);
       return { ...counts, processed, rejected, notModified };

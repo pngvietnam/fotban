@@ -23,7 +23,8 @@ export type NewsSourceConfig = {
   commercialReuseAllowed: boolean; requiresReusableLicense: boolean;
   permissionScope?: string; feedUrl?: string | null; attributionRequirement?: string | null; lastTermsReviewAt?: Date | null; newsPriority?: number; ingestionNotes?: string | null;
 };
-export type NewsPage = { articles: NormalizedArticle[]; rejected: number; cursor: NewsCursor; notModified: boolean };
+/** stats: optional bounded per-run counters (e.g. examined/relevant/stale) recorded in the job checkpoint. */
+export type NewsPage = { articles: NormalizedArticle[]; rejected: number; cursor: NewsCursor; notModified: boolean; stats?: Record<string, number> };
 export interface NewsProvider {
   readonly sourceSlug: string;
   fetchLatestArticles(input: { cursor?: NewsCursor; limit: number }): Promise<NewsPage>;

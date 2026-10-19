@@ -1,5 +1,18 @@
 # Milestone progress
 
+## Vietnamese news step 1 — live RSS ingestion (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Implementation moved from Codex to Claude; the project is now a git repository (baseline commit `8b6eb12`). **Step 1 (ingestion): DONE. Publication of RSS cards: next step.** Milestone 17 not started.
+
+- Owner decision after legal review: Vietnamese publisher RSS title + description, attributed, link to the original. Recorded per source with the new audited `news:grant` command (reviewer `FotBan`); `revoke` withdraws it. See [VIETNAMESE_NEWS.md](VIETNAMESE_NEWS.md).
+- Feeds verified on 2026-10-19: 8 live (VnExpress, Thanh Niên, VTV, Dân trí, Thể Thao 247, Tuổi Trẻ, VTC, VOV). Bóng đá 24h (stale since 2022), Bóng Đá Plus, Lao Động (no RSS), VietNamNet (no response) and PLO (404) stay disabled.
+- Fixes found against real feeds: `+07` offsets and timezone-less Tuổi Trẻ dates (with U+202F before AM/PM) were rejected; Thể Thao 247 items carry a second `<link>` (atom self-link) and were all rejected; VOV's 20-second crawl-delay exceeded the old 10-second cap. `RSS_SUMMARY` with `maxExcerptChars=0` silently stored no summary and is now refused. Excerpts cut at sentence/word boundaries. RSS refresh 30 minutes instead of 6 hours. Livestream/betting pieces excluded. Per-source examined/relevant/stale/overLimit counters in job checkpoints.
+- Entity matching: Vietnamese club aliases/nicknames keyed by football-data ID; upper-case codes case-sensitive ("san bằng" is no longer Racing Santander, "che" no longer Chelsea); Latin accent folding; short alias inside another club's name ignored ("Real" in "Real Betis"); surname next to a different capitalised name ignored ("Roy Keane", "David Beckham").
+- Squads: football-data teams sync now stores players, PLAYER identities and observed PlayerClub memberships. Live: **1,066 players** (EPL 545, La Liga 521), 992 with a surname alias.
+- Real run: `news:sync -- vietnamese` stored **51 articles** (VnExpress 11, Thanh Niên 2, Dân trí 4, Thể Thao 247 20, Tuổi Trẻ 3, VTC 4, VOV 7, VTV 0), 0 rejected, 0 conflicts, all with feed snapshots and decoded Vietnamese text, all `PENDING`. Nothing is public yet; `/news` is unchanged.
+- No schema migration. New: `services/news-grant.ts`, `providers/news/vietnamese-aliases.ts`, `scripts/grant-news-source.ts`, `scripts/preview-vietnamese-news.ts`, `tests/vietnamese-ingestion.test.ts`, `tests/player-squads.test.ts`.
+- Validation: lint PASS, typecheck PASS, tests **668 / 39 files PASS** (19 new), production build PASS.
+
 ## Vietnamese-first news pipeline and real-news acceptance
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. **CODE VALIDATION: PASS. REAL-NEWS PUBLICATION ACCEPTANCE: BLOCKED by source rights/content.** Milestones 1–16 remain recorded GO; **Milestone 17 has not started**. This is a focused data acceptance/policy update, not a new milestone or publication-policy change.

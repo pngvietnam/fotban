@@ -2,9 +2,12 @@ import type { MatchStatus } from "@prisma/client";
 
 export type CompetitionRef = { key: string; externalId: string; name: string; country: string };
 export type SeasonRef = { externalId?: string; name: string; startsAt?: string; endsAt?: string };
+export type PlayerRef = { externalId: string; name: string; position?: string; nationality?: string; birthDate?: string };
 export type TeamRef = {
   externalId: string; name: string; shortName?: string; tla?: string;
   country?: string; venue?: string; externalCrestUrl?: string;
+  /** Present only when the provider returned a squad (teams endpoint); absent means "not supplied", never "empty squad". */
+  squad?: PlayerRef[];
 };
 export type NormalizedMatch = {
   externalId: string; competition: CompetitionRef; season: SeasonRef;

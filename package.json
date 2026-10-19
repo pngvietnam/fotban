@@ -19,6 +19,8 @@
     "db:seed": "prisma db seed",
     "provider:sync": "tsx --env-file-if-exists=.env scripts/sync-matches.ts",
     "news:sync": "tsx --env-file-if-exists=.env scripts/sync-news.ts",
+    "news:grant": "tsx --env-file-if-exists=.env scripts/grant-news-source.ts",
+    "news:preview-vietnamese": "tsx --env-file-if-exists=.env scripts/preview-vietnamese-news.ts",
     "news:diagnose": "tsx --env-file-if-exists=.env scripts/diagnose-news.ts",
     "news:coverage": "tsx --env-file-if-exists=.env scripts/check-wikinews-coverage.ts",
     "news:accept-vietnamese": "tsx --env-file-if-exists=.env scripts/accept-vietnamese-news.ts",

@@ -11,15 +11,17 @@ import { vietnameseSource } from "../providers/news/vietnamese-sources";
 import { VietnameseRssNewsProvider } from "../providers/news/vietnamese-provider";
 import { AIProcessingStore } from "../services/ai-store";
 
+/** Current EPL/La Liga leagues, clubs and squad players used for Vietnamese relevance filtering. */
+export async function vietnameseCatalog(db: PrismaClient) {
+  const database = prismaSyncDatabase(db);
+  const allowed = await database.query<{ id: string }>(`SELECT id FROM "League" WHERE slug IN ('premier-league','la-liga') UNION SELECT cs."clubId" FROM "ClubSeason" cs JOIN "League" l ON l.id=cs."leagueId" JOIN "Season" s ON s.id=cs."seasonId" WHERE l.slug IN ('premier-league','la-liga') AND now() BETWEEN s."startsAt" AND s."endsAt" UNION SELECT pc."playerId" FROM "PlayerClub" pc JOIN "ClubSeason" cs ON cs."clubId"=pc."clubId" JOIN "League" l ON l.id=cs."leagueId" WHERE l.slug IN ('premier-league','la-liga') AND pc."startsAt"<=now() AND (pc."endsAt" IS NULL OR pc."endsAt">=now())`);
+  const ids = new Set(allowed.map((row) => row.id));
+  return (await new AIProcessingStore(database).catalog()).filter((entity) => ids.has(entity.id));
+}
 export function createNewsRuntime(db: PrismaClient, options: { wikimediaUserAgent?: string } = {}) {
   const store = new NewsSyncStore(prismaSyncDatabase(db));
   return { store, createProvider: (source: NewsSourceConfig) => {
-    if (vietnameseSource(source.slug)) return new VietnameseRssNewsProvider(source, async () => {
-      const database = prismaSyncDatabase(db);
-      const allowed = await database.query<{ id: string }>(`SELECT id FROM "League" WHERE slug IN ('premier-league','la-liga') UNION SELECT cs."clubId" FROM "ClubSeason" cs JOIN "League" l ON l.id=cs."leagueId" JOIN "Season" s ON s.id=cs."seasonId" WHERE l.slug IN ('premier-league','la-liga') AND now() BETWEEN s."startsAt" AND s."endsAt" UNION SELECT pc."playerId" FROM "PlayerClub" pc JOIN "ClubSeason" cs ON cs."clubId"=pc."clubId" JOIN "League" l ON l.id=cs."leagueId" WHERE l.slug IN ('premier-league','la-liga') AND pc."startsAt"<=now() AND (pc."endsAt" IS NULL OR pc."endsAt">=now())`);
-      const ids = new Set(allowed.map((row) => row.id));
-      return (await new AIProcessingStore(database).catalog()).filter((entity) => ids.has(entity.id));
-    });
+    if (vietnameseSource(source.slug)) return new VietnameseRssNewsProvider(source, () => vietnameseCatalog(db));
     if (source.slug === wikinewsConfig.slug) return new WikinewsNewsProvider(source, options.wikimediaUserAgent, { beforeRequest: async () => { await store.reserveWikimediaRequest(source.slug); } });
     const definition = definitionFor(source.slug);
     if (!definition) throw new NewsError("UNSUPPORTED");

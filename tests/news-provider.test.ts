@@ -37,7 +37,7 @@ describe("news metadata adapters", () => {
     expect(feed(rssFixture.replace("Fri, 16 Oct 2026 04:00:00 GMT", "yesterday")).articles[0].publishedAt).toBeNull();
   });
   it("caps permitted excerpts and stores no excerpt when permission covers headlines only", () => {
-    expect(parseNewsFeed(rssFixture, fixtureSource({ maxExcerptChars: 8 }), fixtureDefinition, newsNow, 20).articles[0].excerptOriginal).toBe("A synthe");
+    expect(parseNewsFeed(rssFixture, fixtureSource({ maxExcerptChars: 8 }), fixtureDefinition, newsNow, 20).articles[0].excerptOriginal).toBe("A synth…");
     expect(parseNewsFeed(rssFixture, fixtureSource({ maxExcerptChars: 0 }), fixtureDefinition, newsNow, 20).articles[0].excerptOriginal).toBeNull();
   });
   it("handles canonical URLs and strips only recognized tracking parameters", () => {
