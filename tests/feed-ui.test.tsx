@@ -14,7 +14,7 @@ const card = (overrides: Partial<FeedCardView> = {}): FeedCardView => ({
   title: "CHÍNH THỨC: MU hoàn tất chiêu mộ tân binh", description: "MU đã hoàn tất thương vụ, theo tờ báo.",
   publisher: "Thể Thao 247", publisherSlug: "thethao247", attribution: "Theo Thethao247.vn", url: "https://thethao247.vn/mu-tan-binh.html",
   publishedAt: "2026-10-19T01:00:00.000Z", label: "COMMUNITY", certainty: "REPORTED", storyType: "TRANSFER", transferStage: "RUMOR",
-  originHint: "Fabrizio Romano", officialWording: true, entities: [{ id: "c1", kind: "club", name: "Manchester United FC", initials: "MUN" }], leagueSlugs: ["premier-league"], match: null, ...overrides,
+  originHint: "Fabrizio Romano", officialWording: true, image: null, entities: [{ id: "c1", kind: "club", name: "Manchester United FC", initials: "MUN" }], leagueSlugs: ["premier-league"], match: null, ...overrides,
 });
 const other = card({ slug: "bao-3f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", articleId: "3f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", publisher: "VnExpress Sport", attribution: "Theo VnExpress", label: "MEDIA", title: "MU chiêu mộ tân binh", officialWording: false });
 

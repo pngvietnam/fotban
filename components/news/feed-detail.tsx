@@ -6,6 +6,7 @@ import { clubPath } from "../../lib/club-presentation";
 import { newsAbsoluteTime, newsRelativeTime } from "../../lib/news-presentation";
 import { FeedEntities, FeedLabels, FeedTransferNote } from "./feed-card";
 import { FollowLink } from "../account/follow-link";
+import { NewsImage } from "../ui/news-image";
 
 function OtherCoverage({ card, now }: { card: FeedCardView; now: Date }) {
   return <li className="min-w-0 rounded-xl border border-slate-200 bg-white p-5">
@@ -38,6 +39,7 @@ export function FeedDetailView({ card, others, related = [], context = [], now }
         <h1 className="break-words text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{card.title}</h1>
         <p className="mt-4 text-sm text-slate-600"><span className="font-semibold text-slate-900">{card.attribution}</span> · <time dateTime={card.publishedAt}>{newsAbsoluteTime(card.publishedAt)}</time>{card.originHint ? ` · dẫn lại ${card.originHint}` : ""}</p>
       </header>
+      {card.image && <figure className="mb-6"><NewsImage src={card.image} className="aspect-video rounded-2xl" /><figcaption className="mt-1 text-xs text-slate-500">Ảnh: {card.publisher}. Ảnh thuộc về báo, hiển thị trực tiếp từ máy chủ của báo.</figcaption></figure>}
       {card.description && <blockquote className="mb-6 border-l-4 border-sky-600 bg-white px-5 py-4 text-lg leading-8 text-slate-800">{card.description}</blockquote>}
       {card.officialWording && <p className="mb-4 text-sm leading-7 text-slate-600">{officialWordingNotice}</p>}
       <div className="mb-8 flex flex-col gap-3"><FeedTransferNote card={card} /><FeedEntities card={card} />

@@ -564,6 +564,7 @@ model NewsSource {
   lastTermsReviewAt       DateTime?            @db.Timestamptz(3)
   newsPriority            Int                  @default(1000)
   ingestionNotes          String?
+  imagesAllowed           Boolean              @default(false)
   permissionReference     String?
   maxExcerptChars         Int                  @default(0)
   ingestionMethod         NewsIngestionMethod  @default(MANUAL)
@@ -671,6 +672,7 @@ model ArticleFeedSnapshot {
   publishedAt        DateTime @db.Timestamptz(3)
   categories         String[] @default([])
   evidenceReferences String[] @default([])
+  imageUrl           String?
   collectedAt        DateTime @default(now()) @db.Timestamptz(3)
   article            Article  @relation(fields: [articleId], references: [id], onDelete: Restrict)
 }

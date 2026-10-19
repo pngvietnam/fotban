@@ -20,6 +20,17 @@ No data provider supplies photos, so photos come from Wikimedia Commons under fr
 - Players without a free photo show a neutral person outline (our own drawing), never letters.
 - Coverage is partial by nature: about 59% of the first 83 players checked had a matching free photo.
 
+## Publisher article images
+
+Owner decision (2026-10-19): the publishers' feed images may be used on news cards.
+
+- Source: the image the publisher itself puts in its RSS item (enclosure, `media:content`/`media:thumbnail`, or an `<img>` in the description). Article pages are never fetched to find a picture, so a publisher whose feed carries no image (currently Bongda.com.vn) simply has none.
+- Only the address is stored (`ArticleFeedSnapshot.imageUrl`, HTTPS only by CHECK); FotBan never downloads, resizes or rehosts the file. The reader's browser loads it from the publisher's own server with no referrer, lazily, and the image disappears if it fails to load.
+- Allowlist per publisher (`imageHosts` in `providers/news/vietnamese-sources.ts`): the publisher's site and image CDN only. Other hosts, tracking pixels, `http:`, credentials, ports and `data:` URLs are ignored when read and again when shown (the stored address is never trusted).
+- Switch per source: `NewsSource.imagesAllowed` (off by default). `news:grant -- grant` turns it on with the grant; `news:grant -- images <slug|all> on|off --reviewer ... --reason ... --confirm` changes it alone (audited as `SOURCE_IMAGES_ON/OFF`); revoking a source turns it off. Turning it off hides that publisher's images at the next page load.
+- Credit: each card shows "Ảnh: <publisher>" under the picture and the detail page says the image belongs to the publisher and is shown from its server. XML entities in signed image URLs (`&amp;`) are decoded before use; otherwise some CDNs (VnExpress) refuse the request.
+- Images are as heavy as the publisher serves them (often 200-800 KB) because signed URLs cannot be resized; they are lazy-loaded.
+
 ## Operation
 
 ```powershell

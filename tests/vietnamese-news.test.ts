@@ -32,8 +32,8 @@ const parsed = () => parseVietnameseFeed(feed(), source(), definition, catalog, 
 
 describe("Vietnamese RSS permission and normalization", () => {
   it("registers all requested priorities without pretending newspaper reporting is official", () => {
-    expect(vietnameseSources).toHaveLength(13); expect(vietnameseSources.slice(0,4).every((s) => s.tier === "TIER_1_HIGH")).toBe(true);
-    expect(vietnameseSources.filter((s) => s.termsReviewed)).toHaveLength(11);
+    expect(vietnameseSources).toHaveLength(14); expect(vietnameseSources.slice(0,4).every((s) => s.tier === "TIER_1_HIGH")).toBe(true);
+    expect(vietnameseSources.filter((s) => s.termsReviewed)).toHaveLength(12);
   });
   it.each(["enabled", "termsReviewed", "ingestionAllowed", "commercialReuseAllowed"] as const)("requires reviewed %s independently", (field) => {
     expect(publisherFeedAllowed({ ...source(), [field]: false })).toBe(false);
@@ -81,7 +81,7 @@ describe("Vietnamese feed through current processing/reliability/clustering", ()
   it("keeps the production registry disabled and repeat registration preserves operator choices", async () => {
     const store = new NewsSyncStore(database); await store.registerSources(); await store.registerSources();
     const sources = (await store.sources()).filter((s) => s.country === "VN");
-    expect(sources).toHaveLength(13); expect(sources.every((s) => !s.enabled && !s.ingestionAllowed && !s.commercialReuseAllowed && s.permissionScope === "NONE" && !s.official)).toBe(true);
+    expect(sources).toHaveLength(14); expect(sources.every((s) => !s.enabled && !s.ingestionAllowed && !s.commercialReuseAllowed && s.permissionScope === "NONE" && !s.official)).toBe(true);
     const row = await database.query<Record<string,unknown>>('SELECT * FROM "NewsSource" WHERE slug=\'vnexpress-sport\'');
     expect(sourceClassification(sourceSchema.parse(JSON.parse(JSON.stringify(row[0]))))).toBe("RELIABLE");
     await database.query('UPDATE "NewsSource" SET "newsPriority"=19 WHERE slug=\'vnexpress-sport\''); await store.registerSources();

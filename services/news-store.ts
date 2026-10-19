@@ -7,7 +7,7 @@ import { wikinewsConfig } from "../providers/wikimedia/config";
 import { parseReusableLicense } from "../lib/news-licenses";
 import { vietnameseSources } from "../providers/news/vietnamese-sources";
 import { vietnameseClubAliases } from "../providers/news/vietnamese-aliases";
-import { publisherFeedAllowed, permittedFeedSnapshot } from "../lib/publisher-feed-permission";
+import { feedUrlAllowed, publisherFeedAllowed, permittedFeedSnapshot } from "../lib/publisher-feed-permission";
 
 export type NewsCounts = { created: number; duplicates: number; conflicts: number };
 export type NewsJob = { id: string; owner: string; cached: boolean; cooldown: boolean; cursor?: NewsCursor };
@@ -19,7 +19,7 @@ export async function persistNewsArticles(tx: SqlExecutor, source: NewsSourceCon
     // Discovery records must use the publisher-aware quarantine store, never a
     // permitted aggregator's editorial identity or license.
     if (article.discovery) throw new NewsError("RIGHTS_REQUIRED");
-    if (article.feed && (!publisherFeedAllowed(source) || article.feed.url !== source.feedUrl || article.feed.termsUrl !== source.permissionReference || article.feed.scope !== source.permissionScope || article.feed.attribution !== source.attributionRequirement || article.feed.reviewedAt.getTime() !== source.lastTermsReviewAt?.getTime() || article.license || !article.publishedAt || source.permissionScope === "RSS_METADATA" && article.excerptOriginal)) throw new NewsError("RIGHTS_REQUIRED");
+    if (article.feed && (!publisherFeedAllowed(source) || !feedUrlAllowed(source.slug, source.feedUrl, article.feed.url) || article.feed.termsUrl !== source.permissionReference || article.feed.scope !== source.permissionScope || article.feed.attribution !== source.attributionRequirement || article.feed.reviewedAt.getTime() !== source.lastTermsReviewAt?.getTime() || article.license || !article.publishedAt || source.permissionScope === "RSS_METADATA" && article.excerptOriginal)) throw new NewsError("RIGHTS_REQUIRED");
     if (vietnameseSources.some((item) => item.slug === source.slug) && !article.feed) throw new NewsError("RIGHTS_REQUIRED");
     if (source.requiresReusableLicense && !article.license) throw new NewsError("MISSING_LICENSE");
     if (article.license) parseReusableLicense(article.license.name, article.license.url);
@@ -41,7 +41,7 @@ export async function persistNewsArticles(tx: SqlExecutor, source: NewsSourceCon
     if (article.feed) {
       const original = (await tx.query<{ id: string; sourceId: string; sourceUrl: string; titleOriginal: string; excerptOriginal: string | null; publishedAt: Date }>('SELECT id,"sourceId","sourceUrl","titleOriginal","excerptOriginal","publishedAt" FROM "Article" WHERE id=$1::uuid', [id]))[0];
       const snapshot = { articleId: id, sourceId: source.id, feedUrl: article.feed.url, termsUrl: article.feed.termsUrl, permissionScope: article.feed.scope, attributionText: article.feed.attribution, reviewedAt: article.feed.reviewedAt.toISOString(), title: article.titleOriginal, excerpt: article.excerptOriginal, publishedAt: article.publishedAt!.toISOString() };
-      if (permittedFeedSnapshot(original, source, snapshot)) await tx.query('INSERT INTO "ArticleFeedSnapshot" ("articleId","sourceId","feedUrl","termsUrl","permissionScope","attributionText","reviewedAt",title,excerpt,"publishedAt",categories,"evidenceReferences","collectedAt") VALUES ($1::uuid,$2::uuid,$3,$4,$5,$6,$7::timestamptz,$8,$9,$10::timestamptz,$11::text[],$12::text[],$13::timestamptz) ON CONFLICT ("articleId") DO NOTHING', [id, source.id, article.feed.url, article.feed.termsUrl, article.feed.scope, article.feed.attribution, article.feed.reviewedAt, article.titleOriginal, article.excerptOriginal, article.publishedAt, article.feed.categories, article.feed.evidenceReferences, article.collectedAt]);
+      if (permittedFeedSnapshot(original, source, snapshot)) await tx.query('INSERT INTO "ArticleFeedSnapshot" ("articleId","sourceId","feedUrl","termsUrl","permissionScope","attributionText","reviewedAt",title,excerpt,"publishedAt",categories,"evidenceReferences","collectedAt","imageUrl") VALUES ($1::uuid,$2::uuid,$3,$4,$5,$6,$7::timestamptz,$8,$9,$10::timestamptz,$11::text[],$12::text[],$13::timestamptz,$14) ON CONFLICT ("articleId") DO UPDATE SET "imageUrl"=COALESCE("ArticleFeedSnapshot"."imageUrl",EXCLUDED."imageUrl")', [id, source.id, article.feed.url, article.feed.termsUrl, article.feed.scope, article.feed.attribution, article.feed.reviewedAt, article.titleOriginal, article.excerptOriginal, article.publishedAt, article.feed.categories, article.feed.evidenceReferences, article.collectedAt, article.feed.imageUrl ?? null]);
     }
   }
   return counts;

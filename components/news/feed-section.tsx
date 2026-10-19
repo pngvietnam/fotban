@@ -3,6 +3,7 @@ import type { FeedFilters, FeedListResult } from "../../types/feed-card";
 import { feedNotice } from "../../lib/feed-card-presentation";
 import { newsAbsoluteTime, newsRelativeTime } from "../../lib/news-presentation";
 import { FeedGroupCard } from "./feed-card";
+import { NewsImage } from "../ui/news-image";
 
 function feedHref(filters: FeedFilters, offset: number) {
   const query = new URLSearchParams();
@@ -34,9 +35,10 @@ export function FeedHomeSection({ result, now, limit = 6 }: { result: FeedListRe
   return <section aria-labelledby="home-feed" className="mt-8">
     <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2"><h2 id="home-feed" className="text-xl font-bold tracking-tight">Tin từ báo chí Việt Nam</h2><Link href="/news" className="text-sm font-semibold underline underline-offset-4">Xem tất cả tin →</Link></div>
     <p className="mb-3 text-xs leading-5 text-slate-500">{feedNotice}</p>
-    <ul className="grid min-w-0 gap-3 md:grid-cols-2">{result.data.groups.slice(0, limit).map((group) => <li key={group.key} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4">
-      <p className="mb-2 text-[11px] font-semibold text-slate-500">{group.lead.attribution} · <time dateTime={group.lead.publishedAt} title={newsAbsoluteTime(group.lead.publishedAt)}>{newsRelativeTime(group.lead.publishedAt, now)}</time>{group.others.length > 0 ? ` · +${group.others.length} báo` : ""}</p>
-      <h3 className="break-words font-bold leading-snug"><Link href={`/news/${group.lead.slug}`} className="underline-offset-4 hover:underline">{group.lead.title}</Link></h3>
+    <ul className="grid min-w-0 gap-3 md:grid-cols-2">{result.data.groups.slice(0, limit).map((group) => <li key={group.key} className="flex min-w-0 gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+      {[group.lead, ...group.others].find((card) => card.image) && <NewsImage src={[group.lead, ...group.others].find((card) => card.image)!.image} className="h-16 w-24 shrink-0 rounded-lg" />}
+      <div className="min-w-0"><p className="mb-2 text-[11px] font-semibold text-slate-500">{group.lead.attribution} · <time dateTime={group.lead.publishedAt} title={newsAbsoluteTime(group.lead.publishedAt)}>{newsRelativeTime(group.lead.publishedAt, now)}</time>{group.others.length > 0 ? ` · +${group.others.length} báo` : ""}</p>
+      <h3 className="break-words font-bold leading-snug"><Link href={`/news/${group.lead.slug}`} className="underline-offset-4 hover:underline">{group.lead.title}</Link></h3></div>
     </li>)}</ul>
   </section>;
 }

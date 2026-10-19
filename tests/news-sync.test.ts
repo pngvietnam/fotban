@@ -78,7 +78,7 @@ describe("news SQL persistence and isolated jobs", () => {
   });
   it("registers official metadata disabled by default and preserves operator configuration", async () => {
     await store.registerSources(); await store.registerSources(); const sources = await store.sources();
-    expect(sources).toHaveLength(18); expect(sources.filter((row) => row.official)).toHaveLength(4); expect(sources.filter((row) => row.official).every((row) => row.type === "OFFICIAL" && row.reliabilityScore === 100 && !row.enabled && !row.ingestionAllowed && !row.termsReviewed && row.maxExcerptChars === 0)).toBe(true);
+    expect(sources).toHaveLength(19); expect(sources.filter((row) => row.official)).toHaveLength(4); expect(sources.filter((row) => row.official).every((row) => row.type === "OFFICIAL" && row.reliabilityScore === 100 && !row.enabled && !row.ingestionAllowed && !row.termsReviewed && row.maxExcerptChars === 0)).toBe(true);
     expect(sources.find((row) => row.slug === "wikinews-en")).toMatchObject({ enabled: true, termsReviewed: true, permissionStatus: "ALLOWED", requiresReusableLicense: true, commercialReuseAllowed: false });
     await db.exec('UPDATE "NewsSource" SET "reliabilityScore"=91 WHERE slug=\'liverpool\''); await store.registerSources();
     expect((await store.sources()).find((row) => row.slug === "liverpool")?.reliabilityScore).toBe(91);

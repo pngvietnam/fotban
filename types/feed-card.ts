@@ -8,6 +8,8 @@ export type FeedCardView = {
   publisher: string; publisherSlug: string; attribution: string; url: string | null; publishedAt: string;
   label: FeedLabel; certainty: FeedCertainty; storyType: string; transferStage: FeedTransferStage | null;
   originHint: string | null; officialWording: boolean;
+  /** The publisher's feed image, only when the source's image switch is on and the host is the publisher's own. */
+  image: string | null;
   entities: NewsEntity[]; leagueSlugs: string[];
   match: { slug: string; home: string; away: string; kickoffAt: string } | null;
 };

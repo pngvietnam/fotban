@@ -8,7 +8,7 @@ import type { FeedGroupView } from "../types/feed-card";
 
 const now = new Date("2026-10-19T03:00:00Z");
 const group = (title: string): FeedGroupView => {
-  const lead = { slug: "bao-2f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", articleId: "2f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", title, description: null, publisher: "VnExpress Sport", publisherSlug: "vnexpress-sport", attribution: "Theo VnExpress", url: null, publishedAt: "2026-10-19T01:00:00.000Z", label: "MEDIA" as const, certainty: "REPORTED" as const, storyType: "MATCH", transferStage: null, originHint: null, officialWording: false, entities: [], leagueSlugs: [], match: null };
+  const lead = { slug: "bao-2f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", articleId: "2f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", title, description: null, publisher: "VnExpress Sport", publisherSlug: "vnexpress-sport", attribution: "Theo VnExpress", url: null, publishedAt: "2026-10-19T01:00:00.000Z", label: "MEDIA" as const, certainty: "REPORTED" as const, storyType: "MATCH", transferStage: null, originHint: null, officialWording: false, image: null, entities: [], leagueSlugs: [], match: null };
   return { key: "k", lead, others: [], latestAt: lead.publishedAt };
 };
 const ready = (overrides: Partial<Extract<MyTeams, { kind: "ready" }>> = {}): MyTeams => ({ kind: "ready", summary: { clubs: [{ id: "c1", name: "Man City" }], players: [], leagues: [{ id: "l1", slug: "premier-league", name: "Premier League" }], entityIds: ["c1"], leagueSlugs: ["premier-league"] },

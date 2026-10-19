@@ -6,6 +6,7 @@ import { clubContexts } from "./feed-context";
 import { rankFeedGroups } from "../lib/feed-card-ranking";
 import { safeNewsUrl } from "../lib/news-presentation";
 import { vietnameseSource } from "../providers/news/vietnamese-sources";
+import { allowedImageUrl } from "../providers/news/vietnamese-provider";
 import type { FeedCardView, FeedDetailResult, FeedFilters, FeedGroupView, FeedListData, FeedListResult } from "../types/feed-card";
 import type { NewsEntity } from "../types/news-ui";
 
@@ -15,7 +16,7 @@ const maxCards = 400;
 type CardRow = {
   articleId: string; sourceId: string; sourceUrl: string; titleOriginal: string; excerptOriginal: string | null; publishedAt: string; contentOriginal: string | null;
   status: string; label: FeedLabel; certainty: FeedCertainty; storyType: string; transferStage: FeedTransferStage | null; originHint: string | null; groupKey: string | null;
-  slug: string; name: string; newsPriority: number; attributionText: string; source: unknown; snapshot: unknown;
+  slug: string; name: string; newsPriority: number; attributionText: string; imageUrl: string | null; imagesAllowed: boolean; source: unknown; snapshot: unknown;
   matchSlug: string | null; home: string | null; away: string | null; kickoffAt: string | null;
 };
 
@@ -25,7 +26,7 @@ type CardRow = {
  */
 async function publicCards(tx: SqlExecutor, where: string, params: unknown[], now: Date) {
   const rows = await tx.query<CardRow>(`SELECT c."articleId",a."sourceId",a."sourceUrl",a."titleOriginal",a."excerptOriginal",a."publishedAt",a."contentOriginal",c.status,c.label,c.certainty,c."storyType",c."transferStage",c."originHint",c."groupKey",
-    s.slug,s.name,s."newsPriority",f."attributionText",to_jsonb(s) AS source,to_jsonb(f) AS snapshot,m.slug AS "matchSlug",hc.name AS home,ac.name AS away,m."kickoffAt"
+    s.slug,s.name,s."newsPriority",f."attributionText",f."imageUrl",s."imagesAllowed",to_jsonb(s) AS source,to_jsonb(f) AS snapshot,m.slug AS "matchSlug",hc.name AS home,ac.name AS away,m."kickoffAt"
     FROM "FeedCard" c JOIN "Article" a ON a.id=c."articleId" JOIN "NewsSource" s ON s.id=a."sourceId" JOIN "ArticleFeedSnapshot" f ON f."articleId"=a.id
     LEFT JOIN "Match" m ON m.id=c."matchId" LEFT JOIN "Club" hc ON hc.id=m."homeClubId" LEFT JOIN "Club" ac ON ac.id=m."awayClubId"
     WHERE c.status='PUBLISHED' AND a."publicationStatus"<>'HIDDEN' AND a."publishedAt"<=$1::timestamptz AND ${where}
@@ -44,6 +45,7 @@ async function publicCards(tx: SqlExecutor, where: string, params: unknown[], no
     slug: feedSlug(row.articleId), articleId: row.articleId, title: row.titleOriginal, description: stripPublisherPrefix(row.excerptOriginal),
     publisher: row.name, publisherSlug: row.slug, attribution: row.attributionText, url: safeNewsUrl(row.sourceUrl), publishedAt: new Date(row.publishedAt).toISOString(),
     label: row.label, certainty: row.certainty, storyType: row.storyType, transferStage: row.transferStage, originHint: row.originHint, officialWording: headlineClaimsOfficial(row.titleOriginal),
+    image: row.imagesAllowed ? allowedImageUrl(row.imageUrl, vietnameseSource(row.slug)?.imageHosts) : null,
     entities: entities.filter((entity) => entity.articleId === row.articleId && entity.name.trim()).map((entity) => ({ id: entity.id, kind: entity.kind, name: entity.name, crestUrl: entity.crest, photoUrl: entity.photo, tla: entity.tla, initials: entity.tla?.trim() || entity.name.split(/\s+/).slice(0, 2).map((word) => Array.from(word)[0]).join("").toLocaleUpperCase("vi-VN") })),
     leagueSlugs: leagues.filter((league) => league.articleId === row.articleId).map((league) => league.slug).sort(),
     match: row.matchSlug && row.home && row.away && row.kickoffAt ? { slug: row.matchSlug, home: row.home, away: row.away, kickoffAt: new Date(row.kickoffAt).toISOString() } : null,

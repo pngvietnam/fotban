@@ -8,6 +8,7 @@ The owner decided, after legal review by their counsel, to use Vietnamese publis
 | --- | --- | --- |
 | VnExpress | `https://vnexpress.net/rss/the-thao.rss` | Granted |
 | Thanh Niên | `https://thanhnien.vn/rss/the-thao/bong-da-quoc-te.rss` | Granted |
+| Bongda.com.vn | `https://bongda.com.vn/bong-da-anh.rss`, `bong-da-tbn.rss` (Spanish football), `tin-chuyen-nhuong.rss` (transfers) | Granted 2026-10-19; football-only specialist; Tier 2; feeds listed on its RSS page; no images in its RSS |
 | VTV | `https://vtv.vn/rss/the-thao.rss` | Granted (mostly V-League; few EPL/La Liga items) |
 | Dân trí | `https://dantri.com.vn/rss/the-thao.rss` | Granted |
 | Thể Thao 247 | `https://thethao247.vn/bong-da-quoc-te-c2.rss` | Granted, COMMUNITY tier |
@@ -67,6 +68,12 @@ npm.cmd run news:cards -- hide <article-uuid> --reviewer "FotBan" --reason "<rea
 ```
 
 Operator decisions are audited (`FEED_CARD_APPROVE` / `FEED_CARD_HIDE`) and are never overwritten by later publish runs.
+
+### More feeds and images (2026-10-19)
+
+- **Several feeds per publisher:** a registry entry may list `extraFeeds` that share the publisher's grant. The first feed keeps the stored ETag/Last-Modified; extra feeds are read without them. Results are merged without duplicates, each article records the feed it came from, a failing extra feed only marks the run partial and a failing primary feed fails the source. The per-source cap is 120 articles per run, and anything dropped by the cap is counted in the job checkpoint (`overLimit`).
+- **Sources reviewed from the owner's list:** `bongda.com.vn/main-rss.html` lists many feeds (league, club, transfer); three were added. On `thethao247.vn/rss.html` the league and transfer feeds (`ngoai-hang-anh-c8`, `la-liga-c9`, `chuyen-nhuong-c14`) answered 403 to the bot and are not used (the block is not worked around). The Feedspot directory lists only English-language sites and fan blogs; none is Vietnamese, none is cleared by the owner's decision (which covers Vietnamese publishers) and fan blogs are not reliable media, so none was added.
+- **Images:** see [IMAGES.md](IMAGES.md).
 
 ### Continuous freshness worker (replaces fixed schedules)
 

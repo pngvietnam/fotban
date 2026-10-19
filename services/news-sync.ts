@@ -20,7 +20,7 @@ export async function syncNews(sources: NewsSourceConfig[], store: NewsSyncStore
       if (job.cached || job.cooldown) { results.push({ source: source.slug, status: job.cached ? "cached" : "skipped", code: job.cooldown ? "COOLDOWN" : undefined }); continue; }
       const provider = createProvider(source);
       if (provider.sourceSlug !== source.slug) throw new NewsError("UNSUPPORTED");
-      const limit = Math.min(20, Math.max(1, options.limit ?? 20));
+      const limit = Math.min(120, Math.max(1, options.limit ?? 20));
       const page = await provider.fetchLatestArticles({ cursor: job.cursor, limit });
       if (!Array.isArray(page.articles) || page.articles.length > limit || !Number.isInteger(page.rejected) || page.rejected < 0 || typeof page.notModified !== "boolean" || page.notModified && page.articles.length) throw new NewsError("MALFORMED");
       // Revalidate the internal DTO at the service boundary; discard any extra body fields.

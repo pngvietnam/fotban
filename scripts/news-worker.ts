@@ -50,7 +50,7 @@ async function main() {
       let ok = true;
       await news.store.registerSources();
       const sources = (await news.store.sources()).filter((source) => vietnameseSource(source.slug) && source.enabled);
-      const results = await syncNews(sources, news.store, news.createProvider, { limit: 20, logger });
+      const results = await syncNews(sources, news.store, news.createProvider, { limit: 120, logger });
       const synced = results.filter((result) => result.status === "synced");
       // One flaky publisher must not slow the others: each source already has its own cooldown and
       // lease. The whole loop backs off only when every attempted source failed (network/database trouble).

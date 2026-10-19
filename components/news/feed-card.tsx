@@ -3,6 +3,7 @@ import type { FeedCardView, FeedGroupView } from "../../types/feed-card";
 import { feedCertaintyText, feedLabelText, feedTransferText, officialWordingNotice } from "../../lib/feed-card-presentation";
 import { TeamBadge } from "../ui/team-badge";
 import { PlayerPhoto } from "../ui/player-photo";
+import { NewsImage } from "../ui/news-image";
 import { clubPath } from "../../lib/club-presentation";
 import { playerPath } from "../../lib/player-presentation";
 import { newsAbsoluteTime, newsRelativeTime, storyLabels } from "../../lib/news-presentation";
@@ -31,7 +32,9 @@ export function FeedEntities({ card }: { card: FeedCardView }) {
 export function FeedGroupCard({ group, now, featured = false }: { group: FeedGroupView; now: Date; featured?: boolean }) {
   const { lead } = group;
   const publishers = [...new Set(group.others.map((card) => card.publisher))].filter((name) => name !== lead.publisher);
+  const pictured = [lead, ...group.others].find((card) => card.image);
   return <article className={`news-card flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 ${featured ? "md:col-span-2 lg:col-span-3" : ""}`}>
+    {pictured && <div className={`mb-4 ${featured ? "sm:max-w-xl" : ""}`}><NewsImage src={pictured.image} className="aspect-video rounded-xl" /><p className="mt-1 text-[10px] text-slate-400">Ảnh: {pictured.publisher}</p></div>}
     <div className="mb-4"><FeedLabels card={lead} /></div>
     <h3 className={`break-words font-bold leading-snug tracking-tight ${featured ? "text-2xl sm:text-3xl" : "text-xl"}`}><Link href={`/news/${lead.slug}`} className="decoration-2 underline-offset-4 hover:underline">{lead.title}</Link></h3>
     {lead.description && <p className="mt-3 line-clamp-3 break-words text-sm leading-7 text-slate-600">{lead.description}</p>}

@@ -1,5 +1,13 @@
 # Milestone progress
 
+## More RSS sources and publisher images (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.
+
+- Owner list reviewed. Added **Bongda.com.vn** (football-only; English football, Spanish football and transfer feeds) through new multi-feed support. Thethao247's league/transfer feeds return 403 to the bot and are left out; the Feedspot directory is all English sites/fan blogs (not cleared, not reliable media), so nothing from it was added. Per-source cap raised to 120 per run with dropped items counted.
+- Owner decision: publisher article images may be used. Additive migration `20261019170000_article_images` (`ArticleFeedSnapshot.imageUrl` with an https CHECK, `NewsSource.imagesAllowed` default false). Images come from the feed item only, are allowlisted to the publisher's own hosts (checked on read and on display), hotlinked, credited, switchable per source (`news:grant -- images`), and vanish on revoke.
+- Validation: lint PASS, typecheck PASS, tests **742 / 49 files PASS** (13 new). Live result recorded below once the sources refresh.
+
 ## Club crests and player photos (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started. Details: [IMAGES.md](IMAGES.md).
