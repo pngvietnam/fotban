@@ -9,7 +9,8 @@ export type SyncRequest = { mode: "competitions"; force?: boolean }
 export const syncTtlMs = { competitions: 24 * 3600000, teams: 24 * 3600000, matches: 6 * 3600000, standings: 24 * 3600000 };
 type SafeLogger = { info(fields: Record<string, unknown>, event: string): void; error(fields: Record<string, unknown>, event: string): void };
 
-export async function syncMatches(provider: MatchProvider, store: MatchSyncStore, request: SyncRequest, log?: SafeLogger) {
+/** options.ttlMs overrides the cache window for this call (the worker refreshes results more often). */
+export async function syncMatches(provider: MatchProvider, store: MatchSyncStore, request: SyncRequest, log?: SafeLogger, options: { ttlMs?: number } = {}) {
   await store.ensureProvider(provider.id, JSON.stringify(provider.capabilities));
   const { force } = request;
   // Stable per resource/window key; a rerun updates the same logical job.
@@ -18,7 +19,7 @@ export async function syncMatches(provider: MatchProvider, store: MatchSyncStore
     season: "season" in request ? request.season ?? null : null,
     from: "dateFrom" in request ? request.dateFrom : null,
     to: "dateTo" in request ? request.dateTo : null });
-  const job = await store.claim(key, syncTtlMs[request.mode], Boolean(force));
+  const job = await store.claim(key, options.ttlMs ?? syncTtlMs[request.mode], Boolean(force));
   if (job.cached) return { jobId: job.id, cached: true, recordsProcessed: 0, skipped: 0 };
   try {
     let payload: SyncPayload;

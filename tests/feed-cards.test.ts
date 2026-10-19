@@ -4,6 +4,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { SyncDatabase } from "../lib/sync-database";
 import type { NewsSourceConfig, NormalizedArticle } from "../types/news-provider";
+import { abortableSleep, runLoop } from "../services/worker-loop";
 import { rankFeedGroups } from "../lib/feed-card-ranking";
 import { stripPublisherPrefix } from "../lib/feed-card-presentation";
 import { feedCertainty, isRoundup, feedStoryType, feedTransferStage, headlineClaimsOfficial, holdReasons, isMatchReport, originHint } from "../lib/feed-card-policy";
@@ -241,5 +242,28 @@ describe("card detail context and related stories (SQL)", () => {
     const detail = await new FeedCardQueryService(database).detail(main, now);
     expect(detail!.others.map((card) => card.articleId)).toEqual([same]);
     expect(detail!.related.map((card) => card.articleId)).toEqual([other]);
+  });
+});
+
+describe("worker loop", () => {
+  const run = async (results: ("ok" | "fail" | "throw")[], maxBackoffMs = 40_000) => {
+    const controller = new AbortController(); const waits: number[] = []; let index = 0;
+    await runLoop(async () => { const next = results[index++]; if (next === "throw") throw new Error("boom"); return { ok: next === "ok" }; }, {
+      intervalMs: 1000, maxBackoffMs, signal: controller.signal,
+      sleep: async (ms) => { waits.push(ms); if (index >= results.length) controller.abort(); },
+    });
+    return waits;
+  };
+  it("keeps the short interval while healthy and never stops after a thrown pass", async () => {
+    expect(await run(["ok", "throw", "ok"])).toEqual([1000, 2000, 1000]);
+  });
+  it("backs off exponentially on repeated failures, caps it and resets after success", async () => {
+    expect(await run(["fail", "fail", "fail", "fail", "fail", "fail", "ok"], 10_000)).toEqual([2000, 4000, 8000, 10_000, 10_000, 10_000, 1000]);
+  });
+  it("stops promptly when aborted during a sleep", async () => {
+    const controller = new AbortController(); const started = Date.now();
+    const loop = runLoop(async () => ({ ok: true }), { intervalMs: 60_000, maxBackoffMs: 60_000, signal: controller.signal, sleep: abortableSleep });
+    setTimeout(() => controller.abort(), 20); await loop;
+    expect(Date.now() - started).toBeLessThan(2000);
   });
 });

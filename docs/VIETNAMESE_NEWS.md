@@ -68,6 +68,24 @@ npm.cmd run news:cards -- hide <article-uuid> --reviewer "FotBan" --reason "<rea
 
 Operator decisions are audited (`FEED_CARD_APPROVE` / `FEED_CARD_HIDE`) and are never overwritten by later publish runs.
 
+### Continuous freshness worker (replaces fixed schedules)
+
+`npm.cmd run news:worker` runs until stopped. It has no fixed clock: each pass (about every 60 seconds) asks every enabled Vietnamese source whether it is due, so news is picked up soon after a publisher updates its feed, and each pass republishes/regroups cards.
+
+- Freshness is decided per source: a 15-minute RSS window, ETag/Last-Modified (a 304 stores nothing), robots.txt crawl-delay, persisted cooldowns after 429, and job leases. A short loop therefore costs only database checks.
+- Match data is refreshed in the same loop through the existing match sync: results/fixtures for today-3 to today+10 days every 30 minutes, standings every 6 hours. This respects the free-tier pacing (one request per 7 seconds, shared across processes) and is skipped if `FOOTBALL_DATA_API_KEY` is absent.
+- A failing pass never stops the loop: it backs off 2, 4, 8 ... up to 10 minutes and resets after a success. A session advisory lock allows only one worker per database; stop with Ctrl+C (SIGINT/SIGTERM), which releases the lock.
+- Keep it alive across restarts with `scripts/install-news-worker.ps1` (Windows scheduled task that starts the worker at logon and restarts it on failure; `-Remove` uninstalls). It is not run automatically. Logs go to `logs/news-worker.log`.
+- `news:tick` remains a one-shot pass for manual use.
+
+### League hub (`/league/premier-league`, `/league/la-liga`)
+
+A Báo Mới-style page per league with six tabs selected by `?tab=`: **Tin tức** (publisher cards for the league), **Tổng quan** (next fixtures, top-10 table, top stories), **Bảng xếp hạng** (stored table with W/D/L form of the last five finished matches), **Lịch thi đấu** (7-day windows, `?tu=YYYY-MM-DD`, previous/next arrows within 120 days of today), **Đội bóng** (clubs with position and follow links), **Chuyển nhượng** (publisher cards classified as transfer news; wording-only stages, never confirmed).
+
+- Strict query parsing: unknown tabs, bad offsets and impossible or out-of-range dates give the invalid-filter state. A league switcher and a "Giải đấu" navigation item link to it.
+- The standings, fixtures and clubs tabs are FotBan's own data from football-data.org and are indexable (attribution shown); tabs that show publisher text are `noindex`. No club crests or competition logos are used (licensing): text badges with the club code instead.
+- Standings, results and form come only from stored data and show the time of the last update; the worker keeps them fresh. To backfill a season once, use `provider:sync -- matches PL --from 2026-08-01 --to 2026-08-31` (31-day maximum per request) for each window.
+
 ### Ranking, detail context, homepage and scheduling
 
 - **Ranking** (`lib/feed-card-ranking.ts`): editorial importance = distinct publishers x 3 + media bonus + a recency term that halves every 6 hours. Roundups (schedules, results, tables) come last because FotBan has its own match data. No publisher leads three cards in a row while another candidate is close. The top multi-publisher story is shown at full width. This is an editorial order, not a truth or reliability score.

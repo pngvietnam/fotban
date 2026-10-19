@@ -1,0 +1,73 @@
+import { Client } from "pg";
+import { parseEnvironment } from "../lib/config";
+import { createDatabaseClient } from "../lib/database-client";
+import { createLogger } from "../lib/logging";
+import { createMatchRuntime } from "../lib/match-runtime";
+import { createNewsRuntime } from "../lib/news-runtime";
+import { prismaSyncDatabase } from "../lib/sync-database";
+import { competitionConfig } from "../providers/football-data/config";
+import { vietnameseSource } from "../providers/news/vietnamese-sources";
+import { publishFeedCards } from "../services/feed-cards";
+import { syncMatches } from "../services/match-sync";
+import { syncNews } from "../services/news-sync";
+import { abortableSleep, runLoop } from "../services/worker-loop";
+
+const lockKey = 91531121;
+const intervalMs = 60_000;
+const matchTtlMs = 30 * 60_000;
+const standingsTtlMs = 6 * 3600_000;
+const vietnamDay = (offsetDays: number) => new Date(Date.now() + 7 * 3600_000 + offsetDays * 86400_000).toISOString().slice(0, 10);
+
+/**
+ * Long-running freshness worker. It does not follow a fixed clock: every pass asks each source
+ * whether it is due. Sources decide for themselves (15-minute RSS window, ETag/Last-Modified,
+ * robots crawl-delay, persisted cooldowns and job leases), so a short loop interval costs only
+ * cheap database checks while news is picked up soon after a publisher updates its feed.
+ */
+async function main() {
+  const env = parseEnvironment(process.env);
+  if (!env.DATABASE_URL) { console.error("DATABASE_URL is required."); process.exitCode = 1; return; }
+  const logger = createLogger(env.LOG_LEVEL);
+  const controller = new AbortController();
+  for (const signal of ["SIGINT", "SIGTERM"] as const) process.on(signal, () => controller.abort());
+  // A dedicated session holds the lock; PostgreSQL frees it if this process dies.
+  const lock = new Client({ connectionString: env.DATABASE_URL, application_name: "fmb-news-worker", keepAlive: true });
+  lock.on("error", () => controller.abort());
+  await lock.connect();
+  if (!(await lock.query<{ locked: boolean }>("SELECT pg_try_advisory_lock($1) AS locked", [lockKey])).rows[0]?.locked) {
+    console.error("Another news worker is already running."); await lock.end(); process.exitCode = 1; return;
+  }
+  const db = createDatabaseClient(env.DATABASE_URL);
+  const database = prismaSyncDatabase(db);
+  const news = createNewsRuntime(db, { wikimediaUserAgent: env.WIKIMEDIA_USER_AGENT });
+  const match = env.FOOTBALL_DATA_API_KEY ? createMatchRuntime(db, env) : null;
+  logger.info({ matches: Boolean(match) }, "worker.started");
+  try {
+    await runLoop(async () => {
+      let ok = true;
+      await news.store.registerSources();
+      const sources = (await news.store.sources()).filter((source) => vietnameseSource(source.slug) && source.enabled);
+      const results = await syncNews(sources, news.store, news.createProvider, { limit: 20, logger });
+      const synced = results.filter((result) => result.status === "synced");
+      if (results.some((result) => result.status === "failed")) ok = false;
+      // Publish cards on every pass: cheap, idempotent, and it regroups late arrivals.
+      const cards = await publishFeedCards(database);
+      if (match) {
+        for (const competition of Object.keys(competitionConfig)) {
+          try {
+            await syncMatches(match.provider, match.store, { mode: "matches", competition, dateFrom: vietnamDay(-3), dateTo: vietnamDay(10) }, logger, { ttlMs: matchTtlMs });
+            await syncMatches(match.provider, match.store, { mode: "standings", competition }, logger, { ttlMs: standingsTtlMs });
+          } catch { ok = false; } // Provider errors are recorded by the sync; keep the news loop alive.
+        }
+      }
+      if (synced.length || !ok) logger.info({ synced: synced.length, created: synced.reduce((sum, result) => sum + (result.created ?? 0), 0), failed: results.filter((result) => result.status === "failed").length, published: cards.published, held: cards.held }, "worker.pass");
+      return { ok };
+    }, { intervalMs, maxBackoffMs: 10 * 60_000, sleep: abortableSleep, signal: controller.signal, onPass: (pass) => { if (!pass.ok) logger.error({ failures: pass.failures, nextInMs: pass.nextInMs }, "worker.pass_failed"); } });
+  } finally {
+    logger.info({}, "worker.stopped");
+    await db.$disconnect().catch(() => {});
+    await lock.query("SELECT pg_advisory_unlock($1)", [lockKey]).catch(() => {});
+    await lock.end().catch(() => {});
+  }
+}
+main().catch(() => { console.error("News worker stopped. Check database readiness and migrations; no raw error is logged."); process.exitCode = 1; });

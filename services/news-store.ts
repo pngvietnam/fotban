@@ -49,9 +49,9 @@ export async function persistNewsArticles(tx: SqlExecutor, source: NewsSourceCon
 
 export class NewsSyncStore {
   // Publisher RSS changes throughout the day and supports conditional requests, so it refreshes
-  // every 30 minutes; API/HTML sources keep the longer snapshot interval.
+  // every 15 minutes; API/HTML sources keep the longer snapshot interval.
   private readonly rssCacheMs: number;
-  constructor(private readonly db: SyncDatabase, private readonly cacheMs = 6 * 3600000, private readonly failureCooldownMs = 5 * 60000, rssCacheMs = 30 * 60000) { this.rssCacheMs = Math.min(cacheMs, rssCacheMs); }
+  constructor(private readonly db: SyncDatabase, private readonly cacheMs = 6 * 3600000, private readonly failureCooldownMs = 5 * 60000, rssCacheMs = 15 * 60000) { this.rssCacheMs = Math.min(cacheMs, rssCacheMs); }
   /** Appends reviewed Vietnamese-press club names; existing (operator) aliases are kept. */
   async registerClubAliases() {
     let updated = 0;

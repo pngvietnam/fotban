@@ -1,5 +1,14 @@
 # Milestone progress
 
+## Vietnamese news step 4 — league hubs and the continuous worker (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.
+
+- **Continuous worker** (`news:worker`), no fixed schedule: every ~60 s pass asks each source whether it is due (15-minute RSS window, conditional requests, robots crawl-delay, cooldowns, leases); also refreshes results every 30 min and standings every 6 h under the free-tier pacing. Backoff on failure, one instance per database (advisory lock 91531121), clean stop on SIGINT. `scripts/install-news-worker.ps1` registers a start-at-logon task with restart-on-failure (not run automatically). Live check: first pass found a new VnExpress article immediately.
+- **League hub** `/league/[slug]` with tabs Tin tức, Tổng quan, Bảng xếp hạng (with last-five form), Lịch thi đấu (7-day windows), Đội bóng (follow), Chuyển nhượng; "Giải đấu" added to the navigation. Own-data tabs are indexable, publisher-text tabs `noindex`; no crests/logos.
+- Data: standings synced for both leagues; season matches backfilled in 31-day windows (6 requests) so form shows five results (live: Man City W W W W W, Arsenal W W L W W, matching the reference table). Earlier "latest result" gaps came from the short sync window.
+- Validation: lint PASS, typecheck PASS, tests **699 / 42 files PASS** (8 new league tests, 3 worker-loop tests), production build PASS. All six tabs return 200 on the production server; invalid tab/date fall into the invalid-filter state.
+
 ## Vietnamese news step 3 — ranking, context, homepage (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.

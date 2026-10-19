@@ -12,7 +12,7 @@ export type FeedCardView = {
   match: { slug: string; home: string; away: string; kickoffAt: string } | null;
 };
 export type FeedGroupView = { key: string; lead: FeedCardView; others: FeedCardView[]; latestAt: string };
-export type FeedFilters = Pick<NewsFilters, "league"> & { offset: number };
+export type FeedFilters = Pick<NewsFilters, "league"> & { offset: number; /** Keep only groups with a card of this story type (e.g. TRANSFER). */ storyType?: string };
 export type FeedListData = { groups: FeedGroupView[]; nextOffset: number | null };
 export type FeedListResult = { kind: "ready"; data: FeedListData } | { kind: "error" };
 export type FeedDetailResult = { kind: "ready"; card: FeedCardView; others: FeedCardView[]; related: FeedCardView[]; context: ClubContext[] } | { kind: "not-found" } | { kind: "error" };
