@@ -1,4 +1,5 @@
 import type { FeedCertainty, FeedLabel, FeedTransferStage } from "../lib/feed-card-policy";
+import type { ClubContext } from "../services/feed-context";
 import type { NewsEntity, NewsFilters } from "./news-ui";
 
 /** Public projection of an attributed publisher card: original headline/description, never rewritten. */
@@ -14,4 +15,4 @@ export type FeedGroupView = { key: string; lead: FeedCardView; others: FeedCardV
 export type FeedFilters = Pick<NewsFilters, "league"> & { offset: number };
 export type FeedListData = { groups: FeedGroupView[]; nextOffset: number | null };
 export type FeedListResult = { kind: "ready"; data: FeedListData } | { kind: "error" };
-export type FeedDetailResult = { kind: "ready"; card: FeedCardView; others: FeedCardView[] } | { kind: "not-found" } | { kind: "error" };
+export type FeedDetailResult = { kind: "ready"; card: FeedCardView; others: FeedCardView[]; related: FeedCardView[]; context: ClubContext[] } | { kind: "not-found" } | { kind: "error" };

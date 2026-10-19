@@ -1,5 +1,14 @@
 # Milestone progress
 
+## Vietnamese news step 3 — ranking, context, homepage (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.
+
+- Review fixes from the owner screenshot: importance ranking (coverage, media over community, recency) with roundups last and source diversity, full-width lead story, display-only credit-prefix stripping, question-mark hedge only on headlines. Live order now starts with Real–Sevilla (5 publishers), MU–Leeds, Arsenal–Forest; Thể Thao 247 no longer fills the first row.
+- Card detail page adds stored club context (standing, last result, next fixture, data-as-of time and football-data attribution), related stories and follow links. Standings synced live for both leagues (20 rows each) and matches refreshed (stale results from 11/10 were being shown as the latest before the refresh).
+- Homepage shows a compact publisher-news block; Morning Brief unchanged (immutable, evidence-gated). `news:tick` added; scheduling needs the Task Scheduler entries in VIETNAMESE_NEWS.md.
+- Validation: lint PASS, typecheck PASS, tests **691 / 41 files PASS**, production build PASS.
+
 ## Vietnamese news step 2 — attributed publisher cards on /news (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. **Step 2: DONE — Vietnamese publisher news is public on `/news`.** Milestone 17 not started.

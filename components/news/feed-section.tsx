@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { FeedFilters, FeedListResult } from "../../types/feed-card";
 import { feedNotice } from "../../lib/feed-card-presentation";
+import { newsAbsoluteTime, newsRelativeTime } from "../../lib/news-presentation";
 import { FeedGroupCard } from "./feed-card";
 
 function feedHref(filters: FeedFilters, offset: number) {
@@ -21,5 +22,19 @@ export function FeedSection({ result, filters, now }: { result: FeedListResult; 
       {filters.offset > 0 && <Link href={feedHref(filters, 0)} className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold">Tin mới nhất</Link>}
       {result.data.nextOffset !== null && <Link href={feedHref(filters, result.data.nextOffset)} className="rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Xem thêm tin <span aria-hidden="true">→</span></Link>}
     </nav>}
+  </section>;
+}
+
+/** Compact top stories for the homepage. Independent of the Morning Brief: the Brief is an immutable,
+ * evidence-gated document, while these are live attributed publisher cards. Silent on error/empty. */
+export function FeedHomeSection({ result, now, limit = 6 }: { result: FeedListResult; now: Date; limit?: number }) {
+  if (result.kind !== "ready" || !result.data.groups.length) return null;
+  return <section aria-labelledby="home-feed" className="mt-8">
+    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2"><h2 id="home-feed" className="text-xl font-bold tracking-tight">Tin từ báo chí Việt Nam</h2><Link href="/news" className="text-sm font-semibold underline underline-offset-4">Xem tất cả tin →</Link></div>
+    <p className="mb-3 text-xs leading-5 text-slate-500">{feedNotice}</p>
+    <ul className="grid min-w-0 gap-3 md:grid-cols-2">{result.data.groups.slice(0, limit).map((group) => <li key={group.key} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4">
+      <p className="mb-2 text-[11px] font-semibold text-slate-500">{group.lead.attribution} · <time dateTime={group.lead.publishedAt} title={newsAbsoluteTime(group.lead.publishedAt)}>{newsRelativeTime(group.lead.publishedAt, now)}</time>{group.others.length > 0 ? ` · +${group.others.length} báo` : ""}</p>
+      <h3 className="break-words font-bold leading-snug"><Link href={`/news/${group.lead.slug}`} className="underline-offset-4 hover:underline">{group.lead.title}</Link></h3>
+    </li>)}</ul>
   </section>;
 }

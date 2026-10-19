@@ -185,3 +185,61 @@ describe("feed ranking and display rules", () => {
     expect(feedCertainty("Haaland rời Man City?", null)).toBe("UNCONFIRMED");
   });
 });
+
+describe("card detail context and related stories (SQL)", () => {
+  let db: PGlite; let database: SyncDatabase; let store: NewsSyncStore;
+  const now = new Date("2026-10-19T03:00:00Z");
+  const ids = { league: randomUUID(), season: randomUUID(), real: randomUUID(), sevilla: randomUUID(), madrid: randomUUID(), done: randomUUID(), next: randomUUID(), postponed: randomUUID() };
+  beforeAll(async () => {
+    db = new PGlite();
+    for (const entry of readdirSync("prisma/migrations", { withFileTypes: true }).filter((entry) => entry.isDirectory()).sort((a, b) => a.name.localeCompare(b.name))) await db.exec(readFileSync(`prisma/migrations/${entry.name}/migration.sql`, "utf8"));
+    database = {
+      query: async <T>(sql: string, params: unknown[] = []) => (await db.query<T>(sql, params)).rows,
+      transaction: (work) => db.transaction((tx) => work({ query: async <T>(sql: string, params: unknown[] = []) => (await tx.query<T>(sql, params)).rows })),
+    };
+    store = new NewsSyncStore(database);
+  }, 60000);
+  beforeEach(async () => {
+    await db.exec('TRUNCATE "FeedCard","ArticleFeedSnapshot","ArticleEntity","ArticleUrl","Article","AdminAuditLog","User","NewsSource","Match","Standing","ClubSeason","Season","Club","League" CASCADE');
+    await database.query('INSERT INTO "League" (id,slug,name,country,"updatedAt") VALUES ($1::uuid,\'la-liga\',\'La Liga\',\'Spain\',now())', [ids.league]);
+    await database.query('INSERT INTO "Season" (id,"leagueId",name,"startsAt","endsAt","updatedAt") VALUES ($1::uuid,$2::uuid,\'2026/2027\',\'2026-08-01\',\'2027-06-30\',now())', [ids.season, ids.league]);
+    for (const [id, name, alias] of [[ids.real, "Real Madrid CF", "Real Madrid"], [ids.sevilla, "Sevilla FC", "Sevilla"]]) {
+      await database.query('INSERT INTO "Club" (id,slug,name,aliases,"updatedAt") VALUES ($1::uuid,$2,$3,ARRAY[$4],now())', [id, `club-${id}`, name, alias]);
+      await database.query('INSERT INTO "ClubSeason" (id,"clubId","seasonId","leagueId","updatedAt") VALUES ($1::uuid,$2::uuid,$3::uuid,$4::uuid,now())', [randomUUID(), id, ids.season, ids.league]);
+    }
+    await database.query('INSERT INTO "Standing" (id,provider,"leagueId","seasonId","clubId",stage,"tableType",position,"playedGames",points,"fetchedAt","updatedAt") VALUES ($1::uuid,\'FOOTBALL_DATA\',$2::uuid,$3::uuid,$4::uuid,\'REGULAR_SEASON\',\'TOTAL\',2,9,21,$5::timestamptz,now())', [randomUUID(), ids.league, ids.season, ids.real, now]);
+    const match = (id: string, slug: string, kickoff: string, status: string, scores: [number | null, number | null]) => database.query('INSERT INTO "Match" (id,slug,provider,"externalId","leagueId","seasonId","homeClubId","awayClubId","kickoffAt",status,"homeScore","awayScore","updatedAt") VALUES ($1::uuid,$2,\'FOOTBALL_DATA\',$2,$3::uuid,$4::uuid,$5::uuid,$6::uuid,$7::timestamptz,$8,$9,$10,now())', [id, slug, ids.league, ids.season, ids.real, ids.sevilla, kickoff, status, scores[0], scores[1]]);
+    await match(ids.done, "match-done", "2026-10-18T19:00:00Z", "FINISHED", [4, 1]);
+    await match(ids.postponed, "match-postponed", "2026-10-20T19:00:00Z", "POSTPONED", [null, null]);
+    await match(ids.next, "match-next", "2026-10-25T19:00:00Z", "SCHEDULED", [null, null]);
+    await store.registerSources();
+    await grantVietnameseSources(database, { slugs: ["vnexpress-sport", "tuoitre-sport"], reviewer: "FotBan", reason: "Owner grant for context tests" });
+  });
+  afterAll(async () => { await db.close(); });
+  async function ingest(slug: string, title: string, description: string, hour: number) {
+    const s = (await store.sources()).find((item) => item.slug === slug)!; const path = randomUUID();
+    const article: NormalizedArticle = { sourceName: s.name, sourceUrl: `https://${s.domain}/${path}.htm`, canonicalUrl: null, titleOriginal: title, excerptOriginal: description, language: "vi", publishedAt: new Date(Date.UTC(2026, 9, 18, hour)), collectedAt: now,
+      feed: { url: s.feedUrl!, termsUrl: s.permissionReference!, scope: "RSS_SUMMARY", attribution: s.attributionRequirement!, reviewedAt: s.lastTermsReviewAt!, categories: [], evidenceReferences: [] } };
+    await database.transaction((tx) => persistNewsArticles(tx, s, [article]));
+    return (await database.query<{ id: string }>('SELECT id FROM "Article" WHERE "sourceUrl"=$1', [article.sourceUrl]))[0].id;
+  }
+  it("shows stored standing, last result and next fixture, never a postponed match", async () => {
+    const id = await ingest("vnexpress-sport", "Real Madrid chuẩn bị đại chiến với Sevilla", "Real Madrid tập luyện trước trận lớn gặp Sevilla.", 22);
+    await publishFeedCards(database, now);
+    const detail = await new FeedCardQueryService(database).detail(id, now);
+    const real = detail!.context.find((club) => club.name === "Real Madrid CF")!;
+    expect(real.standing).toMatchObject({ position: 2, points: 21, played: 9, leagueSlug: "la-liga" });
+    expect(real.lastMatch).toMatchObject({ slug: "match-done", homeScore: 4, awayScore: 1 });
+    expect(real.nextMatch?.slug).toBe("match-next");
+    expect(detail!.context.find((club) => club.name === "Sevilla FC")?.standing).toBeNull();
+  });
+  it("lists related stories about the same club once per group and excludes the card's own group", async () => {
+    const main = await ingest("vnexpress-sport", "Mbappe giúp Real thắng đậm Sevilla", "Real Madrid thắng Sevilla 4-1.", 22);
+    const same = await ingest("tuoitre-sport", "Real Madrid thắng đậm Sevilla với cú đúp của Mbappe", "Real Madrid thắng Sevilla 4-1.", 23);
+    const other = await ingest("tuoitre-sport", "Real Madrid bước vào tuần lễ El Clasico", "Real Madrid chuẩn bị gặp đối thủ lớn.", 21);
+    await publishFeedCards(database, now);
+    const detail = await new FeedCardQueryService(database).detail(main, now);
+    expect(detail!.others.map((card) => card.articleId)).toEqual([same]);
+    expect(detail!.related.map((card) => card.articleId)).toEqual([other]);
+  });
+});

@@ -68,6 +68,14 @@ npm.cmd run news:cards -- hide <article-uuid> --reviewer "FotBan" --reason "<rea
 
 Operator decisions are audited (`FEED_CARD_APPROVE` / `FEED_CARD_HIDE`) and are never overwritten by later publish runs.
 
+### Ranking, detail context, homepage and scheduling
+
+- **Ranking** (`lib/feed-card-ranking.ts`): editorial importance = distinct publishers x 3 + media bonus + a recency term that halves every 6 hours. Roundups (schedules, results, tables) come last because FotBan has its own match data. No publisher leads three cards in a row while another candidate is close. The top multi-publisher story is shown at full width. This is an editorial order, not a truth or reliability score.
+- **Display only**: a leading "VOV.VN - " or "(Dân trí) - " credit is dropped from the description (stored text is unchanged). A question mark makes a card "Chưa xác nhận" only in the headline.
+- **Detail context** (`services/feed-context.ts`): for up to two linked clubs, the stored league position (Standing), last finished result and next fixture (postponed/cancelled are never shown), plus the time the club's match data was last updated and the football-data attribution. Related stories: other groups about the same clubs/players in 72 hours (max 6). Follow links for clubs, players and the competition reuse the M15 account flow.
+- **Homepage**: `/` shows a compact "Tin từ báo chí Việt Nam" block below the Morning Brief. It is independent of the Brief, which stays an immutable, evidence-gated document; publisher cards are not inserted into Brief items.
+- **Scheduling**: `news:tick` runs the Vietnamese RSS sync and publishes cards; it respects the 30-minute source cache and per-source leases. Schedule it every 30 minutes together with a match refresh, because card context reads stored matches: `npm.cmd run provider:sync -- matches PL` and `... PD` (cached 6 hours) and `standings` daily (24-hour cache). Windows Task Scheduler: repeat `npm.cmd run news:tick` every 30 minutes with Start in set to the repository. Nothing is installed automatically.
+
 Vietnamese publisher RSS feeds are the primary **planned production** news path. Official league/club adapters remain evidence candidates; permitted international sources remain secondary. GDELT DOC is optional discovery metadata, not an editorial publisher or a publisher reuse licence. No external provider runs during `/news` rendering.
 
 ## Review on 19 October 2026

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { SportsShell } from "../sports-shell";
 import { homeDate, homeInitials, homeReliabilityLabels, homeSectionLabels, homeSources, homeTime, homeVideoLabels } from "../../lib/homepage-presentation";
@@ -49,7 +50,7 @@ function Header({ view, now }: { view?: HomepageView; now: Date }) {
   const date = view?.date ?? new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
   return <div className="mb-5 border-b border-slate-200 pb-4"><p className="mb-1 text-[10px] font-bold uppercase tracking-[.18em] text-emerald-800">Gọn mỗi sáng · Rõ từng nguồn</p><h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Bản tin sáng</h1><div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs leading-5 text-slate-600"><p>{homeDate(date)}</p>{view && <p>{view.stale ? "Cập nhật gần nhất: " : "Cập nhật "}<time dateTime={view.updatedAt}>{homeTime(view.updatedAt, view.stale)}</time></p>}</div><p className="mt-2 text-[11px] font-semibold text-slate-500">Premier League <span aria-hidden="true" className="mx-1">·</span> La Liga</p></div>;
 }
-export function MorningHomepage({ result, now }: { result: HomepageResult; now: Date }) {
+export function MorningHomepage({ result, now, extra }: { result: HomepageResult; now: Date; extra?: ReactNode }) {
   const view = result.kind === "ready" ? result.view : undefined;
   const primary = view?.sections.filter((section) => ["RESULTS", "TOP_STORIES"].includes(section.type)) ?? [];
   const secondary = view?.sections.filter((section) => !["RESULTS", "TOP_STORIES", "HIGHLIGHTS"].includes(section.type)) ?? [];
@@ -68,7 +69,7 @@ export function MorningHomepage({ result, now }: { result: HomepageResult; now: 
       </div>
       <div className="mt-8 text-[11px] leading-5 text-slate-500"><p>Giờ hiển thị: Việt Nam (UTC+7). Nội dung được chọn lọc từ các nguồn có quyền sử dụng.</p>{credits.map((credit) => <p key={credit.url}>{safeNewsUrl(credit.url) ? <a href={credit.url} target="_blank" rel="noopener noreferrer" className="rounded underline underline-offset-4">{credit.attribution}</a> : credit.attribution}</p>)}</div>
     </> : <section className="rounded-2xl border border-slate-200 bg-white px-5 py-8 sm:p-8"><h2 className="text-xl font-bold">{result.kind === "error" ? "Bản tin tạm thời chưa khả dụng" : "Bản tin sáng hôm nay đang được chuẩn bị."}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">{result.kind === "error" ? "Bạn có thể thử tải lại sau hoặc tiếp tục xem các nội dung bên dưới." : "Trong lúc chờ bản tin được xuất bản, bạn có thể xem lịch đấu, tin tức và diễn biến chuyển nhượng."}</p><div className="mt-5 flex flex-wrap gap-2"><Link href="/matches" className="rounded-lg bg-slate-950 px-4 py-3 text-sm font-semibold text-white">Trận đấu & kết quả →</Link><Link href="/news" className="rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold">Tin tức</Link><Link href="/transfers" className="rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold">Chuyển nhượng</Link></div></section>}
-  </div></SportsShell>;
+  {extra}</div></SportsShell>;
 }
 function SummaryPoints({ points, start = 1 }: { points: HomepageView["summary"]; start?: number }) {
   return <ol start={start} className="space-y-2.5">{points.map((point, index) => <li key={point.href} className="flex items-baseline gap-3"><span aria-hidden="true" className="w-4 shrink-0 text-xs font-bold tabular-nums text-emerald-700">{String(start + index).padStart(2, "0")}</span><a href={point.href} className="min-w-0 rounded text-sm font-medium leading-5 text-slate-800 hover:underline">{point.textVi}</a></li>)}</ol>;
