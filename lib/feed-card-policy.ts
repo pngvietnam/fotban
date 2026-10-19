@@ -38,8 +38,12 @@ const transferContext = /chuyển nhượng|chiêu mộ|mua đứt|cho mượn|h
 const negotiation = /đàm phán|đạt thỏa thuận|thỏa thuận cá nhân|lời đề nghị|gửi đề nghị|đề nghị|hỏi mua|ra giá|trả giá|chốt giá|kiểm tra y tế|here we go|đồng ý bán/iu;
 const interest = /quan tâm|để mắt|theo dõi|nhắm tới|nhắm đến|muốn chiêu mộ|muốn có|liên hệ|danh sách mua sắm|săn đón|tiếp cận|nằm trong tầm ngắm/iu;
 // Vietnamese headline types, checked in order before the generic (mostly English) classifier.
+// Lighthearted pieces the publisher itself wrote (trolling, memes, funny moments). Never fan or social-media content.
+const funContext = /cà khịa|châm biếm|chế giễu|ảnh chế|meme|troll|trêu |hài hước|dở khóc dở cười|cười ra nước mắt|bá đạo|khoảnh khắc (?:hài|đáng nhớ)|fan chế|"cà khịa"/iu;
+export const isFunStory = (title: string) => funContext.test(title);
 const vietnameseTypes: readonly [string, (title: string) => boolean][] = [
   ["TRANSFER", (title) => transferContext.test(title)],
+  ["FUN", isFunStory],
   ["INJURY", (title) => /chấn thương|rách cơ|đứt dây chằng|gãy chân|nghỉ thi đấu|tin dữ/iu.test(title)],
   ["DISCIPLINE", (title) => /thẻ đỏ|treo giò|án phạt|kỷ luật|bị phạt|trọng tài|\bVAR\b/iu.test(title)],
   ["CONTRACT", (title) => /gia hạn|hợp đồng/iu.test(title)],

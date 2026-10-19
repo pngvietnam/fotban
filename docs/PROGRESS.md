@@ -1,5 +1,15 @@
 # Milestone progress
 
+## Product direction + club hub (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.
+
+- Owner direction: FotBan as a compact football "social network" without likes/comments: news kept together per club, schedule, table, transfers, news and off-field items, and lighthearted/satirical pieces about clubs and players.
+- Added the club hub `/club/club-<id>` (the spec's `/club/[slug]`): header with table position/form/next match/follow plus tabs Tổng quan, Tin tức, Lịch thi đấu, Chuyển nhượng, Cầu thủ, Vui. Club names now link to it from standings, league club grids, card chips and context blocks.
+- New story type FUN for publisher-written lighthearted pieces (never fan/social content), shown only in the Vui tab with an entertainment notice. None of the current 51 live cards qualifies, so the tab honestly shows its empty state.
+- Live check on Real Madrid: all six tabs 200, 12 news groups, 27-player squad, form W W L W W; an unknown tab is rejected and noindex.
+- Validation: lint PASS, typecheck PASS, tests **705 / 43 files PASS** (6 new club tests), production build PASS.
+
 ## Vietnamese news step 4 — league hubs and the continuous worker (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.

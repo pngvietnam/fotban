@@ -6,7 +6,7 @@ export const storyLabels: Record<string, string> = {
   MATCH: "Trận đấu", PLAYER: "Cầu thủ", CLUB: "Câu lạc bộ", TRANSFER: "Chuyển nhượng",
   INJURY: "Chấn thương", MANAGER: "Huấn luyện viên", TACTICAL: "Chiến thuật", CONTRACT: "Hợp đồng",
   FINANCIAL: "Tài chính", OFF_FIELD: "Ngoài sân cỏ", INTERVIEW: "Phỏng vấn", DISCIPLINE: "Kỷ luật",
-  COMMUNITY: "Cộng đồng", SOCIAL: "Cộng đồng", OTHER: "Bóng đá",
+  COMMUNITY: "Cộng đồng", SOCIAL: "Cộng đồng", FUN: "Vui", OTHER: "Bóng đá",
 };
 export const transferLabels = { CONFIRMED: "Đã xác nhận", NEGOTIATION: "Đang đàm phán", INTEREST: "Đang quan tâm", RUMOR: "Tin đồn" };
 export const tierLabels: Record<string, string> = { TIER_0_OFFICIAL: "Nguồn chính thức", TIER_1_HIGH: "Nguồn uy tín cao", TIER_2_ESTABLISHED: "Báo chí đã được thẩm định", TIER_3_UNVERIFIED: "Nguồn chưa thẩm định", COMMUNITY: "Nguồn cộng đồng" };

@@ -86,6 +86,15 @@ A Báo Mới-style page per league with six tabs selected by `?tab=`: **Tin tứ
 - The standings, fixtures and clubs tabs are FotBan's own data from football-data.org and are indexable (attribution shown); tabs that show publisher text are `noindex`. No club crests or competition logos are used (licensing): text badges with the club code instead.
 - Standings, results and form come only from stored data and show the time of the last update; the worker keeps them fresh. To backfill a season once, use `provider:sync -- matches PL --from 2026-08-01 --to 2026-08-31` (31-day maximum per request) for each window.
 
+### Club hub (`/club/club-<id>`)
+
+The per-club page gathers everything about one club in one place: header (league, table position, points, form, next match, follow button) and six tabs via `?tab=`: **Tổng quan** (next/last matches, latest news, transfers), **Tin tức**, **Lịch thi đấu** (next five, last five), **Chuyển nhượng**, **Cầu thủ** (current squad by line, with follow links) and **Vui**.
+
+- Slugs are `club-<club id>`, so every place that knows a club ID links to it: standings rows, league club grids, club chips on cards and the context blocks. Only clubs in a current Premier League/La Liga season have a page; others are not-found.
+- **Vui** lists lighthearted pieces **written by the publishers themselves** (trolling, memes, funny moments, detected from Vietnamese headline wording) with the notice that they are entertainment, not confirmed news. It never ingests fan or social-media posts, so no moderation or user content is involved; it stays empty until publishers run such pieces.
+- Squad and positions come from the data provider's last sync and can lag transfers. Club data tabs (fixtures, squad) are indexable; tabs with publisher text are `noindex`.
+- Product direction: a compact "football social network" without likes, comments or interaction: one fast, concise place per club, league and player.
+
 ### Ranking, detail context, homepage and scheduling
 
 - **Ranking** (`lib/feed-card-ranking.ts`): editorial importance = distinct publishers x 3 + media bonus + a recency term that halves every 6 hours. Roundups (schedules, results, tables) come last because FotBan has its own match data. No publisher leads three cards in a row while another candidate is close. The top multi-publisher story is shown at full width. This is an editorial order, not a truth or reliability score.

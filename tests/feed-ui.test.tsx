@@ -28,7 +28,9 @@ describe("publisher card UI", () => {
   });
   it("keeps readers on FotBan: card links are internal; the original link is a small footer credit", () => {
     const list = load(render(<FeedGroupCard group={{ key: "k", lead: card(), others: [], latestAt: card().publishedAt }} now={now} />));
-    expect(list("a").map((_, a) => list(a).attr("href")).get().every((href) => href.startsWith("/news/bao-"))).toBe(true);
+    const hrefs = list("a").map((_, a) => list(a).attr("href")).get();
+    expect(hrefs.every((href) => href.startsWith("/news/bao-") || href.startsWith("/club/club-"))).toBe(true);
+    expect(hrefs).toContain("/club/club-c1");
     const detail = load(render(<FeedDetailView card={card()} others={[other]} now={now} />));
     const external = detail("a[target=_blank]");
     expect(external).toHaveLength(1); expect(external.attr("rel")).toBe("noopener noreferrer nofollow"); expect(external.closest("footer")).toHaveLength(1);

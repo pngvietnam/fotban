@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { FeedCardView } from "../../types/feed-card";
 import type { ClubContext } from "../../services/feed-context";
 import { feedNotice, officialWordingNotice } from "../../lib/feed-card-presentation";
+import { clubPath } from "../../lib/club-presentation";
 import { newsAbsoluteTime, newsRelativeTime } from "../../lib/news-presentation";
 import { FeedEntities, FeedLabels, FeedTransferNote } from "./feed-card";
 import { FollowLink } from "../account/follow-link";
@@ -21,7 +22,7 @@ function ClubContextCard({ club }: { club: ClubContext }) {
     club.nextMatch && <li key="next">Sắp tới: <Link href={matchLink(club.nextMatch.slug)} className="underline underline-offset-4">{club.nextMatch.home} – {club.nextMatch.away}</Link> ({newsAbsoluteTime(club.nextMatch.kickoffAt)})</li>,
   ].filter(Boolean);
   if (!rows.length) return null;
-  return <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-5"><h3 className="mb-2 font-bold">{club.name}</h3><ul className="space-y-1 text-sm leading-7 text-slate-700">{rows}</ul>{club.dataAsOf && <p className="mt-2 text-[11px] text-slate-500">Dữ liệu trận cập nhật lúc {newsAbsoluteTime(club.dataAsOf)}</p>}</div>;
+  return <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-5"><h3 className="mb-2 font-bold"><Link href={clubPath(club.clubId)} className="hover:underline">{club.name}</Link></h3><ul className="space-y-1 text-sm leading-7 text-slate-700">{rows}</ul>{club.dataAsOf && <p className="mt-2 text-[11px] text-slate-500">Dữ liệu trận cập nhật lúc {newsAbsoluteTime(club.dataAsOf)}</p>}</div>;
 }
 const followType = { club: "CLUB", player: "PLAYER", league: "COMPETITION" } as const;
 
