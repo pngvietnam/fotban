@@ -1,5 +1,15 @@
 # Milestone progress
 
+## Admin access and the homepage "Đội của tôi" block (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.
+
+- Google sign-in configured on the owner machine (local sign-in works only in dev mode over http://localhost:3001; production mode requires HTTPS by design). The owner signed in and followed Man City and the Premier League.
+- First administrator assigned with the audited bootstrap command to the owner Google account (ADMIN_BOOTSTRAP audit entry). Guests still get 403 on /admin. The held publisher cards have no admin screen yet: use `npm.cmd run news:cards -- held | approve | hide` until one is built.
+- Homepage "Đội của tôi" block for signed-in readers (followed clubs/leagues, three next matches, three newest stories); guests unaffected and free of any session lookup.
+- The red "2 Issues" badge in dev is a hydration warning caused by a browser extension adding bis_* attributes; not an application defect.
+- Validation: lint PASS, typecheck PASS, tests **714 / 46 files PASS** (2 new).
+
 ## Worker installed as a Windows task (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh.

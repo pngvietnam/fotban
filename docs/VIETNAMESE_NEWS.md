@@ -102,7 +102,9 @@ Profile from the data provider only: name, club (linked), league, position line,
 - A page exists only while the provider lists the player in a current Premier League/La Liga squad; a departed player, one in another league or without a club is not-found.
 - Player slugs are `player-<id>`, so squads, club chips on cards and the personal feed link to it. Pages show publisher text and are `noindex`.
 
-### Personal feed (`/following`)
+### Personal feed (`/following`) and homepage block
+
+Signed-in readers also get an **Đội của tôi** block at the top of `/`: followed clubs and leagues, the next three matches and the three newest stories, with a link to the full feed. A reader with no follows sees an invitation to choose teams. Guests never see it and cost nothing: without a session cookie the session is not looked up, any failure hides the block, and the public Brief below is unchanged. The page is dynamic and sent `private, no-store`.
 
 A signed-in reader sees one personal page built from what they follow (M15 follows): a summary with links to followed league and club hubs, the next and last matches of followed clubs, **new stories** linked to followed clubs, players or leagues (a followed league brings its whole news stream), followed **transfers**, and **fun** pieces. A guest is redirected to sign-in with a return to `/following`; with no follows the page offers clubs to pick. The navigation link "Bảng tin của tôi" replaces "Tài khoản / Theo dõi"; follow management stays at `/account`.
 

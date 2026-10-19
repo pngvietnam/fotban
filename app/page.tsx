@@ -3,6 +3,8 @@ import { homepageMetadata } from "@/lib/homepage-presentation";
 import { readHomepage } from "@/services/homepage-page-data";
 import { readFeedList } from "@/services/feed-page-data";
 import { FeedHomeSection } from "@/components/news/feed-section";
+import { readMyTeams } from "@/services/my-teams";
+import { MyTeamsSection } from "@/components/home/my-teams";
 import { MorningHomepage } from "@/components/home/morning-homepage";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +16,7 @@ export async function generateMetadata({ searchParams }: Props) {
 }
 export default async function Home({ searchParams }: Props) {
   const params = await searchParams;
-  const [result, feed] = await Promise.all([readHomepage(params.preview), readFeedList({ league: "all", offset: 0 })]);
+  const [result, feed, mine] = await Promise.all([readHomepage(params.preview), readFeedList({ league: "all", offset: 0 }), readMyTeams()]);
   const now = new Date();
-  return <MorningHomepage result={result} now={now} extra={<FeedHomeSection result={feed} now={now} />} />;
+  return <MorningHomepage result={result} now={now} extra={<FeedHomeSection result={feed} now={now} />} before={mine ? <MyTeamsSection data={mine} now={now} /> : null} />;
 }
