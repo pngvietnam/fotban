@@ -2,13 +2,14 @@ import { Client } from "pg";
 import { parseEnvironment } from "../lib/config";
 import { createDatabaseClient } from "../lib/database-client";
 import { createLogger } from "../lib/logging";
-import { createMatchRuntime } from "../lib/match-runtime";
+import { createMatchDetailApi, createMatchRuntime } from "../lib/match-runtime";
 import { createNewsRuntime } from "../lib/news-runtime";
 import { prismaSyncDatabase } from "../lib/sync-database";
 import { competitionConfig } from "../providers/football-data/config";
 import { vietnameseSource } from "../providers/news/vietnamese-sources";
 import { publishFeedCards } from "../services/feed-cards";
 import { syncMatches } from "../services/match-sync";
+import { syncMatchDetails } from "../services/match-details";
 import { syncNews } from "../services/news-sync";
 import { syncPlayerImages, wikimediaApi } from "../services/player-images";
 import { abortableSleep, runLoop } from "../services/worker-loop";
@@ -42,9 +43,10 @@ async function main() {
   const database = prismaSyncDatabase(db);
   const news = createNewsRuntime(db, { wikimediaUserAgent: env.WIKIMEDIA_USER_AGENT });
   const match = env.FOOTBALL_DATA_API_KEY ? createMatchRuntime(db, env) : null;
+  const details = env.HIGHLIGHTLY_API_KEY ? createMatchDetailApi(db, env.HIGHLIGHTLY_API_KEY) : null;
   const photoApi = env.WIKIMEDIA_USER_AGENT ? wikimediaApi(env.WIKIMEDIA_USER_AGENT) : null;
   let photosPausedUntil = 0;
-  logger.info({ matches: Boolean(match), photos: Boolean(photoApi) }, "worker.started");
+  logger.info({ matches: Boolean(match), details: Boolean(details), photos: Boolean(photoApi) }, "worker.started");
   try {
     await runLoop(async () => {
       let ok = true;
@@ -66,6 +68,13 @@ async function main() {
             await syncMatches(match.provider, match.store, { mode: "standings", competition }, logger, { ttlMs: standingsTtlMs });
           } catch { ok = false; } // Provider errors are recorded by the sync; keep the news loop alive.
         }
+      }
+      // Events, lineups and statistics: only due matches cost a request; stops for the day at the allowance.
+      if (details) {
+        try {
+          const result = await syncMatchDetails(database, details);
+          if (result.requests || result.stopped === "ERROR") logger.info({ ...result }, "worker.match_details");
+        } catch { ok = false; }
       }
       // Free-licence player photos: a small, time-boxed batch per pass; pauses for 30 minutes when Wikimedia pushes back.
       if (photoApi && Date.now() >= photosPausedUntil) {

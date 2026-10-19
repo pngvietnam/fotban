@@ -12,7 +12,7 @@ import type { ReactNode } from "react";
 import type { MatchHub } from "../../services/match-hub";
 import type { MatchTab } from "../../lib/match-tabs";
 import { MatchTabsView } from "./match-tabs";
-import { EventsList, FormPanel, HeadToHeadPanel, NextMatches, StandingsPanel, StatsList, Unavailable } from "./match-tab-views";
+import { EventsList, FormPanel, HeadToHeadPanel, LineupsView, NextMatches, Scorers, StandingsPanel, StatsList, Unavailable } from "./match-tab-views";
 
 export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, news }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode }) {
   const updated = formatUpdated(match.lastUpdatedAt);
@@ -27,6 +27,7 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 py-9 sm:gap-6 sm:px-12 sm:py-14">
         <TeamIdentity team={match.homeClub} side="home" large /><MatchScore match={match} large /><TeamIdentity team={match.awayClub} side="away" large />
       </div>
+      <Scorers match={match} />
       <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-slate-100 bg-slate-50 px-5 py-4 text-center text-xs leading-6 text-slate-600">
         <span><strong className="font-semibold text-slate-900">{formatMatchTime(match.kickoffAt)}</strong> · {formatMatchDate(match.kickoffAt, true)}</span>
         <span>{match.venue || "Chưa có dữ liệu sân đấu"}</span>
@@ -37,7 +38,7 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
       <section aria-labelledby="match-info" className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
         <h2 id="match-info" className="text-base font-bold">Thông tin trận đấu</h2>
         <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
-          {[["Giải đấu", match.league.name], ["Mùa giải", match.season.name], ["Vòng đấu", formatRound(match.round) || "Chưa có dữ liệu"], ["Giờ thi đấu", `${formatMatchTime(match.kickoffAt)} · ${formatMatchDate(match.kickoffAt, true)}`], ["Sân vận động", match.venue || "Chưa có dữ liệu"], ["Cập nhật dữ liệu", updated || "Chưa có thời gian cập nhật"]].map(([label, value]) => <div key={label}><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1.5 font-medium leading-6 text-slate-900">{value}</dd></div>)}
+          {[["Giải đấu", match.league.name], ["Mùa giải", match.season.name], ["Vòng đấu", formatRound(match.round) || "Chưa có dữ liệu"], ["Giờ thi đấu", `${formatMatchTime(match.kickoffAt)} · ${formatMatchDate(match.kickoffAt, true)}`], ["Sân vận động", match.venue || "Chưa có dữ liệu"], ["Trọng tài", match.referee || "Chưa có dữ liệu"], ["Cập nhật dữ liệu", updated || "Chưa có thời gian cập nhật"]].map(([label, value]) => <div key={label}><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1.5 font-medium leading-6 text-slate-900">{value}</dd></div>)}
         </dl>
         <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-6 text-slate-500">Giờ Việt Nam · Asia/Ho_Chi_Minh (UTC+7).{isMatchStale(match, now) ? " Dữ liệu có thể đã cũ; trạng thái hiện tại có thể chưa được cập nhật." : ""}</p>
       </section>
@@ -49,7 +50,7 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
       {match.status === "FINISHED" && <MatchHighlight highlight={highlight} />}
     </div>}
     {tab === "su-kien" && <div className="mt-6"><EventsList match={match} /></div>}
-    {tab === "doi-hinh" && <div className="mt-6"><Unavailable>Chưa có dữ liệu đội hình xuất phát và dự bị cho trận này.</Unavailable></div>}
+    {tab === "doi-hinh" && <div className="mt-6"><LineupsView match={match} /></div>}
     {tab === "bxh" && <div className="mt-6">{hub ? <StandingsPanel match={match} hub={hub} /> : <Unavailable>Chưa có dữ liệu bảng xếp hạng.</Unavailable>}</div>}
     {tab === "thong-ke" && <div className="mt-6"><StatsList match={match} /></div>}
     {tab === "doi-dau" && <div className="mt-6">{hub ? <HeadToHeadPanel match={match} hub={hub} /> : <Unavailable>Chưa có dữ liệu các lần gặp nhau của hai đội.</Unavailable>}</div>}
@@ -59,5 +60,6 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
       {match.league.id && <FollowLink type="COMPETITION" entityId={match.league.id} name={match.league.name} />}
     </div>
     <MatchAttribution matches={[match]} />
+    {(match.detailAttributions ?? []).map((source) => <p key={source.url} className="mt-1 text-xs text-slate-500"><a href={source.url} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-slate-900">{source.text}<span className="sr-only"> (mở trong thẻ mới)</span></a></p>)}
   </>;
 }

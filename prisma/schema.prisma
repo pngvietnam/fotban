@@ -297,6 +297,7 @@ model Club {
   awayMatches       Match[]            @relation("AwayClub")
   events            MatchEvent[]
   stats             MatchStat[]
+  lineups           MatchLineup[]
   entities          ArticleEntity[]
   follows           UserFollow[]
   identities        ExternalIdentity[]
@@ -435,6 +436,8 @@ model Match {
   evidence           ClaimEvidence[]
   briefItems         BriefItem[]
   identities         ExternalIdentity[]
+  lineups            MatchLineup[]
+  detailSyncs        MatchDetailSync[]
 
   @@unique([provider, externalId])
   @@index([kickoffAt])
@@ -445,25 +448,27 @@ model Match {
 }
 
 model MatchEvent {
-  id              String         @id @default(uuid()) @db.Uuid
-  matchId         String         @db.Uuid
-  provider        String
-  externalId      String
-  clubId          String?        @db.Uuid
-  playerId        String?        @db.Uuid
-  relatedPlayerId String?        @db.Uuid
-  type            MatchEventType
-  minute          Int?
-  addedMinute     Int?
-  period          String?
-  detail          String?
-  sourceUrl       String?
-  createdAt       DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime       @updatedAt @db.Timestamptz(3)
-  match           Match          @relation(fields: [matchId], references: [id], onDelete: Restrict)
-  club            Club?          @relation(fields: [clubId], references: [id], onDelete: Restrict)
-  player          Player?        @relation("EventPlayer", fields: [playerId], references: [id], onDelete: Restrict)
-  relatedPlayer   Player?        @relation("RelatedPlayer", fields: [relatedPlayerId], references: [id], onDelete: Restrict)
+  id                String         @id @default(uuid()) @db.Uuid
+  matchId           String         @db.Uuid
+  provider          String
+  externalId        String
+  clubId            String?        @db.Uuid
+  playerId          String?        @db.Uuid
+  relatedPlayerId   String?        @db.Uuid
+  playerName        String?
+  relatedPlayerName String?
+  type              MatchEventType
+  minute            Int?
+  addedMinute       Int?
+  period            String?
+  detail            String?
+  sourceUrl         String?
+  createdAt         DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime       @updatedAt @db.Timestamptz(3)
+  match             Match          @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  club              Club?          @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  player            Player?        @relation("EventPlayer", fields: [playerId], references: [id], onDelete: Restrict)
+  relatedPlayer     Player?        @relation("RelatedPlayer", fields: [relatedPlayerId], references: [id], onDelete: Restrict)
 
   @@unique([provider, matchId, externalId])
   @@index([matchId, minute])
@@ -1207,4 +1212,55 @@ model AdminAuditLog {
 
   @@index([actorId, createdAt])
   @@index([targetType, targetId, createdAt])
+}
+
+/// Starting eleven and bench of one club for one match, from a detail provider.
+/// players: [{ name, number, position, starter, row, slot, playerId }] (row/slot only for starters).
+model MatchLineup {
+  id        String   @id @default(uuid()) @db.Uuid
+  matchId   String   @db.Uuid
+  clubId    String   @db.Uuid
+  provider  String
+  formation String?
+  players   Json
+  fetchedAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Restrict)
+
+  @@unique([matchId, clubId, provider])
+  @@index([clubId])
+}
+
+/// Per-match progress of a detail provider: its match ID, and when lineups and events/statistics were read.
+model MatchDetailSync {
+  matchId            String    @db.Uuid
+  provider           String
+  externalId         String?
+  homeTeamExternalId String?
+  awayTeamExternalId String?
+  referee            String?
+  mapAttemptAt       DateTime? @db.Timestamptz(3)
+  lineupsFetchedAt   DateTime? @db.Timestamptz(3)
+  lineupAttempts     Int       @default(0)
+  detailFetchedAt    DateTime? @db.Timestamptz(3)
+  detailAttempts     Int       @default(0)
+  lastError          String?
+  createdAt          DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(3)
+  match              Match     @relation(fields: [matchId], references: [id], onDelete: Restrict)
+
+  @@id([matchId, provider])
+  @@unique([provider, externalId])
+}
+
+/// Requests spent per provider and UTC day, for providers with a daily allowance.
+model ProviderQuota {
+  provider  String
+  day       DateTime @db.Date
+  used      Int      @default(0)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@id([provider, day])
 }

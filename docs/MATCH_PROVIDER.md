@@ -103,3 +103,15 @@ Invoke-RestMethod "http://localhost:3000/api/matches?league=la-liga&from=$from&t
 Record real match counts, per-league internal API reads and repeat-run counts in PROGRESS.md without credentials/raw licensed payloads. If the window has no matches, choose another date window in the permitted season rather than inserting sample data. Smoke exits nonzero on missing key, partial response or a fresh no-result window, because those cannot prove real match persistence. Standings, full club metadata and richer provider detail have separate sync commands/capability checks; the two-request smoke does not claim to verify those endpoints or any paid fields.
 
 No key was available in Codex, so the live API acceptance gate remains pending local validation. Database migration, mocked-transport SQL tests, a real Prisma rollback-only persistence probe and API empty/error smoke tests are different evidence and do not replace this gate. Milestone 4 is not started.
+
+## Match details: Highlightly (free Basic plan)
+
+football-data.org's free tier has no events, lineups or statistics, so these come from [Highlightly](https://highlightly.net) (free Basic plan: 100 requests/day, no card; its terms allow using and storing the data in our product, but not reselling API access or building a competing database).
+
+- Key: `HIGHLIGHTLY_API_KEY` in `.env` (never committed). Without it the worker skips this step and the tabs show "chưa có dữ liệu".
+- Adapter: `providers/highlightly/` (no automatic retries, every request counts). Sync: `services/match-details.ts`, run by the worker each pass and by `npm.cmd run matches:details`.
+- Budget: 90 requests per UTC day (`ProviderQuota`), ten left for manual checks; an HTTP 429 stops it for the day. Cost per match: about 2 requests (lineups + events/statistics) plus one list request per competition and day to find the provider's match ID, plus one league lookup per competition, once.
+- When: lineups from 50 minutes before kickoff (retried every 20 minutes, 4 attempts), events and statistics once football-data reports the match FINISHED (retried hourly, 4 attempts, while goals are missing upstream). No live polling on the free plan.
+- Matching: provider matches pair with ours by kickoff (±20 min) and both team names; ties stay unmatched. Event and lineup players link to the canonical squad player only when the name is unique (full name, or initial + surname).
+- Storage: `MatchEvent` (with `playerName`/`relatedPlayerName`), `MatchStat`, `MatchLineup` (formation + players JSON), `MatchDetailSync` (provider match ID, referee, progress). Re-reads replace that provider's rows for the match.
+- Not verified yet against live responses: the field names come from Highlightly's published OpenAPI pages. Who goes on/off in a substitution is decided from the stored starting eleven; the side of an own goal follows the provider's team field.

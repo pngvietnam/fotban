@@ -3,6 +3,19 @@ import { z } from "zod";
 import { dataSources } from "../lib/data-sources";
 import { dateBounds, matchTimeZone } from "../lib/match-presentation";
 
+type StoredLineupPlayer = { name: string; number: number | null; position: string | null; starter: boolean; row: number | null; slot: number | null; playerId: string | null };
+/** Defensive read of the stored lineup JSON: malformed entries are dropped, never shown half-formed. */
+function lineupPlayers(value: unknown): StoredLineupPlayer[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const player = item as Record<string, unknown>;
+    if (typeof player.name !== "string" || !player.name.trim()) return [];
+    const int = (field: unknown) => typeof field === "number" && Number.isInteger(field) ? field : null;
+    return [{ name: player.name, number: int(player.number), position: typeof player.position === "string" ? player.position : null, starter: player.starter === true, row: int(player.row), slot: int(player.slot), playerId: typeof player.playerId === "string" ? player.playerId : null }];
+  });
+}
+
 const clubSelect = { id: true, slug: true, name: true, shortName: true, tla: true, externalCrestUrl: true } as const;
 const matchSelect = {
   id: true, slug: true, kickoffAt: true, status: true, round: true, venue: true,
@@ -35,10 +48,22 @@ export async function listMatches(db: PrismaClient, input: z.infer<typeof matchR
 }
 export async function readMatchBySlug(db: PrismaClient, slug: string) {
   const row = await db.match.findUnique({ where: { slug }, select: { ...matchSelect,
-    events: { select: { type: true, minute: true, addedMinute: true, detail: true, club: { select: { name: true } }, player: { select: { name: true } }, relatedPlayer: { select: { name: true } } }, orderBy: [{ minute: "asc" }, { id: "asc" }], take: 200 },
-    stats: { select: { metric: true, value: true, unit: true, club: { select: { name: true } }, player: { select: { name: true } } }, orderBy: [{ metric: "asc" }, { id: "asc" }], take: 100 },
+    events: { select: { type: true, minute: true, addedMinute: true, detail: true, provider: true, playerName: true, relatedPlayerName: true, club: { select: { id: true, name: true } }, player: { select: { id: true, name: true } }, relatedPlayer: { select: { id: true, name: true } } }, orderBy: [{ minute: "asc" }, { addedMinute: "asc" }, { externalId: "asc" }], take: 200 },
+    stats: { select: { metric: true, value: true, unit: true, provider: true, club: { select: { id: true, name: true } }, player: { select: { name: true } } }, orderBy: [{ metric: "asc" }, { id: "asc" }], take: 200 },
+    lineups: { select: { clubId: true, formation: true, players: true, provider: true }, take: 4 },
+    detailSyncs: { select: { referee: true }, take: 1 },
   } });
-  return row ? { ...row, stats: row.stats.map((stat) => ({ ...stat, value: stat.value.toString() })), attribution: dataSources[row.provider]?.attribution ?? null } : null;
+  if (!row) return null;
+  const { detailSyncs, ...rest } = row;
+  const lineups = row.lineups.map((lineup) => ({ clubId: lineup.clubId, formation: lineup.formation, provider: lineup.provider, players: lineupPlayers(lineup.players) }));
+  // Hotlinked free-licence photos for players matched to the canonical squad.
+  const ids = [...new Set(lineups.flatMap((lineup) => lineup.players.flatMap((player) => player.playerId ? [player.playerId] : [])))];
+  const photos = ids.length ? new Map((await db.playerImage.findMany({ where: { playerId: { in: ids }, status: "FOUND" }, select: { playerId: true, thumbUrl: true } })).map((image) => [image.playerId, image.thumbUrl])) : new Map<string, string | null>();
+  const providers = [...new Set([...row.events.map((event) => event.provider), ...row.stats.map((stat) => stat.provider), ...lineups.map((lineup) => lineup.provider)])];
+  return { ...rest, referee: detailSyncs[0]?.referee ?? null, stats: row.stats.map((stat) => ({ ...stat, value: stat.value.toString() })),
+    lineups: lineups.map((lineup) => ({ ...lineup, players: lineup.players.map((player) => ({ ...player, photoUrl: player.playerId ? photos.get(player.playerId) ?? null : null })) })),
+    attribution: dataSources[row.provider]?.attribution ?? null,
+    detailAttributions: providers.filter((name) => name !== row.provider).flatMap((name) => dataSources[name] ? [dataSources[name].attribution] : []) };
 }
 export async function readMatch(db: PrismaClient, id: string) {
   const row = await db.match.findUnique({ where: { id }, select: matchSelect });

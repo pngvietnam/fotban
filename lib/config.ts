@@ -13,6 +13,7 @@ const schema = z.object({
   ),
   SPORTS_API_KEY: optionalSecret,
   FOOTBALL_DATA_API_KEY: optionalSecret,
+  HIGHLIGHTLY_API_KEY: optionalSecret,
   NEWS_API_KEY: optionalSecret,
   WIKIMEDIA_USER_AGENT: z.preprocess((value) => value === "" ? undefined : value, z.string().max(300).regex(/^[\x20-\x7E]+$/).optional()),
   YOUTUBE_API_KEY: optionalSecret,

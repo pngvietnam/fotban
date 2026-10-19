@@ -13,8 +13,14 @@ export type MatchSummary = {
   homeClub: MatchTeam | null; awayClub: MatchTeam | null;
   attribution?: { text: string; url: string } | null;
 };
+export type LineupPlayerView = { name: string; number: number | null; position: string | null; starter: boolean; row: number | null; slot: number | null; playerId: string | null; photoUrl?: string | null };
 export type MatchDetail = MatchSummary & {
   events: { type: string; minute: number | null; addedMinute: number | null; detail: string | null;
-    club: { name: string } | null; player: { name: string } | null; relatedPlayer: { name: string } | null }[];
-  stats: { metric: string; value: string; unit: string | null; club: { name: string }; player: { name: string } | null }[];
+    playerName?: string | null; relatedPlayerName?: string | null;
+    club: { id?: string; name: string } | null; player: { id?: string; name: string } | null; relatedPlayer: { id?: string; name: string } | null }[];
+  stats: { metric: string; value: string; unit: string | null; club: { id?: string; name: string }; player: { name: string } | null }[];
+  lineups?: { clubId: string; formation: string | null; players: LineupPlayerView[] }[];
+  referee?: string | null;
+  /** Credits for event/lineup/statistics providers other than the match's own source. */
+  detailAttributions?: { text: string; url: string }[];
 };

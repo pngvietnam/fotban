@@ -1422,3 +1422,9 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 
 - `/match/[slug]` has FotMob-style tabs in `?tab=`: Dữ kiện (info, events/stats when stored, form of both teams, next fixtures, related stories, highlight), Sự kiện, Đội hình, BXH (league table with both clubs highlighted), Thống kê, Đối đầu (earlier meetings stored here with win/draw counts).
 - **Data gap:** the football-data.org free tier returns only score, half-time score and referee for a match; no goals, cards, substitutions, lineups or statistics (checked with a real finished match). Sự kiện, Đội hình and Thống kê therefore show an honest "chưa có dữ liệu" state until a source for them is chosen. The MatchEvent/MatchStat tables and views are ready for it.
+
+## Match events, lineups and statistics
+
+- Source: Highlightly free Basic plan (see MATCH_PROVIDER.md). Additive migration `20261019190000_match_details` (MatchLineup, MatchDetailSync, ProviderQuota, MatchEvent player names).
+- Match page: Sự kiện is a home-left/away-right timeline, scorers appear under the score, Đội hình draws each formation on a pitch with the bench, Thống kê shows home/away bars, Dữ kiện shows the referee and credits the provider.
+- Pending: the owner registers a free Highlightly key and adds `HIGHLIGHTLY_API_KEY` to `.env`; then run `npm.cmd run matches:details` once and check real responses against the adapter.
