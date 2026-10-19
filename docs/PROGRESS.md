@@ -1417,3 +1417,8 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 
 - `/news` now opens on a tab menu like FotMob: Dành cho bạn (followed teams' fixtures and stories; top stories plus a follow prompt otherwise), Mới nhất (strictly newest first), Chuyển nhượng (transfer stories, newest first) and Giải đấu (league chips, ranked). Tab and page live in `?tab=` and `?bao=`.
 - The hero text, the "Tin từ báo chí Việt Nam" heading and the "Tiêu đề và mô tả do báo đăng…" notice were removed from list, home and detail pages; each card still shows its publisher and original-link attribution.
+
+## Match page tabs
+
+- `/match/[slug]` has FotMob-style tabs in `?tab=`: Dữ kiện (info, events/stats when stored, form of both teams, next fixtures, related stories, highlight), Sự kiện, Đội hình, BXH (league table with both clubs highlighted), Thống kê, Đối đầu (earlier meetings stored here with win/draw counts).
+- **Data gap:** the football-data.org free tier returns only score, half-time score and referee for a match; no goals, cards, substitutions, lineups or statistics (checked with a real finished match). Sự kiện, Đội hình and Thống kê therefore show an honest "chưa có dữ liệu" state until a source for them is chosen. The MatchEvent/MatchStat tables and views are ready for it.

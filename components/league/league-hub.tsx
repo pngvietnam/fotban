@@ -26,7 +26,7 @@ export function FormChips({ form }: { form: ("W" | "D" | "L")[] }) {
   const tone = { W: "bg-emerald-600", D: "bg-slate-400", L: "bg-rose-600" } as const;
   return <ul aria-label={`Phong độ: ${form.map((result) => resultText[result]).join(", ")}`} className="flex gap-1">{form.map((result, index) => <li key={index} aria-hidden="true" className={`grid h-5 w-5 place-items-center rounded text-[10px] font-bold text-white ${tone[result]}`}>{resultLabel[result]}</li>)}</ul>;
 }
-export function StandingsTable({ data, league, limit }: { data: StandingsData; league: LeagueInfo; limit?: number }) {
+export function StandingsTable({ data, league, limit, highlight = [] }: { data: StandingsData; league: LeagueInfo; limit?: number; /** Club IDs whose rows are emphasised, e.g. the two teams of a match. */ highlight?: string[] }) {
   if (!data.rows.length) return <p role="status" className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-8 text-center text-sm text-slate-600">Chưa có dữ liệu bảng xếp hạng.</p>;
   const rows = limit ? data.rows.slice(0, limit) : data.rows;
   return <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
@@ -34,7 +34,7 @@ export function StandingsTable({ data, league, limit }: { data: StandingsData; l
     <div className="overflow-x-auto"><table className="w-full min-w-[320px] text-sm">
       <caption className="sr-only">Bảng xếp hạng {league.name}</caption>
       <thead className="text-[11px] text-slate-500"><tr><th scope="col" className="w-8 py-2 text-left">#</th><th scope="col" className="py-2 text-left">Đội bóng</th><th scope="col" className="px-1 text-right">Trận</th><th scope="col" className="hidden px-1 text-right sm:table-cell">Thắng</th><th scope="col" className="hidden px-1 text-right sm:table-cell">Hòa</th><th scope="col" className="hidden px-1 text-right sm:table-cell">Thua</th><th scope="col" className="hidden px-1 text-right sm:table-cell">+/-</th><th scope="col" className="px-1 text-right">HS</th><th scope="col" className="px-2 text-right">Điểm</th><th scope="col" className="hidden py-2 pl-3 text-left md:table-cell">Trận gần nhất</th></tr></thead>
-      <tbody>{rows.map((row) => <tr key={row.clubId} className="border-t border-slate-100">
+      <tbody>{rows.map((row) => <tr key={row.clubId} aria-current={highlight.includes(row.clubId) ? "true" : undefined} className={`border-t border-slate-100 ${highlight.includes(row.clubId) ? "bg-lime-50 font-semibold" : ""}`}>
         <td className="py-2.5 text-slate-500">{row.position}</td>
         <td className="py-2.5"><span className="flex min-w-0 items-center gap-2"><TeamBadge name={row.name} tla={row.tla} crestUrl={row.crestUrl} /><Link href={clubPath(row.clubId)} className="min-w-0 break-words font-semibold hover:underline">{row.shortName?.trim() || row.name}</Link></span></td>
         <td className="px-1 text-right tabular-nums">{row.played ?? "—"}</td>
