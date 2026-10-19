@@ -48,4 +48,28 @@ export const vietnameseClubAliases: Record<string, readonly string[]> = {
   "559": ["Sevilla"],
   "560": ["Deportivo La Coruna", "Depor"],
   "5335": ["Racing Santander"],
+  // Clubs that play only in the Champions League here (football-data IDs)
+  "524": ["PSG", "Paris SG", "Paris Saint-Germain"],
+  "5": ["Bayern", "Bayern Munich", "Bayern Munchen"],
+  "4": ["Dortmund", "Borussia Dortmund"],
+  "108": ["Inter Milan", "Inter", "Nerazzurri"],
+  "113": ["Napoli"],
+  "100": ["AS Roma", "Roma"],
+  "721": ["Leipzig", "RB Leipzig"],
+  "498": ["Sporting Lisbon", "Sporting CP"],
+  "503": ["Porto"],
+  "610": ["Galatasaray"],
+  "613": ["Fenerbahce"],
+  "521": ["Lille"],
+  "546": ["Lens"],
+  "674": ["PSV"],
+  "675": ["Feyenoord"],
+  "10": ["Stuttgart"],
+};
+
+/** Names Vietnamese press uses for competitions, keyed by internal league slug (matched through League.aliases). */
+export const vietnameseLeagueAliases: Record<string, readonly string[]> = {
+  "champions-league": ["Champions League", "UEFA Champions League", "Cúp C1", "Cup C1", "C1 châu Âu"],
+  "premier-league": ["Ngoại hạng Anh", "Premier League", "NHA"],
+  "la-liga": ["La Liga", "LaLiga", "VĐQG Tây Ban Nha"],
 };

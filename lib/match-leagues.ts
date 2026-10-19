@@ -2,4 +2,5 @@
 export const matchLeagues = {
   "premier-league": { name: "Premier League", country: "England" },
   "la-liga": { name: "La Liga", country: "Spain" },
+  "champions-league": { name: "UEFA Champions League", country: "Europe" },
 } as const;

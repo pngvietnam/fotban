@@ -13,7 +13,7 @@ const attribution = <p className="mt-3 text-[11px] text-slate-500">Football data
 export function LeagueHeader({ league, active, from }: { league: LeagueInfo; active: LeagueTab; from?: string }) {
   return <header className="mb-6 rounded-2xl border border-slate-200 bg-white px-5 pt-5 sm:px-6">
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="flex items-center gap-4"><span aria-hidden="true" className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-950 text-sm font-bold text-[#c7f36b]">{league.slug === "la-liga" ? "LL" : "NHA"}</span>
+      <div className="flex items-center gap-4"><span aria-hidden="true" className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-950 text-sm font-bold text-[#c7f36b]">{league.slug === "la-liga" ? "LL" : league.slug === "champions-league" ? "UCL" : "NHA"}</span>
         <div><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{league.name}</h1><p className="text-sm text-slate-500">{league.country}{league.seasonName ? ` · Mùa giải ${league.seasonName}` : ""}</p></div></div>
       <nav aria-label="Chọn giải đấu" className="flex gap-2">{leagueLinks.map((item) => <Link key={item.slug} href={leagueHref(item.slug, { tab: active })} aria-current={item.slug === league.slug ? "page" : undefined} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${item.slug === league.slug ? "border-slate-950 bg-slate-950 text-white" : "border-slate-300 bg-white text-slate-700"}`}>{item.label}</Link>)}</nav>
     </div>

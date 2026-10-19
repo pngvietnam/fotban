@@ -200,3 +200,7 @@ No new API key is required. GDELT uses two bounded 24-hour league queries, ten r
 `news:diagnose` is read-only and reports current persisted per-source stages and actual gate blockers, including validated fallback processing versus publishable Vietnamese content. It is bounded to 500 article details and fails rather than reporting a partial article total. Wikinews coverage uses one identified, five-result metadata query; revision timestamps are not asserted publication dates. Stored licensed article publication dates remain separate.
 
 The additive migrations `20261018150000_news_discovery` and `20261019013000_vietnamese_rss` preserve all existing data and publication policies. No reset or fake visible records are used.
+
+## Champions League
+
+Relevance accepts "Champions League", "Cúp C1", "Cup C1" and "C1 châu Âu" in a title or description, and the league aliases register them on the Champions League. Thethao247 and Bongda.com.vn have dedicated C1 feeds.

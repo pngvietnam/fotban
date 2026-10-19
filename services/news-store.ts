@@ -6,7 +6,7 @@ import { NewsError } from "../providers/news/errors";
 import { wikinewsConfig } from "../providers/wikimedia/config";
 import { parseReusableLicense } from "../lib/news-licenses";
 import { vietnameseSources } from "../providers/news/vietnamese-sources";
-import { vietnameseClubAliases } from "../providers/news/vietnamese-aliases";
+import { vietnameseClubAliases, vietnameseLeagueAliases } from "../providers/news/vietnamese-aliases";
 import { feedUrlAllowed, publisherFeedAllowed, permittedFeedSnapshot } from "../lib/publisher-feed-permission";
 
 export type NewsCounts = { created: number; duplicates: number; conflicts: number };
@@ -57,6 +57,10 @@ export class NewsSyncStore {
     let updated = 0;
     for (const [externalId, aliases] of Object.entries(vietnameseClubAliases)) {
       const rows = await this.db.query<{ id: string }>(`UPDATE "Club" c SET aliases=ARRAY(SELECT DISTINCT unnest(c.aliases || $2::text[]) ORDER BY 1),"updatedAt"=now() FROM "ExternalIdentity" e WHERE e."clubId"=c.id AND e.provider='FOOTBALL_DATA' AND e."entityType"='CLUB' AND e."externalId"=$1 AND NOT c.aliases @> $2::text[] RETURNING c.id`, [externalId, [...aliases]]);
+      updated += rows.length;
+    }
+    for (const [slug, aliases] of Object.entries(vietnameseLeagueAliases)) {
+      const rows = await this.db.query<{ id: string }>('UPDATE "League" l SET aliases=ARRAY(SELECT DISTINCT unnest(l.aliases || $2::text[]) ORDER BY 1),"updatedAt"=now() WHERE l.slug=$1 AND NOT l.aliases @> $2::text[] RETURNING l.id', [slug, [...aliases]]);
       updated += rows.length;
     }
     return updated;

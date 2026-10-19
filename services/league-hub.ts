@@ -4,6 +4,7 @@ import type { ClubRow, FixtureRow, LeagueInfo, LeagueSlug, StandingRow, Standing
 export const leagueNames: Record<LeagueSlug, { name: string; country: string }> = {
   "premier-league": { name: "Ngoại hạng Anh", country: "Anh" },
   "la-liga": { name: "La Liga", country: "Tây Ban Nha" },
+  "champions-league": { name: "Champions League", country: "Châu Âu" },
 };
 export const isLeagueSlug = (value: string): value is LeagueSlug => Object.hasOwn(leagueNames, value);
 

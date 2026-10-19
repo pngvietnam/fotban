@@ -4,7 +4,7 @@ import { leagueTabs } from "../types/league-hub";
 export const leagueTabLabels: Record<LeagueTab, string> = {
   "tin-tuc": "Tin tức", "tong-quan": "Tổng quan", "bang-xep-hang": "Bảng xếp hạng", "lich-thi-dau": "Lịch thi đấu", "doi-bong": "Đội bóng", "chuyen-nhuong": "Chuyển nhượng",
 };
-export const leagueLinks: { slug: LeagueSlug; label: string }[] = [{ slug: "premier-league", label: "Ngoại hạng Anh" }, { slug: "la-liga", label: "La Liga" }];
+export const leagueLinks: { slug: LeagueSlug; label: string }[] = [{ slug: "premier-league", label: "Ngoại hạng Anh" }, { slug: "la-liga", label: "La Liga" }, { slug: "champions-league", label: "Champions League" }];
 const dayMs = 86400000; const windowDays = 7; const maxShiftDays = 120;
 const vietnamDate = (date: Date) => new Date(date.getTime() + 7 * 3600000).toISOString().slice(0, 10);
 const startOfVietnamDay = (day: string) => new Date(`${day}T00:00:00+07:00`);

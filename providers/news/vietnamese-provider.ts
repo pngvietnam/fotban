@@ -18,7 +18,7 @@ const notNews = /link xem trực tiếp|xem trực tiếp bóng đá|trực ti�
 export function relevantVietnameseFootball(title: string, excerpt: string | null, catalog: EntityCandidate[]) {
   const input = `${title}\n${excerpt ?? ""}`;
   if (/quần vợt|bóng rổ|bóng chuyền|cầu lông|pickleball|\btennis\b|\bgolf\b|\bF1\b/iu.test(title) || notNews.test(title)) return false;
-  return /ngoại hạng anh|premier league|la\s?liga|bóng đá tây ban nha/iu.test(input) || resolveEntities(input, catalog).some((entity) => ["club", "player", "league"].includes(entity.kind));
+  return /ngoại hạng anh|premier league|la\s?liga|bóng đá tây ban nha|champions league|cúp c1|cup c1|c1 châu âu/iu.test(input) || resolveEntities(input, catalog).some((entity) => ["club", "player", "league"].includes(entity.kind));
 }
 /** An https image on the publisher's own site or image CDN; anything else (other hosts, data URLs, trackers) is ignored. */
 export function allowedImageUrl(value: unknown, hosts: readonly string[] = []) {

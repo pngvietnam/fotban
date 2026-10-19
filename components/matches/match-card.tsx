@@ -12,7 +12,7 @@ export function MatchCard({ match, now }: { match: MatchSummary; now: Date }) {
     <Link href={`/match/${encodeURIComponent(match.slug)}`} className="match-card block rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-slate-400 hover:shadow-sm sm:p-5"
       aria-label={`${teamName(match.homeClub, "home")} gặp ${teamName(match.awayClub, "away")}. ${matchStatusLabels[match.status]}. ${score.label}: ${score.text}. Xem chi tiết trận đấu.`}>
       <div className="flex items-start justify-between gap-3 text-[11px] font-medium text-slate-500">
-        <span className="flex items-center gap-2"><span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${match.league.slug === "premier-league" ? "bg-violet-600" : "bg-orange-500"}`} /><span className="text-slate-700">{match.league.name}</span></span>
+        <span className="flex items-center gap-2"><span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${match.league.slug === "premier-league" ? "bg-violet-600" : match.league.slug === "champions-league" ? "bg-sky-600" : "bg-orange-500"}`} /><span className="text-slate-700">{match.league.name}</span></span>
         {match.round && <span className="shrink-0">{formatRound(match.round)}</span>}
       </div>
       <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 pb-5">

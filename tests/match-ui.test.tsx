@@ -91,7 +91,7 @@ describe("Match UI", () => {
     const findMany = vi.fn().mockResolvedValue([]);
     const db = { match: { findMany, count: vi.fn().mockResolvedValue(0) } } as unknown as PrismaClient;
     await queryMatchList(db, { ...filters, status: "live" });
-    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ league: { slug: { in: ["premier-league", "la-liga"] } }, status: { in: ["LIVE", "HALFTIME"] } }) }));
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ league: { slug: { in: ["premier-league", "la-liga", "champions-league"] } }, status: { in: ["LIVE", "HALFTIME"] } }) }));
   });
   it("renders available detail fields and omits invented stats or related features", () => {
     const html = render(<MatchDetailView match={uiDetail()} now={uiNow} />);

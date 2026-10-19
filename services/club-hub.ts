@@ -10,7 +10,7 @@ export const clubSlug = (clubId: string) => `club-${clubId}`;
 export async function clubProfile(tx: SqlExecutor, slug: string, now: Date): Promise<ClubProfile | null> {
   const [row] = await tx.query<{ id: string; slug: string; name: string; shortName: string | null; tla: string | null; crestUrl: string | null; venue: string | null; country: string | null; leagueSlug: string; seasonName: string }>(
     `SELECT c.id,c.slug,c.name,c."shortName",c.tla,c."externalCrestUrl" AS "crestUrl",c.venue,c.country,l.slug AS "leagueSlug",s.name AS "seasonName" FROM "Club" c JOIN "ClubSeason" cs ON cs."clubId"=c.id JOIN "League" l ON l.id=cs."leagueId" JOIN "Season" s ON s.id=cs."seasonId"
-     WHERE c.slug=$1 AND $2::timestamptz BETWEEN s."startsAt" AND s."endsAt" AND l.slug IN ('premier-league','la-liga') LIMIT 1`, [slug, now]);
+     WHERE c.slug=$1 AND $2::timestamptz BETWEEN s."startsAt" AND s."endsAt" AND l.slug IN ('premier-league','la-liga','champions-league') ORDER BY (l.slug='champions-league') LIMIT 1`, [slug, now]);
   if (!row || !isLeagueSlug(row.leagueSlug)) return null;
   return { clubId: row.id, slug: row.slug, name: row.name, shortName: row.shortName, tla: row.tla, crestUrl: row.crestUrl, venue: row.venue, country: row.country, league: { slug: row.leagueSlug, name: leagueNames[row.leagueSlug].name, seasonName: row.seasonName } };
 }

@@ -39,7 +39,9 @@ async function publicCards(tx: SqlExecutor, where: string, params: unknown[], no
     UNION ALL SELECT e."articleId",l.id,'league',l.name,NULL,NULL,NULL FROM "ArticleEntity" e JOIN "League" l ON l.id=e."leagueId" WHERE e."articleId"=ANY($1::uuid[]) ORDER BY kind,name`, [ids]) : [];
   // Competition context: a direct league link, a linked club's season membership, or a linked player's club then.
   const leagues = ids.length ? await tx.query<{ articleId: string; slug: string }>(`SELECT DISTINCT e."articleId",l.slug FROM "ArticleEntity" e JOIN "Article" a ON a.id=e."articleId" JOIN "League" l ON l.id=e."leagueId"
-      OR l.id IN (SELECT cs."leagueId" FROM "ClubSeason" cs JOIN "Season" s ON s.id=cs."seasonId" WHERE a."publishedAt" BETWEEN s."startsAt" AND s."endsAt"
+      OR l.id IN (SELECT cs."leagueId" FROM "ClubSeason" cs JOIN "Season" s ON s.id=cs."seasonId" JOIN "League" cl ON cl.id=cs."leagueId" WHERE a."publishedAt" BETWEEN s."startsAt" AND s."endsAt"
+        -- A domestic club's story belongs to its domestic league; the Champions League counts only for clubs with no domestic league here.
+        AND (cl.slug<>'champions-league' OR NOT EXISTS (SELECT 1 FROM "ClubSeason" d JOIN "League" dl ON dl.id=d."leagueId" JOIN "Season" ds ON ds.id=d."seasonId" WHERE d."clubId"=cs."clubId" AND dl.slug<>'champions-league' AND a."publishedAt" BETWEEN ds."startsAt" AND ds."endsAt"))
         AND (cs."clubId"=e."clubId" OR cs."clubId" IN (SELECT pc."clubId" FROM "PlayerClub" pc WHERE pc."playerId"=e."playerId" AND (pc."endsAt" IS NULL OR pc."endsAt">=a."publishedAt"))))
     WHERE e."articleId"=ANY($1::uuid[])`, [ids]) : [];
   return permitted.map((row): FeedCardView & { groupKey: string; priority: number } => ({

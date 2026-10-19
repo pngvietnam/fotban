@@ -1404,3 +1404,11 @@ npm run dev
 ```
 
 Only after those runtime checks pass can this setup resolve the last Milestone 1 gate. Existing development-tool advisory limitations remain as previously documented; no fresh npm audit was run in this change. Git history is unavailable because this directory has no Git metadata. No production deployment, migrations, resets, commits or future milestone work was performed.
+
+## Champions League
+
+- Added the UEFA Champions League (football-data code `CL`) as a third competition: matches (`/matches?league=champions-league`), league hub (`/league/champions-league`: news, standings with league-stage table, fixtures, 36 clubs), club and player pages, and news filtering.
+- A club shows its domestic league (Premier League / La Liga) when it has one, otherwise the Champions League; a story counts for the Champions League only when no domestic league applies, plus any story that names the competition (Champions League, Cúp C1, C1 châu Âu).
+- Vietnamese aliases were added for Champions League-only clubs (PSG, Bayern, Dortmund, Inter, Napoli, Roma, Leipzig, Sporting, Porto, Galatasaray, Fenerbahce, Lille, Lens, PSV, Feyenoord, Stuttgart).
+- The Champions League is excluded from the Morning Brief and the morning scheduler, YouTube and GDELT.
+- Player photos for the new squads fill in through the worker batches or `npm.cmd run players:images -- 1200 100`.
