@@ -7,6 +7,7 @@ import { rankFeedGroups } from "../lib/feed-card-ranking";
 import { safeNewsUrl } from "../lib/news-presentation";
 import { vietnameseSource } from "../providers/news/vietnamese-sources";
 import { allowedImageUrl } from "../providers/news/vietnamese-provider";
+import { cardImageUrl } from "../lib/news-image-size";
 import type { FeedCardView, FeedDetailResult, FeedFilters, FeedGroupView, FeedListData, FeedListResult } from "../types/feed-card";
 import type { NewsEntity } from "../types/news-ui";
 
@@ -45,7 +46,7 @@ async function publicCards(tx: SqlExecutor, where: string, params: unknown[], no
     slug: feedSlug(row.articleId), articleId: row.articleId, title: row.titleOriginal, description: stripPublisherPrefix(row.excerptOriginal),
     publisher: row.name, publisherSlug: row.slug, attribution: row.attributionText, url: safeNewsUrl(row.sourceUrl), publishedAt: new Date(row.publishedAt).toISOString(),
     label: row.label, certainty: row.certainty, storyType: row.storyType, transferStage: row.transferStage, originHint: row.originHint, officialWording: headlineClaimsOfficial(row.titleOriginal),
-    image: row.imagesAllowed ? allowedImageUrl(row.imageUrl, vietnameseSource(row.slug)?.imageHosts) : null,
+    image: row.imagesAllowed ? cardImageUrl(allowedImageUrl(row.imageUrl, vietnameseSource(row.slug)?.imageHosts)) : null,
     entities: entities.filter((entity) => entity.articleId === row.articleId && entity.name.trim()).map((entity) => ({ id: entity.id, kind: entity.kind, name: entity.name, crestUrl: entity.crest, photoUrl: entity.photo, tla: entity.tla, initials: entity.tla?.trim() || entity.name.split(/\s+/).slice(0, 2).map((word) => Array.from(word)[0]).join("").toLocaleUpperCase("vi-VN") })),
     leagueSlugs: leagues.filter((league) => league.articleId === row.articleId).map((league) => league.slug).sort(),
     match: row.matchSlug && row.home && row.away && row.kickoffAt ? { slug: row.matchSlug, home: row.home, away: row.away, kickoffAt: new Date(row.kickoffAt).toISOString() } : null,

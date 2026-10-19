@@ -45,9 +45,13 @@ export async function grantVietnameseSources(db: SyncDatabase, input: GrantInput
       if (!publisherFeedAllowed(after as unknown as Parameters<typeof publisherFeedAllowed>[0])) throw new NewsGrantError("PERMISSION_BLOCKED");
       const unchanged = before.enabled && before.ingestionAllowed && before.permissionStatus === "ALLOWED" && before.commercialReuseAllowed && before.imagesAllowed === true && before.permissionScope === "RSS_SUMMARY" && before.maxExcerptChars === maxExcerptChars && before.feedUrl === definition.feedUrl && before.permissionReference === definition.termsUrl && before.reviewer === after.reviewer;
       if (unchanged) { results.push({ slug, status: "unchanged" }); continue; }
+      // The terms review date is frozen into every stored article, so it changes only when the terms really change
+      // (an image switch or a reviewer change is not a terms change and must not hide existing stories).
+      const termsSame = Boolean(before.enabled && before.termsReviewed && before.ingestionAllowed && before.permissionStatus === "ALLOWED" && before.commercialReuseAllowed && before.permissionScope === "RSS_SUMMARY" && before.maxExcerptChars === maxExcerptChars && before.feedUrl === definition.feedUrl && before.permissionReference === definition.termsUrl && before.attributionRequirement === attribution && before.lastTermsReviewAt);
+      const termsReviewedAt = termsSame ? new Date(before.lastTermsReviewAt as string | Date) : new Date();
       const notes = `${definition.notes} | Owner grant ${new Date().toISOString().slice(0, 10)} by ${after.reviewer}: ${input.reason.trim()}`.slice(0, 4000);
-      await tx.query(`UPDATE "NewsSource" SET enabled=true,"termsReviewed"=true,"ingestionAllowed"=true,"permissionStatus"='ALLOWED',"commercialReuseAllowed"=true,"imagesAllowed"=true,"ingestionMethod"='RSS',"permissionScope"='RSS_SUMMARY',"maxExcerptChars"=$2,"feedUrl"=$3,"attributionRequirement"=$4,"permissionReference"=$5,reviewer=$6,"reviewedAt"=now(),"lastTermsReviewAt"=now(),language='vi',"ingestionNotes"=$7,"updatedAt"=now() WHERE id=$1::uuid`,
-        [before.id, maxExcerptChars, definition.feedUrl, attribution, definition.termsUrl, after.reviewer, notes]);
+      await tx.query(`UPDATE "NewsSource" SET enabled=true,"termsReviewed"=true,"ingestionAllowed"=true,"permissionStatus"='ALLOWED',"commercialReuseAllowed"=true,"imagesAllowed"=true,"ingestionMethod"='RSS',"permissionScope"='RSS_SUMMARY',"maxExcerptChars"=$2,"feedUrl"=$3,"attributionRequirement"=$4,"permissionReference"=$5,reviewer=$6,"reviewedAt"=now(),"lastTermsReviewAt"=$8::timestamptz,language='vi',"ingestionNotes"=$7,"updatedAt"=now() WHERE id=$1::uuid`,
+        [before.id, maxExcerptChars, definition.feedUrl, attribution, definition.termsUrl, after.reviewer, notes, termsReviewedAt]);
       const [current] = await tx.query<Record<string, unknown>>('SELECT * FROM "NewsSource" WHERE id=$1::uuid', [before.id]);
       await adminAudit(tx, actorId, "SOURCE_GRANT", "NewsSource", String(before.id), input.reason.trim(), summary(before), summary(current));
       results.push({ slug, status: "granted" });

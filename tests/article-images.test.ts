@@ -5,6 +5,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import type { SyncDatabase } from "../lib/sync-database";
 import type { NormalizedArticle } from "../types/news-provider";
 import { feedUrlAllowed } from "../lib/publisher-feed-permission";
+import { cardImageUrl } from "../lib/news-image-size";
 import { allowedImageUrl, parseVietnameseFeed, VietnameseRssNewsProvider } from "../providers/news/vietnamese-provider";
 import { vietnameseFeedUrls } from "../providers/news/vietnamese-sources";
 import type { SourceDefinition } from "../providers/news/sources";
@@ -31,6 +32,18 @@ describe("feed image addresses", () => {
   it("rejects other hosts, look-alikes, http, credentials, ports, data URLs and empty values", () => {
     for (const bad of ["https://evil.example/a.jpg", "https://vnecdn.net.evil.example/a.jpg", "https://notvnecdn.net/a.jpg", "http://i1.vnecdn.net/a.jpg", "https://u:p@i1.vnecdn.net/a.jpg", "https://i1.vnecdn.net:8443/a.jpg", "data:image/png;base64,AAAA", "", "   ", null, undefined, 42]) expect(allowedImageUrl(bad, hosts)).toBeNull();
     expect(allowedImageUrl("https://i1.vnecdn.net/a.jpg", [])).toBeNull();
+  });
+});
+
+describe("card image sizes", () => {
+  it("asks the verified CDNs for a small version and leaves everything else untouched", () => {
+    expect(cardImageUrl("https://cdn2.tuoitre.vn/thumb_w/1200/4715/2026/10/19/a.jpg")).toBe("https://cdn2.tuoitre.vn/thumb_w/480/4715/2026/10/19/a.jpg");
+    expect(cardImageUrl("https://icdn.dantri.com.vn/2026/10/19/a.jpg")).toBe("https://icdn.dantri.com.vn/zoom/480_270/2026/10/19/a.jpg");
+    expect(cardImageUrl("https://icdn.dantri.com.vn/zoom/900_600/2026/10/19/a.jpg")).toBe("https://icdn.dantri.com.vn/zoom/480_270/2026/10/19/a.jpg");
+    const signed = "https://i1-thethao.vnecdn.net/2026/10/19/a.jpg?w=1200&h=0&q=100&s=sig";
+    expect(cardImageUrl(signed)).toBe(signed);
+    expect(cardImageUrl("https://cdn2.tuoitre.vn/other/path.jpg")).toBe("https://cdn2.tuoitre.vn/other/path.jpg");
+    expect(cardImageUrl(null)).toBeNull(); expect(cardImageUrl("not a url")).toBeNull();
   });
 });
 
@@ -137,6 +150,23 @@ describe("showing publisher images (SQL)", () => {
     expect((await lead())?.image).toBeNull();
     await ingest("https://i1.vnecdn.net/late.jpg", "same");
     expect(article.sourceUrl).toContain("same"); expect((await lead())?.image).toBe("https://i1.vnecdn.net/late.jpg");
+  });
+  it("keeps existing stories visible when a grant changes only the image switch or the reviewer", async () => {
+    await ingest("https://i1.vnecdn.net/a.jpg");
+    const stamp = async () => (await database.query<{ at: Date }>('SELECT "lastTermsReviewAt" AS at FROM "NewsSource" WHERE slug=\'vnexpress-sport\'' ))[0].at.getTime();
+    const before = await stamp();
+    await setSourceImages(database, { slugs: ["vnexpress-sport"], reviewer: "FotBan", reason: "Tắt ảnh để kiểm thử", allowed: false });
+    await grantVietnameseSources(database, { slugs: ["vnexpress-sport"], reviewer: "Another Operator", reason: "Cấp lại quyền, chỉ bật ảnh và đổi người duyệt" });
+    expect(await stamp()).toBe(before);
+    expect((await lead())?.image).toContain("vnecdn.net");
+  });
+  it("hides stories after a real terms change until the feed shows them again unchanged", async () => {
+    await ingest(undefined, "kept");
+    expect((await lead())?.title).toBe("Arsenal thắng đậm");
+    await database.query('UPDATE "NewsSource" SET "lastTermsReviewAt"=now(),"updatedAt"=now() WHERE slug=\'vnexpress-sport\'');
+    expect(await lead()).toBeUndefined();
+    await ingest("https://i1.vnecdn.net/again.jpg", "kept");
+    expect((await lead())?.image).toBe("https://i1.vnecdn.net/again.jpg");
   });
   it("refuses a non-https stored address at the database and drops cards when the grant is revoked", async () => {
     const article = await ingest("https://i1.vnecdn.net/a.jpg");
