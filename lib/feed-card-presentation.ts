@@ -8,7 +8,14 @@ export const feedTransferText = { INTEREST: "Đang quan tâm", NEGOTIATION: "Đa
 export const feedNotice = "Tiêu đề và mô tả do báo đăng. FotBan chưa xác minh độc lập.";
 export const officialWordingNotice = "Chữ “chính thức” trong tiêu đề là cách báo đặt tít; FotBan chưa đối chiếu với thông báo chính thức.";
 
-export const feedSlug = (articleId: string) => `bao-${articleId}`;
+/** Display only: drops a leading "VOV.VN - " / "(Dân trí) - " credit; the stored text is unchanged
+ * and the card already shows the attribution line. */
+export function stripPublisherPrefix(text: string | null) {
+  if (!text) return text;
+  const stripped = text.replace(/^\s*(?:\([^)\n]{2,30}\)|[A-Za-zÀ-ỹ0-9]{2,20}\.(?:vn|com|net))\s+[-–—]\s+/iu, "");
+  return stripped.trim() ? stripped : text;
+}
+export const feedSlug =(articleId: string) => `bao-${articleId}`;
 export function feedArticleIdFromSlug(slug: string) {
   return /^bao-([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/.exec(slug)?.[1] ?? null;
 }

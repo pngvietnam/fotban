@@ -1,7 +1,8 @@
 import type { SqlExecutor, SyncDatabase } from "../lib/sync-database";
 import { permittedFeedSnapshot } from "../lib/publisher-feed-permission";
 import { headlineClaimsOfficial, type FeedCertainty, type FeedLabel, type FeedTransferStage } from "../lib/feed-card-policy";
-import { feedSlug } from "../lib/feed-card-presentation";
+import { feedSlug, stripPublisherPrefix } from "../lib/feed-card-presentation";
+import { rankFeedGroups } from "../lib/feed-card-ranking";
 import { safeNewsUrl } from "../lib/news-presentation";
 import { vietnameseSource } from "../providers/news/vietnamese-sources";
 import type { FeedCardView, FeedDetailResult, FeedFilters, FeedGroupView, FeedListData, FeedListResult } from "../types/feed-card";
@@ -39,7 +40,7 @@ async function publicCards(tx: SqlExecutor, where: string, params: unknown[], no
         AND (cs."clubId"=e."clubId" OR cs."clubId" IN (SELECT pc."clubId" FROM "PlayerClub" pc WHERE pc."playerId"=e."playerId" AND (pc."endsAt" IS NULL OR pc."endsAt">=a."publishedAt"))))
     WHERE e."articleId"=ANY($1::uuid[])`, [ids]) : [];
   return permitted.map((row): FeedCardView & { groupKey: string; priority: number } => ({
-    slug: feedSlug(row.articleId), articleId: row.articleId, title: row.titleOriginal, description: row.excerptOriginal,
+    slug: feedSlug(row.articleId), articleId: row.articleId, title: row.titleOriginal, description: stripPublisherPrefix(row.excerptOriginal),
     publisher: row.name, publisherSlug: row.slug, attribution: row.attributionText, url: safeNewsUrl(row.sourceUrl), publishedAt: new Date(row.publishedAt).toISOString(),
     label: row.label, certainty: row.certainty, storyType: row.storyType, transferStage: row.transferStage, originHint: row.originHint, officialWording: headlineClaimsOfficial(row.titleOriginal),
     entities: entities.filter((entity) => entity.articleId === row.articleId && entity.name.trim()).map((entity) => ({ id: entity.id, kind: entity.kind, name: entity.name, initials: entity.tla?.trim() || entity.name.split(/\s+/).slice(0, 2).map((word) => Array.from(word)[0]).join("").toLocaleUpperCase("vi-VN") })),
@@ -66,11 +67,12 @@ export class FeedCardQueryService {
       const cards = await publicCards(tx, 'a."publishedAt">=$2::timestamptz', [new Date(now.getTime() - listWindowDays * 86400000)], now);
       const byGroup = new Map<string, typeof cards>();
       for (const card of cards) byGroup.set(card.groupKey, [...(byGroup.get(card.groupKey) ?? []), card]);
-      const groups: FeedGroupView[] = [...byGroup.entries()].map(([key, members]) => {
+      const built: FeedGroupView[] = [...byGroup.entries()].map(([key, members]) => {
         const [lead, ...others] = [...members].sort(leadOrder);
         return { key, lead: publicView(lead), others: others.map(publicView), latestAt: members.map((member) => member.publishedAt).sort().at(-1)! };
-      }).filter((group) => filters.league === "all" || [group.lead, ...group.others].some((card) => card.leagueSlugs.includes(filters.league)))
-        .sort((a, b) => b.latestAt.localeCompare(a.latestAt) || a.key.localeCompare(b.key));
+      }).filter((group) => filters.league === "all" || [group.lead, ...group.others].some((card) => card.leagueSlugs.includes(filters.league)));
+      const groups = rankFeedGroups(built.map((group) => ({ ...group, leadTitle: group.lead.title, leadPublisher: group.lead.publisher, publishers: [group.lead, ...group.others].map((card) => card.publisher), hasMedia: [group.lead, ...group.others].some((card) => card.label === "MEDIA") })), now)
+        .map(({ key, lead, others, latestAt }): FeedGroupView => ({ key, lead, others, latestAt }));
       const page = groups.slice(filters.offset, filters.offset + groupsPerPage);
       return { groups: page, nextOffset: filters.offset + groupsPerPage < groups.length ? filters.offset + groupsPerPage : null };
     });

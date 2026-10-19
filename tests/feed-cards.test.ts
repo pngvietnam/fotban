@@ -4,7 +4,9 @@ import { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { SyncDatabase } from "../lib/sync-database";
 import type { NewsSourceConfig, NormalizedArticle } from "../types/news-provider";
-import { feedCertainty, feedStoryType, feedTransferStage, headlineClaimsOfficial, holdReasons, isMatchReport, originHint } from "../lib/feed-card-policy";
+import { rankFeedGroups } from "../lib/feed-card-ranking";
+import { stripPublisherPrefix } from "../lib/feed-card-presentation";
+import { feedCertainty, isRoundup, feedStoryType, feedTransferStage, headlineClaimsOfficial, holdReasons, isMatchReport, originHint } from "../lib/feed-card-policy";
 import { groupFeedCards, sameFeedStory, type GroupableCard } from "../lib/feed-card-grouping";
 import { NewsSyncStore, persistNewsArticles } from "../services/news-store";
 import { grantVietnameseSources, revokeVietnameseSource } from "../services/news-grant";
@@ -149,5 +151,37 @@ describe("feed card publication and public reads (SQL)", () => {
     const id = await ingest("vnexpress-sport", "Real thắng Sevilla", "Real Madrid thắng Sevilla 4-1.");
     await expect(database.query('INSERT INTO "FeedCard" ("articleId",status,"storyType",label,certainty,"transferStage","updatedAt") VALUES ($1::uuid,\'PUBLISHED\',\'TRANSFER\',\'MEDIA\',\'REPORTED\',\'CONFIRMED\',now())', [id])).rejects.toThrow();
     await expect(database.query('INSERT INTO "FeedCard" ("articleId",status,"storyType",label,certainty,"updatedAt") VALUES ($1::uuid,\'PUBLISHED\',\'MATCH\',\'OFFICIAL\',\'REPORTED\',now())', [id])).rejects.toThrow();
+  });
+});
+
+describe("feed ranking and display rules", () => {
+  const now = new Date("2026-10-19T03:00:00Z");
+  const group = (key: string, title: string, publisher: string, publishers: string[], hoursAgo: number, hasMedia = true) =>
+    ({ key, latestAt: new Date(now.getTime() - hoursAgo * 3600000).toISOString(), leadTitle: title, leadPublisher: publisher, publishers, hasMedia });
+  it("ranks wide coverage first, roundups last, and keeps media above community", () => {
+    const order = rankFeedGroups([
+      group("solo-new", "Mourinho chỉ thẳng cầu thủ đa năng nhất", "Thể Thao 247", ["Thể Thao 247"], 0.5, false),
+      group("table", "Bảng xếp hạng Ngoại hạng Anh mới nhất", "VOV Sport", ["VOV Sport", "VTC News Sport"], 1),
+      group("big", "Mbappe giúp Real thắng đậm Sevilla", "VnExpress Sport", ["VnExpress Sport", "VOV Sport", "Tuổi Trẻ Sport", "Dân trí", "Thể Thao 247"], 5),
+      group("media-solo", "Arteta nói về Forest", "VnExpress Sport", ["VnExpress Sport"], 0.5),
+    ], now).map((item) => item.key);
+    expect(order).toEqual(["big", "media-solo", "solo-new", "table"]);
+  });
+  it("does not lead three consecutive cards with one publisher when another is available", () => {
+    const groups = [1, 2, 3, 4].map((n) => group(`a${n}`, `Tin ${n}`, "Thể Thao 247", ["Thể Thao 247"], n)).concat(group("b", "Tin khác", "VnExpress Sport", ["VnExpress Sport"], 6));
+    const order = rankFeedGroups(groups, now).map((item) => item.leadPublisher);
+    expect(order.some((_, i) => i >= 2 && order[i] === order[i - 1] && order[i] === order[i - 2])).toBe(false);
+    expect(rankFeedGroups(groups, now)).toHaveLength(5);
+  });
+  it("flags roundups and strips only credit prefixes for display", () => {
+    expect(isRoundup("Lịch thi đấu bóng đá hôm nay 19/10")).toBe(true); expect(isRoundup("Mbappe giúp Real thắng đậm Sevilla")).toBe(false);
+    expect(stripPublisherPrefix("VOV.VN - Lịch thi đấu hôm nay")).toBe("Lịch thi đấu hôm nay");
+    expect(stripPublisherPrefix("(Dân trí) - Noni Madueke ghi bàn")).toBe("Noni Madueke ghi bàn");
+    expect(stripPublisherPrefix("Real Madrid - Sevilla: trận đấu lớn")).toBe("Real Madrid - Sevilla: trận đấu lớn");
+    expect(stripPublisherPrefix(null)).toBeNull();
+  });
+  it("treats a question as a hedge only in the headline", () => {
+    expect(feedCertainty("Chỉ số xG của Haaland", "Vậy chỉ số việt vị là bao nhiêu?")).toBe("REPORTED");
+    expect(feedCertainty("Haaland rời Man City?", null)).toBe("UNCONFIRMED");
   });
 });

@@ -23,12 +23,13 @@ export function FeedEntities({ card }: { card: FeedCardView }) {
     {shown.map((entity) => <li key={`${entity.kind}-${entity.id ?? entity.name}`} className="inline-flex max-w-full items-center gap-2 rounded-md bg-slate-100 px-2 py-1.5 text-xs font-medium text-slate-700"><span aria-hidden="true" className="grid h-6 min-w-6 place-items-center rounded bg-white px-1 text-[10px] font-bold text-slate-600">{entity.initials}</span><span className="break-words">{entity.name}</span></li>)}
   </ul>;
 }
-export function FeedGroupCard({ group, now }: { group: FeedGroupView; now: Date }) {
+/** featured: the top story, reported by several publishers, spans the full grid width. */
+export function FeedGroupCard({ group, now, featured = false }: { group: FeedGroupView; now: Date; featured?: boolean }) {
   const { lead } = group;
   const publishers = [...new Set(group.others.map((card) => card.publisher))].filter((name) => name !== lead.publisher);
-  return <article className="news-card flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+  return <article className={`news-card flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 ${featured ? "md:col-span-2 lg:col-span-3" : ""}`}>
     <div className="mb-4"><FeedLabels card={lead} /></div>
-    <h3 className="break-words text-xl font-bold leading-snug tracking-tight"><Link href={`/news/${lead.slug}`} className="decoration-2 underline-offset-4 hover:underline">{lead.title}</Link></h3>
+    <h3 className={`break-words font-bold leading-snug tracking-tight ${featured ? "text-2xl sm:text-3xl" : "text-xl"}`}><Link href={`/news/${lead.slug}`} className="decoration-2 underline-offset-4 hover:underline">{lead.title}</Link></h3>
     {lead.description && <p className="mt-3 line-clamp-3 break-words text-sm leading-7 text-slate-600">{lead.description}</p>}
     {lead.officialWording && <p className="mt-3 text-xs leading-6 text-slate-500">{officialWordingNotice}</p>}
     <div className="my-4 flex flex-col gap-3"><FeedEntities card={lead} /><FeedTransferNote card={lead} /></div>

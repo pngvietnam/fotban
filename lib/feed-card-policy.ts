@@ -27,9 +27,12 @@ export const sensitiveTerms: readonly { reason: string; pattern: RegExp }[] = [
 export const holdReasons = (text: string) => sensitiveTerms.filter(({ pattern }) => pattern.test(text)).map(({ reason }) => reason);
 
 // Vietnamese hedging, interest and question headlines keep a card "Chưa xác nhận".
-const vietnameseHedge = /tin đồn|được cho là|có thể|nhiều khả năng|rộ tin|đồn đoán|nghi vấn|cân nhắc|để mắt|nhắm tới|nhắm đến|theo dõi sát|quan tâm|hỏi mua|muốn chiêu mộ|muốn có|liên hệ|sẵn sàng chi|sẵn sàng bán|tiết lộ|\?\s*$/iu;
+const vietnameseHedge = /tin đồn|được cho là|có thể|nhiều khả năng|rộ tin|đồn đoán|nghi vấn|cân nhắc|để mắt|nhắm tới|nhắm đến|theo dõi sát|quan tâm|hỏi mua|muốn chiêu mộ|muốn có|liên hệ|sẵn sàng chi|sẵn sàng bán|tiết lộ/iu;
+// Only a question headline is a hedge; descriptions often end with a rhetorical question.
 export const feedCertainty = (title: string, description: string | null): FeedCertainty =>
-  [title, description ?? ""].some((text) => uncertainty.test(text) || vietnameseHedge.test(text)) ? "UNCONFIRMED" : "REPORTED";
+  /\?\s*$/u.test(title) || [title, description ?? ""].some((text) => uncertainty.test(text) || vietnameseHedge.test(text)) ? "UNCONFIRMED" : "REPORTED";
+/** Schedules, results and tables duplicate FotBan's own match data, so they rank last. */
+export const isRoundup = (title: string) => /lịch thi đấu|kết quả bóng đá|kết quả ngoại hạng|kết quả la liga|kết quả vòng|bảng xếp hạng|lịch phát sóng|lịch trực tiếp/iu.test(title);
 
 const transferContext = /chuyển nhượng|chiêu mộ|mua đứt|cho mượn|hỏi mua|lời đề nghị|here we go|phí giải phóng|điều khoản giải phóng|bom tấn|thương vụ|gia nhập|tân binh/iu;
 const negotiation = /đàm phán|đạt thỏa thuận|thỏa thuận cá nhân|lời đề nghị|gửi đề nghị|đề nghị|hỏi mua|ra giá|trả giá|chốt giá|kiểm tra y tế|here we go|đồng ý bán/iu;
