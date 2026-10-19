@@ -1412,3 +1412,8 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - Vietnamese aliases were added for Champions League-only clubs (PSG, Bayern, Dortmund, Inter, Napoli, Roma, Leipzig, Sporting, Porto, Galatasaray, Fenerbahce, Lille, Lens, PSV, Feyenoord, Stuttgart).
 - The Champions League is excluded from the Morning Brief and the morning scheduler, YouTube and GDELT.
 - Player photos for the new squads fill in through the worker batches or `npm.cmd run players:images -- 1200 100`.
+
+## News page tabs
+
+- `/news` now opens on a tab menu like FotMob: Dành cho bạn (followed teams' fixtures and stories; top stories plus a follow prompt otherwise), Mới nhất (strictly newest first), Chuyển nhượng (transfer stories, newest first) and Giải đấu (league chips, ranked). Tab and page live in `?tab=` and `?bao=`.
+- The hero text, the "Tin từ báo chí Việt Nam" heading and the "Tiêu đề và mô tả do báo đăng…" notice were removed from list, home and detail pages; each card still shows its publisher and original-link attribution.

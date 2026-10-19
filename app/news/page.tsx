@@ -1,31 +1,75 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { env } from "@/lib/env";
+import { activeUser } from "@/lib/auth";
+import { getDatabase } from "@/lib/db";
+import { logger } from "@/lib/logger";
+import { prismaSyncDatabase } from "@/lib/sync-database";
 import { parseNewsFilters } from "@/lib/news-presentation";
 import { parseFeedOffset } from "@/lib/feed-card-presentation";
+import { newsTabHref, parseNewsTab, type NewsTab } from "@/lib/news-tabs";
+import type { FeedFilters } from "@/types/feed-card";
+import { FollowingService, type ActiveUser } from "@/services/following";
+import { followFixtures, summarizeFollows, type FollowFixtures } from "@/services/following-feed";
 import { readNewsList } from "@/services/news-page-data";
 import { readFeedList } from "@/services/feed-page-data";
 import { NewsShell } from "@/components/news/news-shell";
+import { NewsTabsView } from "@/components/news/news-tabs";
 import { NewsFiltersView } from "@/components/news/news-filters";
 import { NewsList } from "@/components/news/news-list";
 import { NewsState } from "@/components/news/news-state";
 import { FeedSection } from "@/components/news/feed-section";
+import { ForYouPrompt } from "@/components/news/for-you-prompt";
+import { ClubFixtureLists } from "@/components/club/club-hub";
 
 export const dynamic = "force-dynamic";
-export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
+type Params = Record<string, string | string[] | undefined>;
+export async function generateMetadata({ searchParams }: { searchParams: Promise<Params> }): Promise<Metadata> {
   const params = await searchParams;
-  return { title: "Tin bóng đá | Football Morning Brief", description: "Tin bóng đá tiếng Việt, nguồn minh bạch, phân biệt rõ tin đã xác nhận và tin đồn.", alternates: { canonical: new URL("/news", env.NEXT_PUBLIC_APP_URL).href }, robots: { index: Object.keys(params).length === 0, follow: true } };
+  return { title: "Tin bóng đá | Football Morning Brief", description: "Tin bóng đá tiếng Việt từ các báo, gộp theo câu chuyện và phân loại theo đội, giải, chuyển nhượng.", alternates: { canonical: new URL("/news", env.NEXT_PUBLIC_APP_URL).href }, robots: { index: Object.keys(params).length === 0, follow: true } };
 }
-export default async function NewsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+
+/** What a signed-in viewer follows, if anything; any failure just means the generic top stories. */
+async function followed(now: Date): Promise<{ signedIn: boolean; follow?: NonNullable<FeedFilters["follow"]>; fixtures?: FollowFixtures }> {
+  let user: ActiveUser | null = null;
+  try { user = await activeUser(await headers()); } catch { return { signedIn: false }; }
+  const db = getDatabase();
+  if (!user || !db) return { signedIn: Boolean(user) };
+  try {
+    const database = prismaSyncDatabase(db);
+    const follows = await new FollowingService(database, async () => user).list();
+    if (!follows.length) return { signedIn: true };
+    const summary = await summarizeFollows(database, follows);
+    return { signedIn: true, follow: { entityIds: summary.entityIds, leagueSlugs: summary.leagueSlugs }, fixtures: await followFixtures(database, summary.clubs.map((club) => club.id), now) };
+  } catch { logger.warn({ event: "news_follow_unavailable" }); return { signedIn: true }; }
+}
+const hasGroups = (result: Awaited<ReturnType<typeof readFeedList>>) => result.kind === "ready" && result.data.groups.length > 0;
+
+export default async function NewsPage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
-  const filters = parseNewsFilters(params); const feedOffset = parseFeedOffset(params.bao);
-  const [result, feed] = filters && feedOffset !== null ? await Promise.all([readNewsList(filters), readFeedList({ league: filters.league, offset: feedOffset })]) : [null, null];
-  const hasFeed = feed?.kind === "ready" && feed.data.groups.length > 0;
+  const tab = parseNewsTab(params.tab); const league = parseNewsFilters({ league: params.league }); const offset = parseFeedOffset(params.bao);
+  if (!tab || !league || offset === null) return <NewsShell><NewsTabsView active="danh-cho-ban" /><NewsState kind="invalid" /></NewsShell>;
+  const now = new Date();
+  const href = (next: number) => newsTabHref(tab, { league: league.league, offset: next });
+  const feedFilters: Record<NewsTab, FeedFilters> = {
+    "danh-cho-ban": { league: "all", offset }, "moi-nhat": { league: "all", offset, sort: "latest" },
+    "chuyen-nhuong": { league: "all", offset, sort: "latest", storyType: "TRANSFER" }, "giai-dau": { league: league.league, offset },
+  };
+  let filters = feedFilters[tab]; let personal: Awaited<ReturnType<typeof followed>> | null = null;
+  if (tab === "danh-cho-ban") { personal = await followed(now); if (personal.follow) filters = { ...filters, follow: personal.follow }; }
+  let feed = await readFeedList(filters);
+  // A follower with nothing new in the window still gets the day's top stories.
+  const fallback = Boolean(filters.follow) && !hasGroups(feed) && offset === 0;
+  if (fallback) feed = await readFeedList({ league: "all", offset: 0 });
+  // Verified stories (evidence-gated) lead the "Mới nhất" tab when there are any.
+  const verified = tab === "moi-nhat" && offset === 0 ? await readNewsList({ league: "all", offset: 0 }) : null;
   return <NewsShell>
-    <header className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#516c21]">Góc nhìn có căn cứ</p><h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Bóng đá, rõ nguồn.</h1><p className="mt-3 max-w-xl text-sm leading-7 text-slate-600">Nắm câu chuyện. Hiểu mức độ chắc chắn. Đọc nguồn trước khi tin.</p></div><span className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600">Giờ Việt Nam · UTC+7</span></header>
-    <NewsFiltersView filters={filters ?? { league: "all", offset: 0 }} />
-    {result && filters && feed && feedOffset !== null ? <>
-      <NewsList result={result} filters={filters} now={new Date()} hideEmpty={hasFeed} />
-      <FeedSection result={feed} filters={{ league: filters.league, offset: feedOffset }} now={new Date()} />
-    </> : <NewsState kind="invalid" />}
+    <h1 className="sr-only">Tin bóng đá</h1>
+    <NewsTabsView active={tab} />
+    {tab === "giai-dau" && <NewsFiltersView filters={league} tab="giai-dau" />}
+    {personal && !personal.follow && <ForYouPrompt signedIn={personal.signedIn} />}
+    {personal?.fixtures && (personal.fixtures.upcoming.length > 0 || personal.fixtures.recent.length > 0) && <div className="mb-8"><ClubFixtureLists fixtures={personal.fixtures} /></div>}
+    {verified && <NewsList result={verified.kind === "ready" ? { kind: "ready", data: { ...verified.data, nextOffset: null } } : verified} filters={{ league: "all", offset: 0 }} now={now} hideEmpty />}
+    <FeedSection result={feed} filters={{ league: filters.league, offset: filters.offset }} now={now} href={href} emptyText={tab === "chuyen-nhuong" ? "Chưa có tin chuyển nhượng mới trong 7 ngày gần đây." : "Chưa có tin mới trong 7 ngày gần đây."} />
   </NewsShell>;
 }

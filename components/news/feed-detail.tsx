@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { FeedCardView } from "../../types/feed-card";
 import type { ClubContext } from "../../services/feed-context";
-import { feedNotice, officialWordingNotice } from "../../lib/feed-card-presentation";
+import { officialWordingNotice } from "../../lib/feed-card-presentation";
 import { clubPath } from "../../lib/club-presentation";
 import { newsAbsoluteTime, newsRelativeTime } from "../../lib/news-presentation";
 import { FeedEntities, FeedLabels, FeedTransferNote } from "./feed-card";
@@ -63,7 +63,6 @@ export function FeedDetailView({ card, others, related = [], context = [], now }
         <div className="flex flex-wrap gap-2">{followable.map((entity) => <FollowLink key={`${entity.kind}-${entity.id}`} type={followType[entity.kind]} entityId={entity.id!} name={entity.name} />)}</div>
       </section>}
       <footer className="border-t border-slate-200 pt-4 text-xs leading-6 text-slate-500">
-        <p>{feedNotice}</p>
         {card.url && <p>{card.attribution} · <a href={card.url} target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-4" aria-label={`Xem bài gốc trên ${card.publisher} (mở thẻ mới)`}>Xem bài gốc</a></p>}
       </footer>
     </article>

@@ -5,7 +5,6 @@ export const feedLabelText = { MEDIA: "Báo chí", COMMUNITY: "Cộng đồng" }
 export const feedCertaintyText = { REPORTED: "Đang đưa tin", UNCONFIRMED: "Chưa xác nhận" } as const;
 // A wording-derived stage is never "Đã xác nhận"; a reported completed deal reads "Chưa xác nhận".
 export const feedTransferText = { INTEREST: "Đang quan tâm", NEGOTIATION: "Đang đàm phán", RUMOR: "Chưa xác nhận" } as const;
-export const feedNotice = "Tiêu đề và mô tả do báo đăng. FotBan chưa xác minh độc lập.";
 export const officialWordingNotice = "Chữ “chính thức” trong tiêu đề là cách báo đặt tít; FotBan chưa đối chiếu với thông báo chính thức.";
 
 /** Display only: drops a leading "VOV.VN - " / "(Dân trí) - " credit; the stored text is unchanged
