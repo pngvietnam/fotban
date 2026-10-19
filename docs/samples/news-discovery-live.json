@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-10-19T01:31:19.130Z",
+  "discovery": {
+    "jobId": "c763e7a1-16c2-4cf7-a816-a40235cbda83",
+    "status": "FAILED",
+    "found": 0,
+    "rejected": 0,
+    "stored": 0,
+    "duplicates": 0,
+    "articleIds": [],
+    "queries": [
+      {
+        "league": "premier-league",
+        "status": "failed",
+        "found": 0,
+        "rejected": 0,
+        "code": "NETWORK"
+      },
+      {
+        "league": "la-liga",
+        "status": "failed",
+        "found": 0,
+        "rejected": 0,
+        "code": "RATE_LIMITED"
+      }
+    ]
+  },
+  "processing": [],
+  "reliability": [],
+  "clusters": []
+}

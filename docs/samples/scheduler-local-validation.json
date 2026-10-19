@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-18",
+  "externalApiCalls": 0,
+  "main": {
+    "workflowId": "a0387a35-cb33-42ac-beb8-069868167f19",
+    "status": "SUCCEEDED",
+    "logicalScheduledAt": "2026-10-18T01:00:00.000Z",
+    "briefRevisionId": "c4826d90-2602-45a4-bff9-d7d0375d70d0",
+    "revision": 3,
+    "publication": "READY / unpublished",
+    "duplicateInvocationCached": true,
+    "explicitRerunBriefCached": true,
+    "allElevenAuditedContentTablesUnchanged": true
+  },
+  "isolated": {
+    "isolation": "disposable PostgreSQL database",
+    "externalApiCalls": 0,
+    "checks": {
+      "concurrentProtected": true,
+      "optionalFailurePartial": true,
+      "duplicateCached": true,
+      "recovered": true,
+      "unchangedBriefReused": true,
+      "changedInputRevision": true,
+      "readyUnpublished": true,
+      "persistedAudits": true
+    },
+    "revisions": [
+      {
+        "revision": 1,
+        "status": "READY"
+      },
+      {
+        "revision": 2,
+        "status": "READY"
+      }
+    ],
+    "auditStatuses": [
+      "PARTIAL",
+      "SUCCEEDED",
+      "SUCCEEDED"
+    ]
+  }
+}

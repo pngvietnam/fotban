@@ -1,0 +1,2 @@
+import { AdminShell } from "./admin-shell";
+export function AdminUnavailable({invalid=false}:{invalid?:boolean}) {return <AdminShell section="overview"><p role="alert" className="rounded-xl border border-slate-200 bg-white p-5 text-sm leading-7">{invalid?"Không tìm thấy bản ghi hoặc bộ lọc chưa hợp lệ. Hãy chọn lại danh sách.":"Không thể tải khu vực này. Hãy kiểm tra quyền quản trị hoặc thử lại sau."}</p></AdminShell>;}

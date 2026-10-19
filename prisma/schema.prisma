@@ -1,0 +1,1158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  EDITOR
+  ADMIN
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  HALFTIME
+  FINISHED
+  POSTPONED
+  CANCELLED
+  SUSPENDED
+}
+
+enum MatchEventType {
+  GOAL
+  OWN_GOAL
+  PENALTY
+  YELLOW_CARD
+  RED_CARD
+  SUBSTITUTION
+  OTHER
+}
+
+enum SourceType {
+  OFFICIAL
+  NEWS_API
+  RSS
+  PUBLICATION
+  SOCIAL
+}
+
+enum ReliabilityClass {
+  OFFICIAL
+  RELIABLE
+  SOCIAL
+  RUMOR
+}
+
+enum StoryType {
+  MATCH
+  PLAYER
+  CLUB
+  TRANSFER
+  INJURY
+  MANAGER
+  TACTICAL
+  CONTRACT
+  FINANCIAL
+  OFF_FIELD
+  INTERVIEW
+  DISCIPLINE
+  SOCIAL
+  COMMUNITY
+  OTHER
+}
+
+enum TransferStatus {
+  CONFIRMED
+  NEGOTIATION
+  INTEREST
+  RUMOR
+}
+
+enum RumorStatus {
+  NOT_APPLICABLE
+  UNCONFIRMED
+  CONFIRMED
+  DENIED
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  READY
+  NEEDS_REVIEW
+  FAILED
+}
+
+enum PublicationStatus {
+  DRAFT
+  PUBLISHED
+  HIDDEN
+}
+
+enum BriefStatus {
+  DRAFT
+  VALIDATING
+  READY
+  PUBLISHED
+  FAILED
+  NEEDS_REVIEW
+}
+
+enum BriefSection {
+  MORNING_SUMMARY
+  LAST_NIGHT_MATCHES
+  TOP_MATCH_INSIGHTS
+  PLAYER_SPOTLIGHT
+  CLUB_STORIES
+  TRANSFER_WATCH
+  COMING_UP
+  MORE_NEWS
+}
+
+enum VideoTrustLevel {
+  UNKNOWN
+  LEAGUE_OFFICIAL
+  CLUB_OFFICIAL
+  RIGHTS_HOLDER
+  REVIEWED
+}
+
+enum ValidationStatus {
+  PENDING
+  VALIDATED
+  REJECTED
+  UNAVAILABLE
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  PARTIAL
+  SKIPPED
+}
+
+enum ProviderHealth {
+  UNCONFIGURED
+  HEALTHY
+  WARNING
+  ERROR
+  DISABLED
+}
+
+model User {
+  id              String          @id @default(uuid()) @db.Uuid
+  authProvider    String          @default("better-auth")
+  authSubject     String          @default(uuid())
+  email           String?         @unique
+  displayName     String          @default("")
+  emailVerified   Boolean         @default(false)
+  avatarUrl       String?
+  lastLoginAt     DateTime?       @db.Timestamptz(3)
+  role            UserRole        @default(USER)
+  locale          String          @default("vi-VN")
+  timezone        String          @default("Asia/Ho_Chi_Minh")
+  createdAt       DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime        @updatedAt @db.Timestamptz(3)
+  preference      UserPreference?
+  auditLogs       AdminAuditLog[]
+  sessions        AuthSession[]
+  accounts        AuthAccount[]
+  publishedBriefs BriefRevision[] @relation("BriefPublisher")
+
+  @@unique([authProvider, authSubject])
+}
+
+// Better Auth owns OAuth state and revocable server-validated sessions.
+model AuthSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @db.Timestamptz(3)
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuthAccount {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @db.Uuid
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(3)
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(3)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model AuthVerification {
+  id         String   @id @default(uuid()) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([identifier])
+  @@index([expiresAt])
+}
+
+model AuthRateLimit {
+  id          String @id @default(uuid()) @db.Uuid
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+}
+
+model League {
+  id                      String                   @id @default(uuid()) @db.Uuid
+  slug                    String                   @unique
+  name                    String
+  country                 String
+  aliases                 String[]                 @default([])
+  createdAt               DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime                 @updatedAt @db.Timestamptz(3)
+  seasons                 Season[]
+  clubs                   ClubSeason[]
+  matches                 Match[]
+  entities                ArticleEntity[]
+  follows                 UserFollow[]
+  identities              ExternalIdentity[]
+  standings               Standing[]
+  videoSourceCompetitions VideoSourceCompetition[]
+}
+
+model Season {
+  id         String             @id @default(uuid()) @db.Uuid
+  leagueId   String             @db.Uuid
+  name       String
+  startsAt   DateTime?          @db.Timestamptz(3)
+  endsAt     DateTime?          @db.Timestamptz(3)
+  createdAt  DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime           @updatedAt @db.Timestamptz(3)
+  league     League             @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  clubs      ClubSeason[]
+  matches    Match[]
+  identities ExternalIdentity[]
+  standings  Standing[]
+
+  @@unique([leagueId, name])
+  @@unique([id, leagueId])
+}
+
+// Memberships preserve history instead of overwriting the current league/club.
+model ClubSeason {
+  id        String   @id @default(uuid()) @db.Uuid
+  clubId    String   @db.Uuid
+  seasonId  String   @db.Uuid
+  leagueId  String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  league    League   @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  season    Season   @relation(fields: [seasonId, leagueId], references: [id, leagueId], onDelete: Restrict)
+
+  @@unique([clubId, seasonId])
+  @@index([seasonId, leagueId])
+  @@index([leagueId])
+}
+
+model Club {
+  id                String             @id @default(uuid()) @db.Uuid
+  slug              String             @unique
+  name              String
+  aliases           String[]           @default([])
+  logoUrl           String?
+  shortName         String?
+  tla               String?
+  country           String?
+  venue             String?
+  externalCrestUrl  String?
+  createdAt         DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime           @updatedAt @db.Timestamptz(3)
+  seasons           ClubSeason[]
+  players           PlayerClub[]
+  homeMatches       Match[]            @relation("HomeClub")
+  awayMatches       Match[]            @relation("AwayClub")
+  events            MatchEvent[]
+  stats             MatchStat[]
+  entities          ArticleEntity[]
+  follows           UserFollow[]
+  identities        ExternalIdentity[]
+  outgoingTransfers Transfer[]         @relation("CurrentClub")
+  incomingTransfers Transfer[]         @relation("TargetClub")
+  standings         Standing[]
+}
+
+model Player {
+  id            String             @id @default(uuid()) @db.Uuid
+  slug          String             @unique
+  name          String
+  aliases       String[]           @default([])
+  position      String?
+  nationality   String?
+  birthDate     DateTime?          @db.Date
+  imageUrl      String?
+  createdAt     DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime           @updatedAt @db.Timestamptz(3)
+  clubs         PlayerClub[]
+  events        MatchEvent[]       @relation("EventPlayer")
+  relatedEvents MatchEvent[]       @relation("RelatedPlayer")
+  stats         MatchStat[]
+  entities      ArticleEntity[]
+  follows       UserFollow[]
+  identities    ExternalIdentity[]
+  transfers     Transfer[]
+}
+
+model PlayerClub {
+  id        String    @id @default(uuid()) @db.Uuid
+  playerId  String    @db.Uuid
+  clubId    String    @db.Uuid
+  startsAt  DateTime  @db.Timestamptz(3)
+  endsAt    DateTime? @db.Timestamptz(3)
+  sourceUrl String
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  player    Player    @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  club      Club      @relation(fields: [clubId], references: [id], onDelete: Restrict)
+
+  @@unique([playerId, clubId, startsAt])
+  @@index([clubId, startsAt])
+}
+
+// External IDs are scoped to a provider and entity namespace, never internal IDs.
+// Migration CHECK enforces exactly one target.
+model ExternalIdentity {
+  id         String   @id @default(uuid()) @db.Uuid
+  provider   String
+  entityType String
+  externalId String
+  leagueId   String?  @db.Uuid
+  clubId     String?  @db.Uuid
+  playerId   String?  @db.Uuid
+  seasonId   String?  @db.Uuid
+  matchId    String?  @db.Uuid
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+  league     League?  @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  club       Club?    @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  player     Player?  @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  season     Season?  @relation(fields: [seasonId], references: [id], onDelete: Restrict)
+  match      Match?   @relation(fields: [matchId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, entityType, externalId])
+  @@unique([provider, leagueId])
+  @@unique([provider, clubId])
+  @@unique([provider, playerId])
+  @@unique([provider, seasonId])
+  @@unique([provider, matchId])
+  @@index([leagueId])
+  @@index([clubId])
+  @@index([playerId])
+  @@index([seasonId])
+  @@index([matchId])
+}
+
+model Match {
+  id                 String             @id @default(uuid()) @db.Uuid
+  slug               String             @unique
+  provider           String
+  externalId         String
+  leagueId           String             @db.Uuid
+  seasonId           String             @db.Uuid
+  round              String?
+  homeClubId         String             @db.Uuid
+  awayClubId         String             @db.Uuid
+  kickoffAt          DateTime           @db.Timestamptz(3)
+  status             MatchStatus        @default(SCHEDULED)
+  homeScore          Int?
+  awayScore          Int?
+  homeExtraTimeScore Int?
+  awayExtraTimeScore Int?
+  homePenaltyScore   Int?
+  awayPenaltyScore   Int?
+  venue              String?
+  sourceUrl          String?
+  lastUpdatedAt      DateTime?          @db.Timestamptz(3)
+  providerUpdatedAt  DateTime?          @db.Timestamptz(3)
+  providerStatus     String?
+  scoreDuration      String?
+  createdAt          DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime           @updatedAt @db.Timestamptz(3)
+  league             League             @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  season             Season             @relation(fields: [seasonId, leagueId], references: [id, leagueId], onDelete: Restrict)
+  homeClub           Club               @relation("HomeClub", fields: [homeClubId], references: [id], onDelete: Restrict)
+  awayClub           Club               @relation("AwayClub", fields: [awayClubId], references: [id], onDelete: Restrict)
+  events             MatchEvent[]
+  stats              MatchStat[]
+  entities           ArticleEntity[]
+  videos             Video[]
+  videoSyncState     VideoSyncState?
+  evidence           ClaimEvidence[]
+  briefItems         BriefItem[]
+  identities         ExternalIdentity[]
+
+  @@unique([provider, externalId])
+  @@index([kickoffAt])
+  @@index([leagueId, kickoffAt])
+  @@index([seasonId, leagueId])
+  @@index([homeClubId, kickoffAt])
+  @@index([awayClubId, kickoffAt])
+}
+
+model MatchEvent {
+  id              String         @id @default(uuid()) @db.Uuid
+  matchId         String         @db.Uuid
+  provider        String
+  externalId      String
+  clubId          String?        @db.Uuid
+  playerId        String?        @db.Uuid
+  relatedPlayerId String?        @db.Uuid
+  type            MatchEventType
+  minute          Int?
+  addedMinute     Int?
+  period          String?
+  detail          String?
+  sourceUrl       String?
+  createdAt       DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime       @updatedAt @db.Timestamptz(3)
+  match           Match          @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  club            Club?          @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  player          Player?        @relation("EventPlayer", fields: [playerId], references: [id], onDelete: Restrict)
+  relatedPlayer   Player?        @relation("RelatedPlayer", fields: [relatedPlayerId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, matchId, externalId])
+  @@index([matchId, minute])
+  @@index([clubId])
+  @@index([playerId])
+  @@index([relatedPlayerId])
+}
+
+model MatchStat {
+  id        String   @id @default(uuid()) @db.Uuid
+  matchId   String   @db.Uuid
+  clubId    String   @db.Uuid
+  playerId  String?  @db.Uuid
+  provider  String
+  metric    String
+  period    String   @default("FULL_MATCH")
+  value     Decimal  @db.Decimal(18, 6)
+  unit      String?
+  sourceUrl String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  player    Player?  @relation(fields: [playerId], references: [id], onDelete: Restrict)
+
+  // NULL player means a club-level stat; SQL adds NULLS NOT DISTINCT uniqueness.
+  @@unique([matchId, clubId, playerId, provider, metric, period], map: "MatchStat_identity_key")
+  @@index([matchId, metric])
+  @@index([clubId])
+  @@index([playerId])
+}
+
+enum NewsIngestionMethod {
+  RSS
+  ATOM
+  HTML_INDEX
+  OFFICIAL_PAGE
+  API
+  MANUAL
+}
+
+enum NewsPermissionStatus {
+  UNREVIEWED
+  ALLOWED
+  RESTRICTED
+}
+
+enum SourceTier {
+  TIER_0_OFFICIAL
+  TIER_1_HIGH
+  TIER_2_ESTABLISHED
+  TIER_3_UNVERIFIED
+  COMMUNITY
+}
+
+enum EvidenceKind {
+  ARTICLE_SOURCE
+  OFFICIAL_STATEMENT
+  SECONDARY_SOURCE
+  SOCIAL_POST
+  QUOTE
+  MATCH_DATA
+  STRUCTURED_PROVIDER
+}
+
+enum EvidenceStance {
+  SUPPORTS
+  CONTRADICTS
+}
+
+model NewsSource {
+  id                      String               @id @default(uuid()) @db.Uuid
+  name                    String
+  domain                  String               @unique
+  type                    SourceType
+  externalIdentity        String?
+  reliabilityScore        Int                  @default(0)
+  sourceTier              SourceTier           @default(TIER_3_UNVERIFIED)
+  authorityScopes         String[]             @default([])
+  rationale               String?
+  reviewer                String?
+  reviewedAt              DateTime?            @db.Timestamptz(3)
+  accessPolicy            String
+  retentionDays           Int?
+  enabled                 Boolean              @default(false)
+  slug                    String?              @unique
+  language                String?
+  country                 String?
+  official                Boolean              @default(false)
+  termsReviewed           Boolean              @default(false)
+  ingestionAllowed        Boolean              @default(false)
+  permissionStatus        NewsPermissionStatus @default(UNREVIEWED)
+  commercialReuseAllowed  Boolean              @default(false)
+  requiresReusableLicense Boolean              @default(false)
+  permissionScope         String               @default("NONE")
+  feedUrl                 String?
+  attributionRequirement  String?
+  lastTermsReviewAt       DateTime?            @db.Timestamptz(3)
+  newsPriority            Int                  @default(1000)
+  ingestionNotes          String?
+  permissionReference     String?
+  maxExcerptChars         Int                  @default(0)
+  ingestionMethod         NewsIngestionMethod  @default(MANUAL)
+  createdAt               DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime             @updatedAt @db.Timestamptz(3)
+  articles                Article[]
+  videos                  Video[]
+}
+
+model Article {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  slug                   String                  @unique
+  sourceId               String                  @db.Uuid
+  sourceUrl              String                  @unique
+  canonicalUrl           String                  @unique
+  titleOriginal          String
+  contentOriginal        String?
+  excerptOriginal        String?
+  language               String
+  titleVi                String?
+  summaryVi              String?
+  publishedAt            DateTime?               @db.Timestamptz(3)
+  collectedAt            DateTime                @default(now()) @db.Timestamptz(3)
+  licenseName            String?
+  publishedAtPrecision   String?
+  licenseUrl             String?
+  attributionText        String?
+  licenseEvidenceUrl     String?
+  sourceRevisionUrl      String?
+  licenseVerifiedAt      DateTime?               @db.Timestamptz(3)
+  commercialReuseAllowed Boolean                 @default(false)
+  storyType              StoryType?
+  rumorStatus            RumorStatus             @default(NOT_APPLICABLE)
+  reliabilityClass       ReliabilityClass?
+  reliabilityScore       Int?
+  processingStatus       ProcessingStatus        @default(PENDING)
+  publicationStatus      PublicationStatus       @default(DRAFT)
+  clusterId              String?                 @db.Uuid
+  manualOverrideAt       DateTime?               @db.Timestamptz(3)
+  approvalAuditId        String?                 @unique @db.Uuid
+  approvalAudit          AdminAuditLog?          @relation("ArticleApproval", fields: [approvalAuditId], references: [id], onDelete: Restrict)
+  createdAt              DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime                @updatedAt @db.Timestamptz(3)
+  source                 NewsSource              @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  cluster                ArticleCluster?         @relation("ClusterMembers", fields: [clusterId], references: [id], onDelete: Restrict)
+  representedCluster     ArticleCluster?         @relation("Representative")
+  entities               ArticleEntity[]
+  claims                 ClaimEvidence[]         @relation("ClaimArticle")
+  citedBy                ClaimEvidence[]         @relation("EvidenceArticle")
+  quotes                 Quote[]
+  processingRuns         AIProcessingRun[]
+  briefItems             BriefItem[]
+  urls                   ArticleUrl[]
+  discoveries            ArticleDiscovery[]
+  feedSnapshot           ArticleFeedSnapshot?
+  reliabilityAssessments ReliabilityAssessment[]
+
+  @@index([publicationStatus, publishedAt])
+  @@index([sourceId, publishedAt])
+  @@index([clusterId])
+  @@index([storyType, publishedAt])
+  @@index([processingStatus, collectedAt])
+}
+
+// Exact URL aliases cover source/canonical crossovers and later canonical discovery.
+model ArticleUrl {
+  url       String   @id
+  articleId String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Restrict)
+
+  @@index([articleId])
+}
+
+// Discovery-only provenance. No publisher text, media, or reuse license implied.
+model ArticleDiscovery {
+  id            String   @id @default(uuid()) @db.Uuid
+  articleId     String   @db.Uuid
+  provider      String
+  url           String
+  domain        String
+  sourceCountry String?
+  seenAt        DateTime @db.Timestamptz(3)
+  collectedAt   DateTime @default(now()) @db.Timestamptz(3)
+  metadata      Json
+  article       Article  @relation(fields: [articleId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, url])
+  @@index([articleId])
+  @@index([provider, collectedAt])
+}
+
+// Exact feed/permission snapshot; not an open-content licence or publication grant.
+model ArticleFeedSnapshot {
+  articleId          String   @id @db.Uuid
+  sourceId           String   @db.Uuid
+  feedUrl            String
+  termsUrl           String
+  permissionScope    String
+  attributionText    String
+  reviewedAt         DateTime @db.Timestamptz(3)
+  title              String
+  excerpt            String?
+  publishedAt        DateTime @db.Timestamptz(3)
+  categories         String[] @default([])
+  evidenceReferences String[] @default([])
+  collectedAt        DateTime @default(now()) @db.Timestamptz(3)
+  article            Article  @relation(fields: [articleId], references: [id], onDelete: Restrict)
+}
+
+model ArticleCluster {
+  id                      String                   @id @default(uuid()) @db.Uuid
+  headline                String?
+  summary                 String?
+  representativeArticleId String?                  @unique @db.Uuid
+  selectionReason         String?
+  algorithmVersion        String?
+  hasConflict             Boolean                  @default(false)
+  manualOverrideAt        DateTime?                @db.Timestamptz(3)
+  manualDisputed          Boolean                  @default(false)
+  featured                Boolean                  @default(false)
+  // Merge/unmerge operations are recorded in AdminAuditLog, never delete members.
+  createdAt               DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime                 @updatedAt @db.Timestamptz(3)
+  articles                Article[]                @relation("ClusterMembers")
+  representative          Article?                 @relation("Representative", fields: [representativeArticleId], references: [id], onDelete: Restrict)
+  briefItems              BriefItem[]
+  revisions               ArticleClusterRevision[]
+  transferUpdates         TransferUpdate[]
+}
+
+model ArticleClusterRevision {
+  id               String         @id @default(uuid()) @db.Uuid
+  clusterId        String         @db.Uuid
+  revision         Int
+  inputHash        String
+  algorithmVersion String
+  snapshot         Json
+  createdAt        DateTime       @default(now()) @db.Timestamptz(3)
+  cluster          ArticleCluster @relation(fields: [clusterId], references: [id], onDelete: Restrict)
+
+  @@unique([clusterId, revision])
+  @@index([clusterId, inputHash])
+}
+
+// CHECK enforces exactly one concrete entity; nullable unique pairs reject duplicates.
+model ArticleEntity {
+  id        String   @id @default(uuid()) @db.Uuid
+  articleId String   @db.Uuid
+  clubId    String?  @db.Uuid
+  playerId  String?  @db.Uuid
+  leagueId  String?  @db.Uuid
+  matchId   String?  @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Restrict)
+  club      Club?    @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  player    Player?  @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  league    League?  @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  match     Match?   @relation(fields: [matchId], references: [id], onDelete: Restrict)
+
+  @@unique([articleId, clubId])
+  @@unique([articleId, playerId])
+  @@unique([articleId, leagueId])
+  @@unique([articleId, matchId])
+  @@index([clubId])
+  @@index([playerId])
+  @@index([leagueId])
+  @@index([matchId])
+}
+
+model Video {
+  id                  String                  @id @default(uuid()) @db.Uuid
+  provider            String
+  externalId          String
+  title               String
+  channelId           String
+  channelName         String
+  url                 String                  @unique
+  thumbnailUrl        String?
+  durationSeconds     Int?
+  publishedAt         DateTime                @db.Timestamptz(3)
+  trustLevel          VideoTrustLevel         @default(UNKNOWN)
+  validationStatus    ValidationStatus        @default(PENDING)
+  validationReason    String?
+  checkedAt           DateTime?               @db.Timestamptz(3)
+  embedAllowed        Boolean?
+  matchId             String?                 @db.Uuid
+  sourceId            String?                 @db.Uuid
+  videoSourceId       String?                 @db.Uuid
+  sourceMappingId     String?                 @db.Uuid
+  description         String?
+  language            String?
+  videoType           String                  @default("OTHER")
+  availabilityStatus  String                  @default("UNKNOWN")
+  vietnamAvailability String                  @default("UNKNOWN")
+  selectedAsPrimary   Boolean                 @default(false)
+  collectedAt         DateTime                @default(now()) @db.Timestamptz(3)
+  lastCheckedAt       DateTime?               @db.Timestamptz(3)
+  createdAt           DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime                @updatedAt @db.Timestamptz(3)
+  match               Match?                  @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  source              NewsSource?             @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  videoSource         VideoSource?            @relation(fields: [videoSourceId], references: [id], onDelete: Restrict)
+  sourceMapping       VideoSourceCompetition? @relation(fields: [sourceMappingId], references: [id], onDelete: Restrict)
+  briefItems          BriefItem[]
+
+  @@unique([provider, externalId])
+  @@index([matchId, validationStatus])
+  @@index([sourceId])
+  @@index([videoSourceId])
+  @@index([sourceMappingId])
+  @@index([lastCheckedAt])
+}
+
+model VideoSource {
+  id              String                   @id @default(uuid()) @db.Uuid
+  registryKey     String?                  @unique
+  platform        String                   @default("YOUTUBE")
+  channelId       String?
+  channelHandle   String
+  name            String
+  country         String
+  language        String
+  verified        Boolean                  @default(false)
+  enabled         Boolean                  @default(false)
+  priority        Int                      @default(100)
+  sourceType      String
+  notes           String?
+  lastVerifiedAt  DateTime?                @db.Timestamptz(3)
+  reviewReference String
+  createdAt       DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime                 @updatedAt @db.Timestamptz(3)
+  competitions    VideoSourceCompetition[]
+  videos          Video[]
+
+  @@unique([platform, channelId])
+  @@unique([platform, channelHandle])
+}
+
+model VideoSourceCompetition {
+  id            String      @id @default(uuid()) @db.Uuid
+  videoSourceId String      @db.Uuid
+  competitionId String      @db.Uuid
+  season        String
+  market        String
+  language      String
+  rightsType    String
+  priority      Int         @default(100)
+  validFrom     DateTime    @db.Timestamptz(3)
+  validTo       DateTime    @db.Timestamptz(3)
+  enabled       Boolean     @default(false)
+  evidenceUrl   String
+  createdAt     DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime    @updatedAt @db.Timestamptz(3)
+  source        VideoSource @relation(fields: [videoSourceId], references: [id], onDelete: Restrict)
+  competition   League      @relation(fields: [competitionId], references: [id], onDelete: Restrict)
+  videos        Video[]
+
+  @@unique([videoSourceId, competitionId, season, market, validFrom], map: "VideoSourceCompetition_scope_key")
+  @@index([competitionId, season, enabled])
+}
+
+model VideoSyncState {
+  matchId        String   @id @db.Uuid
+  inputHash      String
+  nextSearchAt   DateTime @db.Timestamptz(3)
+  lastSearchedAt DateTime @db.Timestamptz(3)
+  match          Match    @relation(fields: [matchId], references: [id], onDelete: Restrict)
+
+  @@index([nextSearchAt])
+}
+
+// One identity per local editorial date/locale, immutable content lives in revisions.
+model DailyBrief {
+  id          String          @id @default(uuid()) @db.Uuid
+  date        DateTime        @db.Date
+  locale      String          @default("vi-VN")
+  status      BriefStatus     @default(DRAFT)
+  generatedAt DateTime?       @db.Timestamptz(3)
+  publishedAt DateTime?       @db.Timestamptz(3)
+  createdAt   DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @db.Timestamptz(3)
+  revisions   BriefRevision[]
+
+  @@unique([date, locale])
+}
+
+model BriefRevision {
+  id                 String      @id @default(uuid()) @db.Uuid
+  briefId            String      @db.Uuid
+  revision           Int
+  status             BriefStatus @default(DRAFT)
+  windowStart        DateTime    @db.Timestamptz(3)
+  windowEnd          DateTime    @db.Timestamptz(3)
+  cutoffAt           DateTime    @db.Timestamptz(3)
+  inputHash          String
+  rankingVersion     String
+  generationMetadata Json?
+  generatedAt        DateTime?   @db.Timestamptz(3)
+  publishedAt        DateTime?   @db.Timestamptz(3)
+  publishedById      String?     @db.Uuid
+  publishedBy        User?       @relation("BriefPublisher", fields: [publishedById], references: [id], onDelete: Restrict)
+  correctionReason   String?
+  createdAt          DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime    @updatedAt @db.Timestamptz(3)
+  brief              DailyBrief  @relation(fields: [briefId], references: [id], onDelete: Restrict)
+  items              BriefItem[]
+
+  @@unique([briefId, revision])
+  @@unique([id, briefId])
+  @@index([publishedById])
+}
+
+model BriefItem {
+  id              String              @id @default(uuid()) @db.Uuid
+  briefId         String              @db.Uuid
+  revisionId      String              @db.Uuid
+  section         BriefSection
+  position        Int
+  headline        String
+  summary         String
+  articleId       String?             @db.Uuid
+  clusterId       String?             @db.Uuid
+  matchId         String?             @db.Uuid
+  videoId         String?             @db.Uuid
+  importanceScore Decimal?            @db.Decimal(5, 2)
+  // Ranking details and frozen input snapshots are versioned metadata, not ID lists.
+  inputSnapshot   Json
+  componentScores Json?
+  createdAt       DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime            @updatedAt @db.Timestamptz(3)
+  revision        BriefRevision       @relation(fields: [revisionId, briefId], references: [id, briefId], onDelete: Restrict)
+  article         Article?            @relation(fields: [articleId], references: [id], onDelete: Restrict)
+  cluster         ArticleCluster?     @relation(fields: [clusterId], references: [id], onDelete: Restrict)
+  match           Match?              @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  video           Video?              @relation(fields: [videoId], references: [id], onDelete: Restrict)
+  evidence        BriefItemEvidence[]
+
+  @@unique([revisionId, section, position])
+  @@index([revisionId, briefId])
+  @@index([articleId])
+  @@index([clusterId])
+  @@index([matchId])
+  @@index([videoId])
+}
+
+model UserPreference {
+  id        String       @id @default(uuid()) @db.Uuid
+  userId    String       @unique @db.Uuid
+  locale    String       @default("vi-VN")
+  timezone  String       @default("Asia/Bangkok")
+  createdAt DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime     @updatedAt @db.Timestamptz(3)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  follows   UserFollow[]
+}
+
+model UserFollow {
+  id           String         @id @default(uuid()) @db.Uuid
+  preferenceId String         @db.Uuid
+  leagueId     String?        @db.Uuid
+  clubId       String?        @db.Uuid
+  playerId     String?        @db.Uuid
+  createdAt    DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime       @updatedAt @db.Timestamptz(3)
+  preference   UserPreference @relation(fields: [preferenceId], references: [id], onDelete: Cascade)
+  league       League?        @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  club         Club?          @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  player       Player?        @relation(fields: [playerId], references: [id], onDelete: Restrict)
+
+  @@unique([preferenceId, leagueId])
+  @@unique([preferenceId, clubId])
+  @@unique([preferenceId, playerId])
+  @@index([leagueId])
+  @@index([clubId])
+  @@index([playerId])
+}
+
+model JobRun {
+  id               String    @id @default(uuid()) @db.Uuid
+  jobName          String
+  logicalKey       String
+  logicalDate      DateTime? @db.Date
+  status           JobStatus @default(PENDING)
+  startedAt        DateTime? @db.Timestamptz(3)
+  finishedAt       DateTime? @db.Timestamptz(3)
+  attempts         Int       @default(0)
+  recordsProcessed Int       @default(0)
+  errorCode        String?
+  errorSafe        String?
+  correlationId    String    @default(uuid()) @db.Uuid
+  checkpoint       Json?
+  leaseOwner       String?
+  leaseExpiresAt   DateTime? @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@unique([jobName, logicalKey])
+  @@index([status, startedAt])
+  @@index([createdAt])
+}
+
+model ProviderStatus {
+  id               String         @id @default(uuid()) @db.Uuid
+  provider         String         @unique
+  capability       String
+  health           ProviderHealth @default(UNCONFIGURED)
+  enabled          Boolean        @default(false)
+  lastCheckedAt    DateTime?      @db.Timestamptz(3)
+  lastSuccessAt    DateTime?      @db.Timestamptz(3)
+  lastFailureAt    DateTime?      @db.Timestamptz(3)
+  nextRequestAt    DateTime?      @db.Timestamptz(3)
+  cooldownUntil    DateTime?      @db.Timestamptz(3)
+  recordsProcessed Int            @default(0)
+  dataUpdatedAt    DateTime?      @db.Timestamptz(3)
+  latencyMs        Int?
+  errorCode        String?
+  errorSafe        String?
+  checkpoint       Json?
+  createdAt        DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime       @updatedAt @db.Timestamptz(3)
+}
+
+// Normalized provider table rows; old rows are retained if a later response is partial.
+model Standing {
+  id             String   @id @default(uuid()) @db.Uuid
+  provider       String
+  leagueId       String   @db.Uuid
+  seasonId       String   @db.Uuid
+  clubId         String   @db.Uuid
+  stage          String
+  group          String   @default("")
+  tableType      String
+  position       Int
+  playedGames    Int?
+  won            Int?
+  drawn          Int?
+  lost           Int?
+  points         Int?
+  goalsFor       Int?
+  goalsAgainst   Int?
+  goalDifference Int?
+  fetchedAt      DateTime @db.Timestamptz(3)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+  league         League   @relation(fields: [leagueId], references: [id], onDelete: Restrict)
+  season         Season   @relation(fields: [seasonId, leagueId], references: [id, leagueId], onDelete: Restrict)
+  club           Club     @relation(fields: [clubId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, seasonId, stage, group, tableType, clubId])
+  @@index([leagueId, seasonId, tableType, position])
+  @@index([seasonId, leagueId])
+  @@index([clubId])
+}
+
+model ClaimEvidence {
+  id              String              @id @default(uuid()) @db.Uuid
+  articleId       String?             @db.Uuid
+  claim           String
+  sourceArticleId String?             @db.Uuid
+  matchId         String?             @db.Uuid
+  fieldPath       String?
+  locator         String?
+  excerpt         String?
+  kind            EvidenceKind        @default(ARTICLE_SOURCE)
+  stance          EvidenceStance      @default(SUPPORTS)
+  claimKey        String?
+  lineageKey      String?
+  authorityScope  String?
+  reviewedBy      String?
+  reviewedAt      DateTime?           @db.Timestamptz(3)
+  supersedesId    String?             @db.Uuid
+  supersedes      ClaimEvidence?      @relation("EvidenceCorrection", fields: [supersedesId], references: [id], onDelete: Restrict)
+  corrections     ClaimEvidence[]     @relation("EvidenceCorrection")
+  createdAt       DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime            @updatedAt @db.Timestamptz(3)
+  article         Article?            @relation("ClaimArticle", fields: [articleId], references: [id], onDelete: Restrict)
+  sourceArticle   Article?            @relation("EvidenceArticle", fields: [sourceArticleId], references: [id], onDelete: Restrict)
+  match           Match?              @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  briefItems      BriefItemEvidence[]
+  transferUpdates TransferUpdate[]
+
+  @@index([articleId])
+  @@index([sourceArticleId])
+  @@index([matchId])
+  @@index([supersedesId])
+}
+
+// Explainable policy decisions, not an opaque truth score. Input revisions remain auditable.
+model ReliabilityAssessment {
+  id            String   @id @default(uuid()) @db.Uuid
+  articleId     String   @db.Uuid
+  inputHash     String
+  policyVersion String
+  result        Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  article       Article  @relation(fields: [articleId], references: [id], onDelete: Restrict)
+
+  @@unique([articleId, inputHash, policyVersion])
+  @@index([articleId, createdAt])
+}
+
+model BriefItemEvidence {
+  briefItemId String        @db.Uuid
+  evidenceId  String        @db.Uuid
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
+  item        BriefItem     @relation(fields: [briefItemId], references: [id], onDelete: Restrict)
+  evidence    ClaimEvidence @relation(fields: [evidenceId], references: [id], onDelete: Restrict)
+
+  @@id([briefItemId, evidenceId])
+  @@index([evidenceId])
+}
+
+model Quote {
+  id         String   @id @default(uuid()) @db.Uuid
+  articleId  String   @db.Uuid
+  original   String
+  translated String?
+  speaker    String?
+  locator    String
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Restrict)
+
+  @@index([articleId])
+}
+
+model AIProcessingRun {
+  id                String           @id @default(uuid()) @db.Uuid
+  articleId         String           @db.Uuid
+  provider          String
+  model             String
+  promptVersion     String
+  schemaVersion     String
+  outputVersion     String
+  inputHash         String
+  inputSnapshot     Json
+  output            Json?
+  validationOutcome Json?
+  status            ProcessingStatus @default(PENDING)
+  errorSafe         String?
+  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
+  article           Article          @relation(fields: [articleId], references: [id], onDelete: Restrict)
+
+  @@unique([articleId, inputHash, promptVersion, schemaVersion, outputVersion])
+  @@index([status, createdAt])
+}
+
+model Transfer {
+  id               String           @id @default(uuid()) @db.Uuid
+  playerId         String           @db.Uuid
+  currentClubId    String?          @db.Uuid
+  targetClubId     String?          @db.Uuid
+  status           TransferStatus   @default(RUMOR)
+  dealType         String?
+  fee              Decimal?         @db.Decimal(18, 2)
+  currency         String?          @db.VarChar(3)
+  contractStartsAt DateTime?        @db.Date
+  contractEndsAt   DateTime?        @db.Date
+  summary          String?
+  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
+  player           Player           @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  currentClub      Club?            @relation("CurrentClub", fields: [currentClubId], references: [id], onDelete: Restrict)
+  targetClub       Club?            @relation("TargetClub", fields: [targetClubId], references: [id], onDelete: Restrict)
+  updates          TransferUpdate[]
+
+  @@index([playerId, updatedAt])
+  @@index([currentClubId])
+  @@index([targetClubId])
+  @@index([status, updatedAt])
+}
+
+model TransferUpdate {
+  id          String          @id @default(uuid()) @db.Uuid
+  transferId  String          @db.Uuid
+  evidenceId  String          @db.Uuid
+  status      TransferStatus
+  summary     String
+  reason      String
+  publishedAt DateTime        @db.Timestamptz(3)
+  createdAt   DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @db.Timestamptz(3)
+  clusterId   String?         @db.Uuid
+  inputHash   String?         @unique
+  snapshot    Json?
+  cluster     ArticleCluster? @relation(fields: [clusterId], references: [id], onDelete: Restrict)
+  transfer    Transfer        @relation(fields: [transferId], references: [id], onDelete: Restrict)
+  evidence    ClaimEvidence   @relation(fields: [evidenceId], references: [id], onDelete: Restrict)
+
+  @@unique([transferId, evidenceId, status])
+  @@index([evidenceId])
+  @@index([clusterId])
+  @@index([transferId, publishedAt])
+}
+
+model AdminAuditLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  actorId         String   @db.Uuid
+  action          String
+  targetType      String
+  targetId        String
+  reason          String
+  before          Json?
+  after           Json?
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+  actor           User     @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  approvedArticle Article? @relation("ArticleApproval")
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId, createdAt])
+}

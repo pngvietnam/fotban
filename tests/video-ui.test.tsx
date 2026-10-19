@@ -1,0 +1,26 @@
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { load } from "cheerio";
+import { describe, expect, it } from "vitest";
+import { MatchHighlight } from "../components/matches/match-highlight";
+import { MatchDetailView } from "../components/matches/match-detail";
+import { uiDetail } from "./fixtures/match-ui";
+import { videoCandidate } from "./fixtures/videos";
+import type { VerifiedHighlight } from "../types/video-provider";
+
+function highlight(): VerifiedHighlight { const video = videoCandidate(); return { ...video, url: `https://www.youtube.com/watch?v=${video.externalId}`, checkedAt: video.publishedAt, videoType: "HIGHLIGHT" }; }
+describe("Match highlight link UI", () => {
+  it("renders the exact clean no-verified-video state", () => { const html = renderToStaticMarkup(<MatchHighlight />); expect(html).toContain("Chưa tìm thấy highlight tiếng Việt từ nguồn được xác minh."); expect(html).not.toContain("<iframe"); expect(html).not.toContain("<video"); });
+  it("shows original title, channel, type, date and a safe YouTube watch link", () => {
+    const html = renderToStaticMarkup(<MatchHighlight highlight={highlight()} />); const $ = load(html); const link = $("a");
+    expect(link.attr("href")).toBe("https://www.youtube.com/watch?v=fixture0001"); expect(link.attr("target")).toBe("_blank"); expect(link.attr("rel")).toContain("noopener");
+    expect(html).toContain(videoCandidate().title); expect(html).toContain("Fixture VN"); expect(html).toContain("04:00"); expect(html).toContain("17/10/2026"); expect(html).toContain("Chưa xác định khả năng phát tại Việt Nam");
+    expect(html).not.toContain("<img"); expect(html).not.toContain("<iframe"); expect(html).not.toContain("undefined");
+  });
+  it("labels international fallback honestly without translating titles", () => { const html = renderToStaticMarkup(<MatchHighlight highlight={{ ...highlight(), language: "en" }} />); expect(html).toContain("Ngôn ngữ quốc tế"); expect(html).toContain(videoCandidate().title); });
+  it("adds the panel to finished matches only without changing match information", () => {
+    const finished = renderToStaticMarkup(<MatchDetailView match={uiDetail()} highlight={highlight()} now={new Date()} />);
+    expect(finished).toContain("Thông tin trận đấu"); expect(finished).toContain("Highlight trên YouTube");
+    const scheduled = renderToStaticMarkup(<MatchDetailView match={uiDetail({ status: "SCHEDULED" })} now={new Date()} />); expect(scheduled).not.toContain("Highlight trên YouTube");
+  });
+});

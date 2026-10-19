@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-10-19T01:47:34.204Z",
+  "routes": [
+    {
+      "path": "/news",
+      "httpStatus": 200,
+      "emptyState": true,
+      "privateNotFound": false,
+      "noindex": false
+    },
+    {
+      "path": "/news/tin-2b8ee617-52b3-4257-b839-7033a81cbba1",
+      "httpStatus": 200,
+      "emptyState": false,
+      "privateNotFound": true,
+      "noindex": true
+    }
+  ]
+}

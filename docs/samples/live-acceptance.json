@@ -1,0 +1,302 @@
+{
+  "checkedAt": "2026-10-18T14:34:10.719Z",
+  "workflow": {
+    "id": "f66ceeae-5866-48f0-8f45-fc82a53350f2",
+    "status": "PARTIAL",
+    "startedAt": "2026-10-18T14:27:56.632Z",
+    "finishedAt": "2026-10-18T14:28:37.465Z",
+    "plan": {
+      "key": "manual-morning-v1:2026-10-18T14:27:56.504Z",
+      "date": "2026-10-18",
+      "mode": "MANUAL_NOW",
+      "phase": "all",
+      "rerun": false,
+      "timezone": "Asia/Ho_Chi_Minh",
+      "refreshAt": "2026-10-18T14:27:56.504Z",
+      "historical": false,
+      "storedOnly": false,
+      "scheduledAt": "2026-10-18T14:27:56.504Z"
+    },
+    "steps": [
+      {
+        "type": "MATCH_SYNC",
+        "status": "PARTIAL",
+        "outcome": {
+          "code": "MATCH_SYNC_PARTIAL",
+          "failed": 2,
+          "status": "PARTIAL",
+          "processed": 2,
+          "succeeded": 0
+        }
+      },
+      {
+        "type": "NEWS_SYNC",
+        "status": "PARTIAL",
+        "outcome": {
+          "code": "NEWS_SYNC_PARTIAL",
+          "failed": 1,
+          "status": "PARTIAL",
+          "processed": 1,
+          "succeeded": 0
+        }
+      },
+      {
+        "type": "ARTICLE_PROCESS",
+        "status": "SUCCEEDED",
+        "outcome": {
+          "failed": 0,
+          "status": "SUCCEEDED",
+          "processed": 0,
+          "succeeded": 0
+        }
+      },
+      {
+        "type": "RELIABILITY_UPDATE",
+        "status": "SUCCEEDED",
+        "outcome": {
+          "failed": 0,
+          "status": "SUCCEEDED",
+          "processed": 0,
+          "succeeded": 0
+        }
+      },
+      {
+        "type": "STORY_CLUSTER",
+        "status": "SUCCEEDED",
+        "outcome": {
+          "failed": 0,
+          "status": "SUCCEEDED",
+          "processed": 0,
+          "succeeded": 0
+        }
+      },
+      {
+        "type": "TRANSFER_UPDATE",
+        "status": "SUCCEEDED",
+        "outcome": {
+          "failed": 0,
+          "status": "SUCCEEDED",
+          "processed": 0,
+          "succeeded": 0
+        }
+      },
+      {
+        "type": "VIDEO_SYNC",
+        "status": "SKIPPED",
+        "outcome": {
+          "code": "NOT_CONFIGURED",
+          "failed": 0,
+          "status": "SKIPPED",
+          "processed": 0,
+          "succeeded": 0
+        }
+      },
+      {
+        "type": "MORNING_BRIEF_GENERATE",
+        "status": "SUCCEEDED",
+        "outcome": {
+          "brief": {
+            "id": "fe1f3dda-1b51-4865-a932-5e869b62abea",
+            "cached": false,
+            "status": "READY",
+            "revision": 5
+          },
+          "failed": 0,
+          "status": "SUCCEEDED",
+          "processed": 1,
+          "succeeded": 1
+        }
+      }
+    ],
+    "degradedDependencies": [
+      "MATCH_SYNC",
+      "NEWS_SYNC",
+      "VIDEO_SYNC"
+    ]
+  },
+  "matches": [
+    {
+      "slug": "la-liga",
+      "total": 40,
+      "finished": 14,
+      "live": 1,
+      "mapped": 40
+    },
+    {
+      "slug": "premier-league",
+      "total": 39,
+      "finished": 15,
+      "live": 3,
+      "mapped": 39
+    }
+  ],
+  "examples": [
+    {
+      "league": "premier-league",
+      "slug": "match-94ebaaf3-c574-4ecb-92ca-3cf1b1e94a7b",
+      "provider": "FOOTBALL_DATA",
+      "kickoffAt": "2026-10-17T16:30:00.000Z",
+      "status": "FINISHED",
+      "homeScore": 0,
+      "awayScore": 1,
+      "lastUpdatedAt": "2026-10-18T13:32:07.371Z",
+      "home": "Newcastle United FC",
+      "away": "Aston Villa FC"
+    },
+    {
+      "league": "la-liga",
+      "slug": "match-08199ec2-50cb-4d71-a840-4920c5137b47",
+      "provider": "FOOTBALL_DATA",
+      "kickoffAt": "2026-10-17T16:30:00.000Z",
+      "status": "FINISHED",
+      "homeScore": 2,
+      "awayScore": 5,
+      "lastUpdatedAt": "2026-10-18T13:32:13.590Z",
+      "home": "Real Betis Balompié",
+      "away": "FC Barcelona"
+    }
+  ],
+  "articles": [
+    {
+      "language": "en",
+      "processingStatus": "NEEDS_REVIEW",
+      "publicationStatus": "DRAFT",
+      "n": 1
+    }
+  ],
+  "totals": {
+    "transfers": 0,
+    "videos": 0,
+    "publishedarticles": 0
+  },
+  "brief": {
+    "id": "fe1f3dda-1b51-4865-a932-5e869b62abea",
+    "date": "2026-10-18",
+    "revision": 5,
+    "status": "READY",
+    "generatedAt": "2026-10-18T14:28:37.237Z",
+    "publishedAt": null,
+    "cutoffAt": "2026-10-18T14:27:56.504Z",
+    "windowStart": "2026-10-17T14:27:56.504Z",
+    "windowEnd": "2026-10-18T14:27:56.504Z",
+    "upcomingEnd": "2026-10-19T14:27:56.504Z"
+  },
+  "sections": [
+    {
+      "section": "MORNING_SUMMARY",
+      "count": 1
+    },
+    {
+      "section": "LAST_NIGHT_MATCHES",
+      "count": 3
+    },
+    {
+      "section": "COMING_UP",
+      "count": 3
+    }
+  ],
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 28548,
+      "preview": false,
+      "hasRawError": false
+    },
+    {
+      "path": "/?preview=1",
+      "status": 200,
+      "bytes": 66138,
+      "preview": true,
+      "hasRawError": false
+    },
+    {
+      "path": "/matches",
+      "status": 200,
+      "bytes": 377164,
+      "preview": false,
+      "hasRawError": false
+    },
+    {
+      "path": "/news",
+      "status": 200,
+      "bytes": 35285,
+      "preview": false,
+      "hasRawError": false
+    },
+    {
+      "path": "/transfers",
+      "status": 200,
+      "bytes": 37860,
+      "preview": false,
+      "hasRawError": false
+    },
+    {
+      "path": "/match/match-94ebaaf3-c574-4ecb-92ca-3cf1b1e94a7b",
+      "status": 200,
+      "bytes": 50799,
+      "preview": false,
+      "hasRawError": false
+    },
+    {
+      "path": "/match/match-08199ec2-50cb-4d71-a840-4920c5137b47",
+      "status": 200,
+      "bytes": 50713,
+      "preview": false,
+      "hasRawError": false
+    }
+  ],
+  "api": [
+    {
+      "league": "premier-league",
+      "status": 200,
+      "keys": [
+        "matches",
+        "page",
+        "pageSize",
+        "total"
+      ],
+      "count": 33
+    },
+    {
+      "league": "la-liga",
+      "status": 200,
+      "keys": [
+        "matches",
+        "page",
+        "pageSize",
+        "total"
+      ],
+      "count": 35
+    }
+  ],
+  "scope": "Real persisted data only; no fixture injection, publication or permission changes; one bounded external workflow",
+  "externalRecordsSynced": 0,
+  "persistedMatchCount": 79,
+  "frontend": {
+    "baseUrl": "http://localhost:3001",
+    "preview": "http://localhost:3001/?preview=1",
+    "actualLeagueFilterCards": {
+      "premierLeague": 33,
+      "laLiga": 34
+    },
+    "responsiveChecks": "20 fully loaded route/width combinations passed: 360, 390, 430, 768, 1280; scrollWidth equals clientWidth",
+    "realDetailChecks": "La Liga detail visually checked at all five widths; Premier League and La Liga detail routes HTTP 200; exact persisted scores and UTC+7 conversion verified",
+    "news": "No eligible published Vietnamese stories; English DRAFT/NEEDS_REVIEW retained",
+    "transfers": "No persisted transfer relationships; honest empty state",
+    "highlights": "No videos; missing-key empty state; present-video CTA cannot be live-verified",
+    "productionPublication": "Unchanged: root remains empty without a PUBLISHED Brief; development preview alone displays READY",
+    "consoleErrorsObserved": 0,
+    "matchDataAt": "2026-10-18T13:32:13.590Z",
+    "completionTimeLimit": "Existing M12 FINISHED + kickoff-window selection; no reliable finishedAt field"
+  },
+  "screenshots": [
+    "live-home-360.jpg",
+    "live-home-1280.jpg",
+    "live-matches-360.jpg",
+    "live-news-360.jpg",
+    "live-transfers-360.jpg",
+    "live-match-detail-360.jpg"
+  ],
+  "completedAt": "2026-10-18T14:39:20.890Z"
+}

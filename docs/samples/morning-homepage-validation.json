@@ -1,0 +1,221 @@
+{
+  "date": "2026-10-18",
+  "externalProviderCalls": 0,
+  "codeValidation": {
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "tests": 534,
+    "testFiles": 30,
+    "newTests": 42,
+    "productionBuild": "PASS"
+  },
+  "originalDatabase": {
+    "productionHome": "HTTP 200 / preparing",
+    "productionPreviewDenied": true,
+    "previewRobots": "noindex, nofollow",
+    "developmentReadyPreview": "HTTP 200 / six persisted upcoming fixtures",
+    "noAutoPublication": true,
+    "preservation": {
+      "comparedTo": "M13 verified content hashes",
+      "tables": [
+        {
+          "table": "Match",
+          "count": 62,
+          "unchanged": true
+        },
+        {
+          "table": "Article",
+          "count": 1,
+          "unchanged": true
+        },
+        {
+          "table": "NewsSource",
+          "count": 5,
+          "unchanged": true
+        },
+        {
+          "table": "AIProcessingRun",
+          "count": 1,
+          "unchanged": true
+        },
+        {
+          "table": "ArticleCluster",
+          "count": 1,
+          "unchanged": true
+        },
+        {
+          "table": "ArticleClusterRevision",
+          "count": 1,
+          "unchanged": true
+        },
+        {
+          "table": "Transfer",
+          "count": 0,
+          "unchanged": true
+        },
+        {
+          "table": "TransferUpdate",
+          "count": 0,
+          "unchanged": true
+        },
+        {
+          "table": "Video",
+          "count": 0,
+          "unchanged": true
+        },
+        {
+          "table": "VideoSource",
+          "count": 2,
+          "unchanged": true
+        },
+        {
+          "table": "VideoSourceCompetition",
+          "count": 2,
+          "unchanged": true
+        }
+      ],
+      "briefs": [
+        {
+          "revision": 1,
+          "status": "READY",
+          "publishedAt": null
+        },
+        {
+          "revision": 2,
+          "status": "READY",
+          "publishedAt": null
+        },
+        {
+          "revision": 3,
+          "status": "READY",
+          "publishedAt": null
+        }
+      ]
+    }
+  },
+  "responsive": {
+    "previewWidths": [
+      360,
+      390,
+      430,
+      768,
+      1280
+    ],
+    "publishedFixtureWidths": [
+      360,
+      390,
+      430,
+      768,
+      1280
+    ],
+    "navigationRoutes": [
+      "/",
+      "/matches",
+      "/news",
+      "/transfers"
+    ],
+    "navigationWidths": [
+      360,
+      768,
+      1280
+    ],
+    "horizontalOverflow": false,
+    "rawEnumsVisible": false,
+    "publishedFirstCardTopAt360": 599.5,
+    "previewFirstCardTopAt360": 653.5
+  },
+  "accessibility": {
+    "keyboardFocusOutline": "3px solid",
+    "skipTarget": "morning-content",
+    "nativeSummaryExpansion": true,
+    "safeExternalSourceLinks": true
+  },
+  "isolatedJourney": {
+    "isolated": true,
+    "externalProviderCalls": 0,
+    "scheduler": "PARTIAL",
+    "publication": "PUBLISHED",
+    "partialNotice": true,
+    "highlights": 2,
+    "sourceLinks": 3,
+    "sections": [
+      "RESULTS",
+      "CLUB_PLAYER",
+      "TRANSFERS",
+      "OFF_FIELD"
+    ],
+    "routes": [
+      {
+        "path": "/",
+        "status": 200,
+        "sourceSection": false,
+        "highlight": true
+      },
+      {
+        "path": "/matches",
+        "status": 200,
+        "sourceSection": false,
+        "highlight": false
+      },
+      {
+        "path": "/news",
+        "status": 200,
+        "sourceSection": false,
+        "highlight": false
+      },
+      {
+        "path": "/transfers",
+        "status": 200,
+        "sourceSection": false,
+        "highlight": false
+      },
+      {
+        "path": "/match/home-fixture",
+        "status": 200,
+        "sourceSection": false,
+        "highlight": true
+      },
+      {
+        "path": "/news/tin-43475042-99d7-4f49-b9d6-1bba5a3a3f55",
+        "status": 200,
+        "sourceSection": true,
+        "highlight": false
+      },
+      {
+        "path": "/news/tin-43475042-99d7-4f49-b9d6-1bba5a3a3f55#sources",
+        "status": 200,
+        "sourceSection": true,
+        "highlight": false
+      },
+      {
+        "path": "/transfers/giao-dich-3cfb3c85-33e8-48c4-ba0a-f258d50599f0",
+        "status": 200,
+        "sourceSection": true,
+        "highlight": false
+      },
+      {
+        "path": "/transfers/giao-dich-3cfb3c85-33e8-48c4-ba0a-f258d50599f0#sources",
+        "status": 200,
+        "sourceSection": true,
+        "highlight": false
+      },
+      {
+        "path": "/news/tin-f69ca537-cb06-44c3-ae86-457900febbf3",
+        "status": 200,
+        "sourceSection": true,
+        "highlight": false
+      },
+      {
+        "path": "/news/tin-f69ca537-cb06-44c3-ae86-457900febbf3#sources",
+        "status": 200,
+        "sourceSection": true,
+        "highlight": false
+      }
+    ]
+  },
+  "notes": [
+    "Isolated fixture data is not production content.",
+    "Watch/source targets were inspected without fetching external providers or claiming playback.",
+    "Development preview does not change publication policy."
+  ]
+}

@@ -1,0 +1,202 @@
+[
+  {
+    "requestedWidth": 360,
+    "cards": 6,
+    "clientWidth": 345,
+    "h1": "Bản tin sáng",
+    "innerWidth": 360,
+    "overflow": [],
+    "path": "/?preview=1",
+    "scrollWidth": 345
+  },
+  {
+    "requestedWidth": 360,
+    "cards": 50,
+    "clientWidth": 345,
+    "h1": "Lịch đấu & kết quả.",
+    "innerWidth": 360,
+    "overflow": [],
+    "path": "/matches",
+    "scrollWidth": 345
+  },
+  {
+    "requestedWidth": 360,
+    "cards": 0,
+    "clientWidth": 345,
+    "h1": "Bóng đá, rõ nguồn.",
+    "innerWidth": 360,
+    "overflow": [],
+    "path": "/news",
+    "scrollWidth": 345
+  },
+  {
+    "requestedWidth": 360,
+    "cards": 0,
+    "clientWidth": 345,
+    "h1": "Chuyển nhượng, rõ căn cứ.",
+    "innerWidth": 360,
+    "overflow": [],
+    "path": "/transfers",
+    "scrollWidth": 345
+  },
+  {
+    "requestedWidth": 390,
+    "cards": 6,
+    "clientWidth": 375,
+    "h1": "Bản tin sáng",
+    "innerWidth": 390,
+    "overflow": [],
+    "path": "/?preview=1",
+    "scrollWidth": 375
+  },
+  {
+    "requestedWidth": 390,
+    "cards": 50,
+    "clientWidth": 375,
+    "h1": "Lịch đấu & kết quả.",
+    "innerWidth": 390,
+    "overflow": [],
+    "path": "/matches",
+    "scrollWidth": 375
+  },
+  {
+    "requestedWidth": 390,
+    "cards": 0,
+    "clientWidth": 375,
+    "h1": "Bóng đá, rõ nguồn.",
+    "innerWidth": 390,
+    "overflow": [],
+    "path": "/news",
+    "scrollWidth": 375
+  },
+  {
+    "requestedWidth": 390,
+    "cards": 0,
+    "clientWidth": 375,
+    "h1": "Chuyển nhượng, rõ căn cứ.",
+    "innerWidth": 390,
+    "overflow": [],
+    "path": "/transfers",
+    "scrollWidth": 375
+  },
+  {
+    "requestedWidth": 430,
+    "cards": 6,
+    "clientWidth": 415,
+    "h1": "Bản tin sáng",
+    "innerWidth": 430,
+    "overflow": [],
+    "path": "/?preview=1",
+    "scrollWidth": 415
+  },
+  {
+    "requestedWidth": 430,
+    "cards": 50,
+    "clientWidth": 415,
+    "h1": "Lịch đấu & kết quả.",
+    "innerWidth": 430,
+    "overflow": [],
+    "path": "/matches",
+    "scrollWidth": 415
+  },
+  {
+    "requestedWidth": 430,
+    "cards": 0,
+    "clientWidth": 415,
+    "h1": "Bóng đá, rõ nguồn.",
+    "innerWidth": 430,
+    "overflow": [],
+    "path": "/news",
+    "scrollWidth": 415
+  },
+  {
+    "requestedWidth": 430,
+    "cards": 0,
+    "clientWidth": 415,
+    "h1": "Chuyển nhượng, rõ căn cứ.",
+    "innerWidth": 430,
+    "overflow": [],
+    "path": "/transfers",
+    "scrollWidth": 415
+  },
+  {
+    "requestedWidth": 768,
+    "cards": 6,
+    "clientWidth": 753,
+    "h1": "Bản tin sáng",
+    "innerWidth": 768,
+    "overflow": [],
+    "path": "/?preview=1",
+    "scrollWidth": 753
+  },
+  {
+    "requestedWidth": 768,
+    "cards": 50,
+    "clientWidth": 753,
+    "h1": "Lịch đấu & kết quả.",
+    "innerWidth": 768,
+    "overflow": [],
+    "path": "/matches",
+    "scrollWidth": 753
+  },
+  {
+    "requestedWidth": 768,
+    "cards": 0,
+    "clientWidth": 768,
+    "h1": "Bóng đá, rõ nguồn.",
+    "innerWidth": 768,
+    "overflow": [],
+    "path": "/news",
+    "scrollWidth": 768
+  },
+  {
+    "requestedWidth": 768,
+    "cards": 0,
+    "clientWidth": 768,
+    "h1": "Chuyển nhượng, rõ căn cứ.",
+    "innerWidth": 768,
+    "overflow": [],
+    "path": "/transfers",
+    "scrollWidth": 768
+  },
+  {
+    "requestedWidth": 1280,
+    "cards": 6,
+    "clientWidth": 1265,
+    "h1": "Bản tin sáng",
+    "innerWidth": 1280,
+    "overflow": [],
+    "path": "/?preview=1",
+    "scrollWidth": 1265
+  },
+  {
+    "requestedWidth": 1280,
+    "cards": 50,
+    "clientWidth": 1265,
+    "h1": "Lịch đấu & kết quả.",
+    "innerWidth": 1280,
+    "overflow": [],
+    "path": "/matches",
+    "scrollWidth": 1265
+  },
+  {
+    "requestedWidth": 1280,
+    "cards": 0,
+    "clientWidth": 1280,
+    "h1": "Bóng đá, rõ nguồn.",
+    "innerWidth": 1280,
+    "overflow": [],
+    "path": "/news",
+    "scrollWidth": 1280
+  },
+  {
+    "requestedWidth": 1280,
+    "cards": 0,
+    "clientWidth": 1280,
+    "h1": "Chuyển nhượng, rõ căn cứ.",
+    "innerWidth": 1280,
+    "overflow": [],
+    "path": "/transfers",
+    "scrollWidth": 1280
+  }
+]

@@ -1,0 +1,509 @@
+{
+  "validationContext": "Dữ liệu nội bộ đã lưu; không gọi API bên ngoài hoặc tự xuất bản",
+  "id": "1852bb72-99fd-47c0-bd45-7ef8de561f38",
+  "briefId": "cc136700-3d4f-45d2-80d6-d2643a6b34ae",
+  "revision": 2,
+  "status": "READY",
+  "generatedAt": "2026-10-18T04:16:44.175Z",
+  "publishedAt": null,
+  "document": {
+    "schemaVersion": "brief-v1",
+    "rankingVersion": "brief-ranking-v1",
+    "date": "2026-10-18",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "locale": "vi-VN",
+    "titleVi": "Bản tin bóng đá sáng 18/10/2026",
+    "windowStart": "2026-10-17T01:00:00.000Z",
+    "windowEnd": "2026-10-18T01:00:00.000Z",
+    "cutoffAt": "2026-10-18T01:00:00.000Z",
+    "upcomingEnd": "2026-10-19T01:00:00.000Z",
+    "summary": [
+      {
+        "itemKey": "match:3b7c162d-7bdd-4284-8186-571d170574ad",
+        "textVi": "Leeds United FC gặp Manchester United FC"
+      },
+      {
+        "itemKey": "match:0daf7ce2-d811-4224-8552-748e0fbfbb2b",
+        "textVi": "Real Madrid CF gặp Sevilla FC"
+      },
+      {
+        "itemKey": "match:418da9aa-a95b-459f-a0f3-8456ee794e36",
+        "textVi": "Nottingham Forest FC gặp Arsenal FC"
+      },
+      {
+        "itemKey": "match:85323411-37d8-48f6-9fd7-df678f2eadd9",
+        "textVi": "CA Osasuna gặp Real Racing Club de Santander"
+      },
+      {
+        "itemKey": "match:3d84fc7e-983c-4fbd-9c04-dbbbe40d28c9",
+        "textVi": "AFC Bournemouth gặp Sunderland AFC"
+      },
+      {
+        "itemKey": "match:bac1be7e-b54f-4fcb-bfdf-ed2019c26a53",
+        "textVi": "RC Celta de Vigo gặp Deportivo Alavés"
+      }
+    ],
+    "sections": [
+      {
+        "type": "UPCOMING",
+        "labelVi": "Trận đấu sắp tới",
+        "items": [
+          {
+            "key": "match:3b7c162d-7bdd-4284-8186-571d170574ad",
+            "section": "UPCOMING",
+            "titleVi": "Leeds United FC gặp Manchester United FC",
+            "summaryVi": "Trận đấu dự kiến diễn ra lúc 20:00 18-10 tại Premier League.",
+            "leagues": [
+              "premier-league"
+            ],
+            "entityKeys": [
+              "club:f6d2816a-b7cf-487d-90a8-e40d455834db",
+              "club:87b8c59f-fda3-4cc9-ab04-892bc3e8fbcb"
+            ],
+            "clusterId": null,
+            "transferId": null,
+            "articleIds": [],
+            "match": {
+              "id": "3b7c162d-7bdd-4284-8186-571d170574ad",
+              "slug": "match-3b7c162d-7bdd-4284-8186-571d170574ad",
+              "league": "premier-league",
+              "leagueName": "Premier League",
+              "homeId": "f6d2816a-b7cf-487d-90a8-e40d455834db",
+              "awayId": "87b8c59f-fda3-4cc9-ab04-892bc3e8fbcb",
+              "home": "Leeds United FC",
+              "away": "Manchester United FC",
+              "kickoffAt": "2026-10-18T13:00:00.000Z",
+              "status": "SCHEDULED",
+              "homeScore": null,
+              "awayScore": null,
+              "homeExtraTimeScore": null,
+              "awayExtraTimeScore": null,
+              "homePenaltyScore": null,
+              "awayPenaltyScore": null,
+              "scoreDuration": "REGULAR",
+              "provider": "FOOTBALL_DATA",
+              "sourceUrl": "https://www.football-data.org/",
+              "observedAt": "2026-10-16T00:20:35.000Z",
+              "events": []
+            },
+            "highlightRef": null,
+            "transferStatus": null,
+            "reliability": {
+              "label": "OFFICIAL",
+              "certainty": "CONFIRMED",
+              "evidenceStrength": "DIRECT",
+              "independentSourceCount": 1,
+              "labelVi": "Dữ liệu trận đấu",
+              "certaintyVi": "Lịch dự kiến"
+            },
+            "citations": [
+              {
+                "evidenceId": "8d495313-14e9-528a-ad27-0ca8d455e82d",
+                "articleId": null,
+                "sourceName": "Football-Data.org",
+                "url": "https://www.football-data.org/",
+                "publishedAt": null,
+                "language": "und",
+                "tier": "STRUCTURED_PROVIDER",
+                "licenseName": null,
+                "licenseUrl": null,
+                "attribution": "Football data provided by the Football-Data.org API"
+              }
+            ],
+            "components": {
+              "source": 1,
+              "recency": 0.75,
+              "relevance": 1,
+              "prominence": 1,
+              "novelty": 1,
+              "corroboration": 0.3333333333333333
+            },
+            "importanceScore": 87.08,
+            "sourceFingerprint": "8d49531314e9728acd270ca8d455e82d235913bab711e8e5459b44c4212294bf",
+            "contentUpdatedAt": "2026-10-18T13:00:00.000Z",
+            "dateOnly": false
+          },
+          {
+            "key": "match:0daf7ce2-d811-4224-8552-748e0fbfbb2b",
+            "section": "UPCOMING",
+            "titleVi": "Real Madrid CF gặp Sevilla FC",
+            "summaryVi": "Trận đấu dự kiến diễn ra lúc 02:00 19-10 tại La Liga.",
+            "leagues": [
+              "la-liga"
+            ],
+            "entityKeys": [
+              "club:933328e4-4455-487d-823b-d9b12d3e41de",
+              "club:f5c2fd9e-5b8d-4bf5-871e-f8aec6124f26"
+            ],
+            "clusterId": null,
+            "transferId": null,
+            "articleIds": [],
+            "match": {
+              "id": "0daf7ce2-d811-4224-8552-748e0fbfbb2b",
+              "slug": "match-0daf7ce2-d811-4224-8552-748e0fbfbb2b",
+              "league": "la-liga",
+              "leagueName": "La Liga",
+              "homeId": "933328e4-4455-487d-823b-d9b12d3e41de",
+              "awayId": "f5c2fd9e-5b8d-4bf5-871e-f8aec6124f26",
+              "home": "Real Madrid CF",
+              "away": "Sevilla FC",
+              "kickoffAt": "2026-10-18T19:00:00.000Z",
+              "status": "SCHEDULED",
+              "homeScore": null,
+              "awayScore": null,
+              "homeExtraTimeScore": null,
+              "awayExtraTimeScore": null,
+              "homePenaltyScore": null,
+              "awayPenaltyScore": null,
+              "scoreDuration": "REGULAR",
+              "provider": "FOOTBALL_DATA",
+              "sourceUrl": "https://www.football-data.org/",
+              "observedAt": "2026-10-11T00:20:32.000Z",
+              "events": []
+            },
+            "highlightRef": null,
+            "transferStatus": null,
+            "reliability": {
+              "label": "OFFICIAL",
+              "certainty": "CONFIRMED",
+              "evidenceStrength": "DIRECT",
+              "independentSourceCount": 1,
+              "labelVi": "Dữ liệu trận đấu",
+              "certaintyVi": "Lịch dự kiến"
+            },
+            "citations": [
+              {
+                "evidenceId": "ae1f51af-6366-5ce8-a50f-60b227a808e1",
+                "articleId": null,
+                "sourceName": "Football-Data.org",
+                "url": "https://www.football-data.org/",
+                "publishedAt": null,
+                "language": "und",
+                "tier": "STRUCTURED_PROVIDER",
+                "licenseName": null,
+                "licenseUrl": null,
+                "attribution": "Football data provided by the Football-Data.org API"
+              }
+            ],
+            "components": {
+              "source": 1,
+              "recency": 0.625,
+              "relevance": 1,
+              "prominence": 1,
+              "novelty": 1,
+              "corroboration": 0.3333333333333333
+            },
+            "importanceScore": 83.96,
+            "sourceFingerprint": "ae1f51af63666ce8250f60b227a808e1c007c5097b051ab4cabd5422397c0622",
+            "contentUpdatedAt": "2026-10-18T19:00:00.000Z",
+            "dateOnly": false
+          },
+          {
+            "key": "match:418da9aa-a95b-459f-a0f3-8456ee794e36",
+            "section": "UPCOMING",
+            "titleVi": "Nottingham Forest FC gặp Arsenal FC",
+            "summaryVi": "Trận đấu dự kiến diễn ra lúc 22:30 18-10 tại Premier League.",
+            "leagues": [
+              "premier-league"
+            ],
+            "entityKeys": [
+              "club:e4d36b9a-80aa-4fd3-8635-8bcb9f21dc1a",
+              "club:349c2edb-58db-4109-9529-6ca0fc270fea"
+            ],
+            "clusterId": null,
+            "transferId": null,
+            "articleIds": [],
+            "match": {
+              "id": "418da9aa-a95b-459f-a0f3-8456ee794e36",
+              "slug": "match-418da9aa-a95b-459f-a0f3-8456ee794e36",
+              "league": "premier-league",
+              "leagueName": "Premier League",
+              "homeId": "e4d36b9a-80aa-4fd3-8635-8bcb9f21dc1a",
+              "awayId": "349c2edb-58db-4109-9529-6ca0fc270fea",
+              "home": "Nottingham Forest FC",
+              "away": "Arsenal FC",
+              "kickoffAt": "2026-10-18T15:30:00.000Z",
+              "status": "SCHEDULED",
+              "homeScore": null,
+              "awayScore": null,
+              "homeExtraTimeScore": null,
+              "awayExtraTimeScore": null,
+              "homePenaltyScore": null,
+              "awayPenaltyScore": null,
+              "scoreDuration": "REGULAR",
+              "provider": "FOOTBALL_DATA",
+              "sourceUrl": "https://www.football-data.org/",
+              "observedAt": "2026-10-16T00:20:35.000Z",
+              "events": []
+            },
+            "highlightRef": null,
+            "transferStatus": null,
+            "reliability": {
+              "label": "OFFICIAL",
+              "certainty": "CONFIRMED",
+              "evidenceStrength": "DIRECT",
+              "independentSourceCount": 1,
+              "labelVi": "Dữ liệu trận đấu",
+              "certaintyVi": "Lịch dự kiến"
+            },
+            "citations": [
+              {
+                "evidenceId": "22e81945-122b-5233-af5e-8dd3cda7a062",
+                "articleId": null,
+                "sourceName": "Football-Data.org",
+                "url": "https://www.football-data.org/",
+                "publishedAt": null,
+                "language": "und",
+                "tier": "STRUCTURED_PROVIDER",
+                "licenseName": null,
+                "licenseUrl": null,
+                "attribution": "Football data provided by the Football-Data.org API"
+              }
+            ],
+            "components": {
+              "source": 1,
+              "recency": 0.6979166666666667,
+              "relevance": 1,
+              "prominence": 1,
+              "novelty": 1,
+              "corroboration": 0.3333333333333333
+            },
+            "importanceScore": 85.78,
+            "sourceFingerprint": "22e81945122b3233ef5e8dd3cda7a062b26d9d493d41d2c3a8dc90763ea9d60e",
+            "contentUpdatedAt": "2026-10-18T15:30:00.000Z",
+            "dateOnly": false
+          },
+          {
+            "key": "match:85323411-37d8-48f6-9fd7-df678f2eadd9",
+            "section": "UPCOMING",
+            "titleVi": "CA Osasuna gặp Real Racing Club de Santander",
+            "summaryVi": "Trận đấu dự kiến diễn ra lúc 19:00 18-10 tại La Liga.",
+            "leagues": [
+              "la-liga"
+            ],
+            "entityKeys": [
+              "club:d1dcec05-4367-4505-a5a3-896c14ca307c",
+              "club:be332416-53f4-4ffd-86ac-510c9175c971"
+            ],
+            "clusterId": null,
+            "transferId": null,
+            "articleIds": [],
+            "match": {
+              "id": "85323411-37d8-48f6-9fd7-df678f2eadd9",
+              "slug": "match-85323411-37d8-48f6-9fd7-df678f2eadd9",
+              "league": "la-liga",
+              "leagueName": "La Liga",
+              "homeId": "d1dcec05-4367-4505-a5a3-896c14ca307c",
+              "awayId": "be332416-53f4-4ffd-86ac-510c9175c971",
+              "home": "CA Osasuna",
+              "away": "Real Racing Club de Santander",
+              "kickoffAt": "2026-10-18T12:00:00.000Z",
+              "status": "SCHEDULED",
+              "homeScore": null,
+              "awayScore": null,
+              "homeExtraTimeScore": null,
+              "awayExtraTimeScore": null,
+              "homePenaltyScore": null,
+              "awayPenaltyScore": null,
+              "scoreDuration": "REGULAR",
+              "provider": "FOOTBALL_DATA",
+              "sourceUrl": "https://www.football-data.org/",
+              "observedAt": "2026-10-11T00:20:32.000Z",
+              "events": []
+            },
+            "highlightRef": null,
+            "transferStatus": null,
+            "reliability": {
+              "label": "OFFICIAL",
+              "certainty": "CONFIRMED",
+              "evidenceStrength": "DIRECT",
+              "independentSourceCount": 1,
+              "labelVi": "Dữ liệu trận đấu",
+              "certaintyVi": "Lịch dự kiến"
+            },
+            "citations": [
+              {
+                "evidenceId": "a39cf2c3-924d-5c9b-af53-f74431813734",
+                "articleId": null,
+                "sourceName": "Football-Data.org",
+                "url": "https://www.football-data.org/",
+                "publishedAt": null,
+                "language": "und",
+                "tier": "STRUCTURED_PROVIDER",
+                "licenseName": null,
+                "licenseUrl": null,
+                "attribution": "Football data provided by the Football-Data.org API"
+              }
+            ],
+            "components": {
+              "source": 1,
+              "recency": 0.7708333333333334,
+              "relevance": 1,
+              "prominence": 0,
+              "novelty": 1,
+              "corroboration": 0.3333333333333333
+            },
+            "importanceScore": 77.6,
+            "sourceFingerprint": "a39cf2c3924dbc9b0f53f74431813734c0e95c217440324375b44f6e9c34b2fc",
+            "contentUpdatedAt": "2026-10-18T12:00:00.000Z",
+            "dateOnly": false
+          },
+          {
+            "key": "match:3d84fc7e-983c-4fbd-9c04-dbbbe40d28c9",
+            "section": "UPCOMING",
+            "titleVi": "AFC Bournemouth gặp Sunderland AFC",
+            "summaryVi": "Trận đấu dự kiến diễn ra lúc 20:00 18-10 tại Premier League.",
+            "leagues": [
+              "premier-league"
+            ],
+            "entityKeys": [
+              "club:92cf094b-87ab-418d-828f-6c2d14021dcd",
+              "club:d2d7d2a1-291f-4c18-b02d-bdb7e9fa2660"
+            ],
+            "clusterId": null,
+            "transferId": null,
+            "articleIds": [],
+            "match": {
+              "id": "3d84fc7e-983c-4fbd-9c04-dbbbe40d28c9",
+              "slug": "match-3d84fc7e-983c-4fbd-9c04-dbbbe40d28c9",
+              "league": "premier-league",
+              "leagueName": "Premier League",
+              "homeId": "92cf094b-87ab-418d-828f-6c2d14021dcd",
+              "awayId": "d2d7d2a1-291f-4c18-b02d-bdb7e9fa2660",
+              "home": "AFC Bournemouth",
+              "away": "Sunderland AFC",
+              "kickoffAt": "2026-10-18T13:00:00.000Z",
+              "status": "SCHEDULED",
+              "homeScore": null,
+              "awayScore": null,
+              "homeExtraTimeScore": null,
+              "awayExtraTimeScore": null,
+              "homePenaltyScore": null,
+              "awayPenaltyScore": null,
+              "scoreDuration": "REGULAR",
+              "provider": "FOOTBALL_DATA",
+              "sourceUrl": "https://www.football-data.org/",
+              "observedAt": "2026-10-16T00:20:35.000Z",
+              "events": []
+            },
+            "highlightRef": null,
+            "transferStatus": null,
+            "reliability": {
+              "label": "OFFICIAL",
+              "certainty": "CONFIRMED",
+              "evidenceStrength": "DIRECT",
+              "independentSourceCount": 1,
+              "labelVi": "Dữ liệu trận đấu",
+              "certaintyVi": "Lịch dự kiến"
+            },
+            "citations": [
+              {
+                "evidenceId": "53553dd1-9e3a-5e2c-a9cc-0fe651e6d60a",
+                "articleId": null,
+                "sourceName": "Football-Data.org",
+                "url": "https://www.football-data.org/",
+                "publishedAt": null,
+                "language": "und",
+                "tier": "STRUCTURED_PROVIDER",
+                "licenseName": null,
+                "licenseUrl": null,
+                "attribution": "Football data provided by the Football-Data.org API"
+              }
+            ],
+            "components": {
+              "source": 1,
+              "recency": 0.75,
+              "relevance": 1,
+              "prominence": 0,
+              "novelty": 1,
+              "corroboration": 0.3333333333333333
+            },
+            "importanceScore": 77.08,
+            "sourceFingerprint": "53553dd19e3a0e2c89cc0fe651e6d60ad6bff9f38dad96989a8c9f69e84a2348",
+            "contentUpdatedAt": "2026-10-18T13:00:00.000Z",
+            "dateOnly": false
+          },
+          {
+            "key": "match:bac1be7e-b54f-4fcb-bfdf-ed2019c26a53",
+            "section": "UPCOMING",
+            "titleVi": "RC Celta de Vigo gặp Deportivo Alavés",
+            "summaryVi": "Trận đấu dự kiến diễn ra lúc 21:15 18-10 tại La Liga.",
+            "leagues": [
+              "la-liga"
+            ],
+            "entityKeys": [
+              "club:400112fc-52ac-4370-a97e-33ccda559bfc",
+              "club:c456603a-3faa-4827-b37b-8faf6168bb8e"
+            ],
+            "clusterId": null,
+            "transferId": null,
+            "articleIds": [],
+            "match": {
+              "id": "bac1be7e-b54f-4fcb-bfdf-ed2019c26a53",
+              "slug": "match-bac1be7e-b54f-4fcb-bfdf-ed2019c26a53",
+              "league": "la-liga",
+              "leagueName": "La Liga",
+              "homeId": "400112fc-52ac-4370-a97e-33ccda559bfc",
+              "awayId": "c456603a-3faa-4827-b37b-8faf6168bb8e",
+              "home": "RC Celta de Vigo",
+              "away": "Deportivo Alavés",
+              "kickoffAt": "2026-10-18T14:15:00.000Z",
+              "status": "SCHEDULED",
+              "homeScore": null,
+              "awayScore": null,
+              "homeExtraTimeScore": null,
+              "awayExtraTimeScore": null,
+              "homePenaltyScore": null,
+              "awayPenaltyScore": null,
+              "scoreDuration": "REGULAR",
+              "provider": "FOOTBALL_DATA",
+              "sourceUrl": "https://www.football-data.org/",
+              "observedAt": "2026-10-11T00:20:32.000Z",
+              "events": []
+            },
+            "highlightRef": null,
+            "transferStatus": null,
+            "reliability": {
+              "label": "OFFICIAL",
+              "certainty": "CONFIRMED",
+              "evidenceStrength": "DIRECT",
+              "independentSourceCount": 1,
+              "labelVi": "Dữ liệu trận đấu",
+              "certaintyVi": "Lịch dự kiến"
+            },
+            "citations": [
+              {
+                "evidenceId": "6cf178dc-6c77-5961-a091-a7533a181c70",
+                "articleId": null,
+                "sourceName": "Football-Data.org",
+                "url": "https://www.football-data.org/",
+                "publishedAt": null,
+                "language": "und",
+                "tier": "STRUCTURED_PROVIDER",
+                "licenseName": null,
+                "licenseUrl": null,
+                "attribution": "Football data provided by the Football-Data.org API"
+              }
+            ],
+            "components": {
+              "source": 1,
+              "recency": 0.7239583333333333,
+              "relevance": 1,
+              "prominence": 0,
+              "novelty": 1,
+              "corroboration": 0.3333333333333333
+            },
+            "importanceScore": 76.43,
+            "sourceFingerprint": "6cf178dc6c7759618091a7533a181c70a67e2a162e52f9056b69bf2dfbe364d8",
+            "contentUpdatedAt": "2026-10-18T14:15:00.000Z",
+            "dateOnly": false
+          }
+        ]
+      }
+    ],
+    "warnings": [],
+    "method": "DETERMINISTIC"
+  },
+  "highlights": {},
+  "highlightFallbackVi": "Chưa tìm thấy highlight từ nguồn được xác minh."
+}

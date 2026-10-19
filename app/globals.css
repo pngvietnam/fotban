@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root { color-scheme: light dark; }
+body { margin: 0; font-family: Arial, Helvetica, sans-serif; }
+button { cursor: pointer; }
+*:focus-visible { outline: 3px solid #10b981; outline-offset: 4px; }
+
+.match-surface { color-scheme: light; }
+.match-surface :focus-visible { outline: 3px solid #516c21; outline-offset: 4px; }
+.match-surface input[type="date"] { min-width: 0; }
+.match-skip-link { position: absolute; left: 1rem; top: -5rem; z-index: 50; border-radius: .5rem; background: #0f172a; color: white; padding: .75rem 1rem; }
+.match-skip-link:focus { top: .75rem; }
+@media (prefers-reduced-motion: reduce) { .match-card { transition: none; } }
+
+.home-surface { overflow-wrap: anywhere; }
+.home-card { min-width: 0; }
+.home-surface a { text-underline-offset: 3px; }

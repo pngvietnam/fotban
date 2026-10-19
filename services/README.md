@@ -1,0 +1,3 @@
+Milestone 3 adds `match-sync.ts` (vendor-neutral synchronization), `match-store.ts` (Prisma/PostgreSQL persistence and operational state), and `match-queries.ts` (normalized database reads). Provider selection belongs to the composition root, not these services.
+
+Milestone 5 adds `news-sync.ts` (NewsProvider-based isolated synchronization and rights checks) and `news-store.ts` (transactional metadata/URL identity and job/status persistence). Shared database transaction interfaces live in `lib/sync-database.ts`; existing match-store exports remain compatible. No news publishing, AI, classification or semantic clustering is implemented.

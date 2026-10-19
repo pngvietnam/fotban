@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-18T14:19:08.536Z",
+  "mode": "isolated PostgreSQL + production Next; library-issued test sessions; no external provider requests",
+  "checks": {
+    "authorization": "PASS: anonymous/USER denied by server; cross-origin mutation rejected",
+    "routes": "PASS: all seven production admin pages, private cache and noindex",
+    "sources": "PASS: invalid enable blocked; permitted fixture edit and audit persisted",
+    "videos": "PASS: reviewed source edit and season/date mapping",
+    "storyApproval": "PASS: generated version retained; manual edit needs fresh proof review; immutable exact approval audit",
+    "transfers": "PASS: reviewed timeline; rumor cannot be promoted to confirmed",
+    "briefs": "PASS: protected READY preview, explicit publication, publishedBy admin and public homepage",
+    "withdrawal": "PASS: rejection revokes approval and hides previously published news/Brief content",
+    "jobs": "PASS: existing runner used; real PostgreSQL concurrency lock and persisted safe JobRun DTO",
+    "revocation": "PASS: existing signed session loses admin access after role revocation",
+    "cleanup": "PASS: disposable server/database removed; original counts and source permissions unchanged"
+  }
+}

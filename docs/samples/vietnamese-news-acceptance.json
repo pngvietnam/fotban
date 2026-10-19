@@ -1,0 +1,263 @@
+{
+  "checkedAt": "2026-10-19T01:51:42.953Z",
+  "sourcePolicy": "VIETNAMESE_PRIMARY_GDELT_OPTIONAL",
+  "sourcesReviewed": 11,
+  "sourcesEnabled": 0,
+  "sourcesBlocked": 13,
+  "sources": [
+    {
+      "name": "VnExpress Sport",
+      "slug": "vnexpress-sport",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": "https://vnexpress.net/rss/the-thao.rss",
+      "lastTermsReviewAt": "2026-10-19T01:44:38.755Z",
+      "attribution": "Theo VnExpress",
+      "notes": "RSS free scope is individual/nonprofit; commercial reproduction requires written approval. No approval supplied.",
+      "sync": {
+        "source": "vnexpress-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "Báo Thanh Niên",
+      "slug": "thanhnien-sport",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": "https://thanhnien.vn/rss/the-thao/bong-da-quoc-te.rss",
+      "lastTermsReviewAt": "2026-10-19T01:44:38.767Z",
+      "attribution": "Theo Báo Thanh Niên",
+      "notes": "RSS attribution condition coexists with written-permission copyright footer. Commercial feed republication scope needs clarification.",
+      "sync": {
+        "source": "thanhnien-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "VTV Sport",
+      "slug": "vtv-sport",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": "https://vtv.vn/rss/the-thao.rss",
+      "lastTermsReviewAt": "2026-10-19T01:44:38.771Z",
+      "attribution": "BAO DIEN TU VTV",
+      "notes": "RSS attribution condition coexists with written-permission copyright footer. No unrestricted commercial grant inferred. Broadcaster is not football claim authority.",
+      "sync": {
+        "source": "vtv-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "Báo Dân trí",
+      "slug": "dantri-sport",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": "https://dantri.com.vn/rss/the-thao.rss",
+      "lastTermsReviewAt": "2026-10-19T01:44:38.776Z",
+      "attribution": "Theo Báo Dân trí",
+      "notes": "Free RSS limited to individuals/nonprofit organizations; written-permission footer. No production approval supplied.",
+      "sync": {
+        "source": "dantri-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "Thể Thao 247",
+      "slug": "thethao247",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": "2026-10-19T01:44:38.780Z",
+      "attribution": "Theo Thethao247.vn",
+      "notes": "Site identifies as a sports social network and disclaims member-content endorsement. RSS personal/nonprofit; written IP permission required. Editorial feed identity needs review before reliable-media classification.",
+      "sync": {
+        "source": "thethao247",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "Bóng đá 24h",
+      "slug": "bongda24h",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": "2026-10-19T01:44:38.785Z",
+      "attribution": "Theo Bóng đá 24h",
+      "notes": "RSS free for individuals/nonprofit organizations. Verify current feed URL and production permission before activation.",
+      "sync": {
+        "source": "bongda24h",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "Tạp chí Bóng Đá",
+      "slug": "bongdaplus",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": "2026-10-19T01:44:38.791Z",
+      "attribution": "Theo Tạp chí Bóng Đá",
+      "notes": "Publisher footer requires written agreement for republication. Official sports RSS endpoint not verified; never scrape article pages as fallback.",
+      "sync": {
+        "source": "bongdaplus",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "VietNamNet Sport",
+      "slug": "vietnamnet-sport",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": "2026-10-19T01:44:38.796Z",
+      "attribution": "Theo VietNamNet",
+      "notes": "Current footer requires written permission for republication. Historical RSS documentation is not proof of a current approved feed.",
+      "sync": {
+        "source": "vietnamnet-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "Tuổi Trẻ Sport",
+      "slug": "tuoitre-sport",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": "2026-10-19T01:44:38.802Z",
+      "attribution": "Theo Báo Tuổi Trẻ",
+      "notes": "Free RSS limited to individuals/nonprofit organizations. Confirm current feed endpoint and production reuse scope.",
+      "sync": {
+        "source": "tuoitre-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "VTC News Sport",
+      "slug": "vtc-sport",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": "2026-10-19T01:44:38.811Z",
+      "attribution": "Báo điện tử VTC News",
+      "notes": "RSS free for individuals/nonprofit organizations with source credit. Commercial scope and feed endpoint need approval/verification.",
+      "sync": {
+        "source": "vtc-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "VOV Sport",
+      "slug": "vov-sport",
+      "enabled": false,
+      "termsReviewed": true,
+      "permissionStatus": "RESTRICTED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": "2026-10-19T01:44:38.815Z",
+      "attribution": "Theo VOV",
+      "notes": "Current publisher footer requires written approval for any copying. No verified production RSS grant.",
+      "sync": {
+        "source": "vov-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "PLO Sport",
+      "slug": "plo-sport",
+      "enabled": false,
+      "termsReviewed": false,
+      "permissionStatus": "UNREVIEWED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": null,
+      "attribution": "Theo Báo Pháp Luật TP.HCM",
+      "notes": "RSS directory redirected to Tuoi Tre during review. Current publisher/feed identity and reuse terms unresolved.",
+      "sync": {
+        "source": "plo-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    },
+    {
+      "name": "Lao Động Sport",
+      "slug": "laodong-sport",
+      "enabled": false,
+      "termsReviewed": false,
+      "permissionStatus": "UNREVIEWED",
+      "permissionScope": "NONE",
+      "commercialReuseAllowed": false,
+      "feedUrl": null,
+      "lastTermsReviewAt": null,
+      "attribution": "Theo Báo Lao Động",
+      "notes": "Publisher/feed terms could not be retrieved in review. No permission inferred from availability or other sites' feed lists.",
+      "sync": {
+        "source": "laodong-sport",
+        "status": "skipped",
+        "code": "DISABLED"
+      }
+    }
+  ],
+  "counts": {
+    "found": 0,
+    "stored": 0,
+    "duplicates": 0,
+    "rejected": 0,
+    "recentVietnameseArticles": 0,
+    "processed": 0,
+    "reviewRequired": 0,
+    "clustersAssessed": 0,
+    "clustersCreatedOrRevised": 0,
+    "publishable": 0,
+    "visible": 0,
+    "epl": 0,
+    "laLiga": 0,
+    "transfer": 0,
+    "offField": 0
+  },
+  "processing": [],
+  "reliability": [],
+  "stories": []
+}

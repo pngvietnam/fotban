@@ -1,0 +1,238 @@
+{
+  "checkedAt": "2026-10-18T15:10:06.805Z",
+  "aiMode": "fallback",
+  "totals": {
+    "sources": 5,
+    "enabled": 1,
+    "permissionAllowed": 1,
+    "articles": 1,
+    "collected24h": 0,
+    "processedValidated": 1,
+    "ready": 0,
+    "withTitleVi": 0,
+    "withSummaryVi": 0,
+    "publishable": 0,
+    "hiddenOrRejected": 0,
+    "reviewRequired": 1,
+    "clusters": 1,
+    "publishableClusters": 0,
+    "visibleClusters": 0
+  },
+  "sources": [
+    {
+      "id": "9c91b2c5-f3ea-4b25-97e7-93451c11922a",
+      "name": "Wikinews (English)",
+      "slug": "wikinews-en",
+      "domain": "en.wikinews.org",
+      "enabled": true,
+      "termsReviewed": true,
+      "ingestionAllowed": true,
+      "permissionStatus": "ALLOWED",
+      "commercialReuseAllowed": true,
+      "sourceTier": "TIER_3_UNVERIFIED",
+      "articles": 1,
+      "collected24h": 0,
+      "ready": 0,
+      "withTitleVi": 0,
+      "withSummaryVi": 0,
+      "hiddenOrRejected": 0,
+      "reviewRequired": 1,
+      "published": 0,
+      "clusters": 1,
+      "processedValidated": 1,
+      "publishable": 0,
+      "publishableClusters": 0,
+      "visibleClusters": 0
+    },
+    {
+      "id": "43744f77-5a69-4d50-92d1-18615b8733c7",
+      "name": "FC Barcelona",
+      "slug": "barcelona",
+      "domain": "www.fcbarcelona.com",
+      "enabled": false,
+      "termsReviewed": false,
+      "ingestionAllowed": false,
+      "permissionStatus": "UNREVIEWED",
+      "commercialReuseAllowed": false,
+      "sourceTier": "TIER_3_UNVERIFIED",
+      "articles": 0,
+      "collected24h": 0,
+      "ready": 0,
+      "withTitleVi": 0,
+      "withSummaryVi": 0,
+      "hiddenOrRejected": 0,
+      "reviewRequired": 0,
+      "published": 0,
+      "clusters": 0,
+      "processedValidated": 0,
+      "publishable": 0,
+      "publishableClusters": 0,
+      "visibleClusters": 0
+    },
+    {
+      "id": "ce0af5b1-8daa-4b65-b174-84137655e108",
+      "name": "LALIGA",
+      "slug": "la-liga",
+      "domain": "www.laliga.com",
+      "enabled": false,
+      "termsReviewed": false,
+      "ingestionAllowed": false,
+      "permissionStatus": "UNREVIEWED",
+      "commercialReuseAllowed": false,
+      "sourceTier": "TIER_3_UNVERIFIED",
+      "articles": 0,
+      "collected24h": 0,
+      "ready": 0,
+      "withTitleVi": 0,
+      "withSummaryVi": 0,
+      "hiddenOrRejected": 0,
+      "reviewRequired": 0,
+      "published": 0,
+      "clusters": 0,
+      "processedValidated": 0,
+      "publishable": 0,
+      "publishableClusters": 0,
+      "visibleClusters": 0
+    },
+    {
+      "id": "d8009ba6-b723-4623-ac28-df2f02807359",
+      "name": "Liverpool FC",
+      "slug": "liverpool",
+      "domain": "www.liverpoolfc.com",
+      "enabled": false,
+      "termsReviewed": false,
+      "ingestionAllowed": false,
+      "permissionStatus": "UNREVIEWED",
+      "commercialReuseAllowed": false,
+      "sourceTier": "TIER_3_UNVERIFIED",
+      "articles": 0,
+      "collected24h": 0,
+      "ready": 0,
+      "withTitleVi": 0,
+      "withSummaryVi": 0,
+      "hiddenOrRejected": 0,
+      "reviewRequired": 0,
+      "published": 0,
+      "clusters": 0,
+      "processedValidated": 0,
+      "publishable": 0,
+      "publishableClusters": 0,
+      "visibleClusters": 0
+    },
+    {
+      "id": "6abe1f41-4087-4fef-a8bc-ab73d915e79f",
+      "name": "Premier League",
+      "slug": "premier-league",
+      "domain": "www.premierleague.com",
+      "enabled": false,
+      "termsReviewed": false,
+      "ingestionAllowed": false,
+      "permissionStatus": "UNREVIEWED",
+      "commercialReuseAllowed": false,
+      "sourceTier": "TIER_3_UNVERIFIED",
+      "articles": 0,
+      "collected24h": 0,
+      "ready": 0,
+      "withTitleVi": 0,
+      "withSummaryVi": 0,
+      "hiddenOrRejected": 0,
+      "reviewRequired": 0,
+      "published": 0,
+      "clusters": 0,
+      "processedValidated": 0,
+      "publishable": 0,
+      "publishableClusters": 0,
+      "visibleClusters": 0
+    }
+  ],
+  "articles": [
+    {
+      "id": "0c744cc6-d4ae-419a-b5e9-a8ee30e4ae92",
+      "slug": "article-0c744cc6-d4ae-419a-b5e9-a8ee30e4ae92",
+      "sourceId": "9c91b2c5-f3ea-4b25-97e7-93451c11922a",
+      "sourceUrl": "https://en.wikinews.org/wiki/Man_starts_car_collision_at_Liverpool_FC_trophy_parade",
+      "titleOriginal": "Man starts car collision at Liverpool FC trophy parade",
+      "language": "en",
+      "publishedAt": "2025-06-01T00:00:00.000Z",
+      "collectedAt": "2026-10-16T09:55:40.564Z",
+      "processingStatus": "NEEDS_REVIEW",
+      "publicationStatus": "DRAFT",
+      "licenseName": "CC BY 4.0",
+      "clusterId": "2b8ee617-52b3-4257-b839-7033a81cbba1",
+      "validatedProcessingRuns": 1,
+      "processing": [
+        {
+          "error": null,
+          "output": {
+            "injury": null,
+            "subtype": null,
+            "titleVi": null,
+            "entities": [
+              {
+                "id": "70064a83-c6ad-48a2-aede-1e87a9fa3cfe",
+                "kind": "club",
+                "mention": "Liverpool FC"
+              }
+            ],
+            "evidence": [],
+            "language": "en",
+            "mentions": [],
+            "transfer": null,
+            "warnings": [
+              "TRANSLATION_REQUIRED"
+            ],
+            "certainty": "UNCERTAIN",
+            "storyType": "OFF_FIELD",
+            "summaryVi": null,
+            "publishable": false
+          },
+          "status": "NEEDS_REVIEW",
+          "provider": "RULE_BASED",
+          "validation": {
+            "valid": true,
+            "attempts": 1,
+            "inputHash": "5ec795bd979bad7d8c07f6b32fb968b9b45910c10b86796f33fa48c228ca7d5d",
+            "processedAt": "2026-10-16T10:18:40.563Z",
+            "publishable": false,
+            "outputVersion": "vi-editorial-v1",
+            "fallbackReason": null,
+            "reviewRequired": true,
+            "candidatePublishable": false
+          }
+        }
+      ],
+      "entities": [
+        {
+          "club": "Liverpool FC",
+          "league": null,
+          "player": null
+        }
+      ],
+      "processingGate": null,
+      "publishable": false,
+      "blockers": [
+        "REVIEWED_EVIDENCE_REQUIRED",
+        "SOURCE_TIER_REQUIRES_REVIEW",
+        "VIETNAMESE_REQUIRED"
+      ],
+      "reliability": {
+        "label": "RUMOR",
+        "certainty": "SPECULATIVE"
+      }
+    }
+  ],
+  "clusters": [
+    {
+      "id": "2b8ee617-52b3-4257-b839-7033a81cbba1",
+      "publishable": false,
+      "blockers": [
+        "NO_ELIGIBLE_CANONICAL_ARTICLE"
+      ],
+      "visible": false,
+      "sourceIds": [
+        "9c91b2c5-f3ea-4b25-97e7-93451c11922a"
+      ]
+    }
+  ],
+  "diagnosticLimit": 500
+}

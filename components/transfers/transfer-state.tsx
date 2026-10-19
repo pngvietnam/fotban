@@ -1,0 +1,6 @@
+import Link from "next/link";
+import type { TransferFilters } from "../../types/transfers";
+export function TransferState({ kind, filters }: { kind: "empty" | "error" | "invalid" | "missing"; filters?: TransferFilters }) {
+  const title = kind === "error" ? "Chưa thể tải chuyển nhượng" : kind === "invalid" ? "Bộ lọc chưa hợp lệ" : kind === "missing" ? "Không tìm thấy thương vụ" : filters?.status === "CONFIRMED" ? "Chưa có thương vụ được xác nhận" : filters?.status === "RUMOR" ? "Chưa có tin đồn đang theo dõi" : "Chưa có chuyển nhượng phù hợp";
+  return <div role={kind === "error" ? "alert" : "status"} className="my-8 rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-12 text-center"><h2 className="text-xl font-bold">{title}</h2><p className="mx-auto my-4 max-w-lg text-sm leading-7 text-slate-600">{kind === "error" ? "Dữ liệu tạm thời chưa khả dụng. Vui lòng thử lại sau." : kind === "missing" ? "Thương vụ không tồn tại hoặc chưa được phép xuất bản." : "Chỉ tin tiếng Việt đã xuất bản, có nguồn và căn cứ phù hợp mới được hiển thị. Nội dung còn chờ xử lý hoặc kiểm duyệt sẽ chưa xuất hiện."}</p><Link href="/transfers" className="inline-block rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">{kind === "error" ? "Thử tải lại" : "Xem tất cả chuyển nhượng"}</Link></div>;
+}

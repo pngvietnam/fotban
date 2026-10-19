@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-18T13:08:49.441Z",
+  "mode": "isolated production Next + PostgreSQL; test-only library session helper",
+  "realGoogleConsent": "NOT RUN: no real OAuth credentials used",
+  "checks": {
+    "oauthCallback": "PASS: first-user callback, Google subject reuse, no stored provider tokens; network stubbed",
+    "session": "PASS: library-issued signed database session, secure/httpOnly/SameSite, lastLoginAt",
+    "publicRoutes": "PASS: anonymous /, /matches, /news, /transfers remain HTTP 200",
+    "protection": "PASS: anonymous account redirects and private API rejects",
+    "account": "PASS: authenticated production account HTML, noindex, private cache",
+    "follow": "PASS: club/player/competition follows and duplicate idempotency",
+    "unfollow": "PASS",
+    "ownershipCsrf": "PASS: injected ownership and foreign origin rejected",
+    "preferences": "PASS: persisted preferences, no session token in private DTO",
+    "oauthStart": "PASS: Google authorization redirect + PKCE + persisted state; Google not contacted",
+    "logout": "PASS: revocation + cleared cookie + replay rejected",
+    "expiryPersistence": "PASS: follows survive relogin; expired session rejected",
+    "cleanup": "PASS: disposable server/database removed; original content/user/follow counts unchanged"
+  }
+}
