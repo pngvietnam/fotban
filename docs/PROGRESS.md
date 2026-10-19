@@ -1,5 +1,13 @@
 # Milestone progress
 
+## Player page (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.
+
+- Added `/player/player-<id>` (the spec's `/player/[slug]`) with provider-only facts (club, league, position line, nationality, age, data-as-of) and tabs Tổng quan, Tin tức, Chuyển nhượng. Pages exist only for players in a current EPL/La Liga squad. Player names now link from squads, card chips and the personal feed.
+- Live check: Erling Haaland page 200 with 2 stories, transfer tab empty, bad tab/offset rejected, 27 player links on the Real Madrid squad tab.
+- Validation: lint PASS, typecheck PASS, tests **712 / 45 files PASS** (4 new), production build PASS.
+
 ## Personal feed (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.

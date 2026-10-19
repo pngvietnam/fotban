@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ClubFixtures, ClubProfile, ClubStanding, ClubTab, SquadPlayer } from "../../types/club-hub";
 import { clubTabs } from "../../types/club-hub";
+import { playerPath } from "../../lib/player-presentation";
 import { clubHref, clubTabLabels } from "../../lib/club-presentation";
 import { leagueHref } from "../../lib/league-presentation";
 import { formatMatchDate, formatMatchTime } from "../../lib/match-presentation";
@@ -35,6 +36,6 @@ export function Squad({ players }: { players: SquadPlayer[] }) {
   if (!players.length) return <p role="status" className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-8 text-center text-sm text-slate-600">Chưa có danh sách cầu thủ.</p>;
   const groups = positionOrder.map((name) => [name, players.filter((player) => positionGroup(player.position) === name)] as const).filter(([, items]) => items.length);
   return <div className="space-y-6">{groups.map(([name, items]) => <section key={name} aria-labelledby={`squad-${name}`}><h2 id={`squad-${name}`} className="mb-2 text-sm font-bold">{name} ({items.length})</h2>
-    <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{items.map((player) => <li key={player.playerId} className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><span className="min-w-0"><span className="block break-words text-sm font-semibold">{player.name}</span><span className="block text-xs text-slate-500">{player.nationality ?? "Chưa rõ quốc tịch"}</span></span><FollowLink type="PLAYER" entityId={player.playerId} name={player.name} /></li>)}</ul></section>)}
+    <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{items.map((player) => <li key={player.playerId} className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><span className="min-w-0"><Link href={playerPath(player.playerId)} className="block break-words text-sm font-semibold hover:underline">{player.name}</Link><span className="block text-xs text-slate-500">{player.nationality ?? "Chưa rõ quốc tịch"}</span></span><FollowLink type="PLAYER" entityId={player.playerId} name={player.name} /></li>)}</ul></section>)}
     <p className="text-[11px] text-slate-500">Danh sách theo lần đồng bộ gần nhất của nhà cung cấp dữ liệu; có thể chưa phản ánh chuyển nhượng mới.</p></div>;
 }

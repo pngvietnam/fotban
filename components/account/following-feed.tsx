@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { FollowSummary } from "../../services/following-feed";
+import { playerPath } from "../../lib/player-presentation";
 import { clubPath } from "../../lib/club-presentation";
 import { leagueHref } from "../../lib/league-presentation";
 
-/** What the reader follows, with links to each club or league hub. Players have no page yet and stay plain text. */
+/** What the reader follows, with links to each league, club or player page. */
 export function FollowSummaryView({ summary }: { summary: FollowSummary }) {
   const chip = "inline-flex min-h-9 items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-100";
   return <section aria-labelledby="following-summary" className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
@@ -11,7 +12,7 @@ export function FollowSummaryView({ summary }: { summary: FollowSummary }) {
     <ul className="flex flex-wrap gap-2">
       {summary.leagues.map((league) => <li key={league.id}><Link href={leagueHref(league.slug)} className={chip}>{league.name}</Link></li>)}
       {summary.clubs.map((club) => <li key={club.id}><Link href={clubPath(club.id)} className={chip}>{club.name}</Link></li>)}
-      {summary.players.map((player) => <li key={player.id}><span className="inline-flex min-h-9 items-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700">{player.name}</span></li>)}
+      {summary.players.map((player) => <li key={player.id}><Link href={playerPath(player.id)} className={chip}>{player.name}</Link></li>)}
     </ul>
   </section>;
 }

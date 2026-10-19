@@ -95,6 +95,13 @@ The per-club page gathers everything about one club in one place: header (league
 - Squad and positions come from the data provider's last sync and can lag transfers. Club data tabs (fixtures, squad) are indexable; tabs with publisher text are `noindex`.
 - Product direction: a compact "football social network" without likes, comments or interaction: one fast, concise place per club, league and player.
 
+### Player page (`/player/player-<id>`)
+
+Profile from the data provider only: name, club (linked), league, position line, nationality, age (completed years from the stored birth date) and the time the data was last updated, with the football-data attribution. There are no statistics, ratings or photos because none are supplied or licensed. Tabs: **Tổng quan** (club's next match and the latest stories), **Tin tức** and **Chuyển nhượng** (publisher cards linked to the player; wording-only stages).
+
+- A page exists only while the provider lists the player in a current Premier League/La Liga squad; a departed player, one in another league or without a club is not-found.
+- Player slugs are `player-<id>`, so squads, club chips on cards and the personal feed link to it. Pages show publisher text and are `noindex`.
+
 ### Personal feed (`/following`)
 
 A signed-in reader sees one personal page built from what they follow (M15 follows): a summary with links to followed league and club hubs, the next and last matches of followed clubs, **new stories** linked to followed clubs, players or leagues (a followed league brings its whole news stream), followed **transfers**, and **fun** pieces. A guest is redirected to sign-in with a return to `/following`; with no follows the page offers clubs to pick. The navigation link "Bảng tin của tôi" replaces "Tài khoản / Theo dõi"; follow management stays at `/account`.
