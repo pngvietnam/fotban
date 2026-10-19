@@ -1,5 +1,12 @@
 # Milestone progress
 
+## Worker installed as a Windows task (Claude)
+
+Date: 2026-10-19, Asia/Ho_Chi_Minh.
+
+- Registered the scheduled task **FotBan News Worker** (starts at logon, restarts on failure, one instance) with `install-news-worker.ps1` at the owner request, and started it; the earlier manually started worker was stopped first because only one may hold the lock. Verified: state Running, log written, new articles stored.
+- Fix found while verifying: one failing/BUSY source made the whole loop back off. The loop now backs off only when every attempted source failed, and BUSY is not counted as a failure. After the task started, VOV recovered once the old 5-minute lease expired.
+
 ## Player page (Claude)
 
 Date: 2026-10-19, Asia/Ho_Chi_Minh. Milestone 17 not started.

@@ -74,8 +74,8 @@ Operator decisions are audited (`FEED_CARD_APPROVE` / `FEED_CARD_HIDE`) and are 
 
 - Freshness is decided per source: a 15-minute RSS window, ETag/Last-Modified (a 304 stores nothing), robots.txt crawl-delay, persisted cooldowns after 429, and job leases. A short loop therefore costs only database checks.
 - Match data is refreshed in the same loop through the existing match sync: results/fixtures for today-3 to today+10 days every 30 minutes, standings every 6 hours. This respects the free-tier pacing (one request per 7 seconds, shared across processes) and is skipped if `FOOTBALL_DATA_API_KEY` is absent.
-- A failing pass never stops the loop: it backs off 2, 4, 8 ... up to 10 minutes and resets after a success. A session advisory lock allows only one worker per database; stop with Ctrl+C (SIGINT/SIGTERM), which releases the lock.
-- Keep it alive across restarts with `scripts/install-news-worker.ps1` (Windows scheduled task that starts the worker at logon and restarts it on failure; `-Remove` uninstalls). It is not run automatically. Logs go to `logs/news-worker.log`.
+- A failing pass never stops the loop. The loop backs off (2, 4, 8 ... up to 10 minutes, reset after a success) only when every attempted source failed; one failing or busy publisher does not slow the others, because each source has its own cooldown and lease. After an abrupt stop a source can report BUSY until its 5-minute lease expires, which is normal. A session advisory lock allows only one worker per database; stop with Ctrl+C (SIGINT/SIGTERM), which releases the lock.
+- On the owner machine the worker runs as the Windows scheduled task **FotBan News Worker** (installed with `scripts/install-news-worker.ps1`, start at logon, restart on failure, one instance; `-Remove` uninstalls, `Stop-ScheduledTask` / `Start-ScheduledTask` control it). Logs go to `logs/news-worker.log`; a quiet log means a healthy loop, only syncs that stored articles and failures are logged.
 - `news:tick` remains a one-shot pass for manual use.
 
 ### League hub (`/league/premier-league`, `/league/la-liga`)

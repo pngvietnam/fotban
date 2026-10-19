@@ -49,7 +49,11 @@ async function main() {
       const sources = (await news.store.sources()).filter((source) => vietnameseSource(source.slug) && source.enabled);
       const results = await syncNews(sources, news.store, news.createProvider, { limit: 20, logger });
       const synced = results.filter((result) => result.status === "synced");
-      if (results.some((result) => result.status === "failed")) ok = false;
+      // One flaky publisher must not slow the others: each source already has its own cooldown and
+      // lease. The whole loop backs off only when every attempted source failed (network/database trouble).
+      // BUSY means another run holds that source's lease, which is expected and not a failure.
+      const attempted = results.filter((result) => result.status === "synced" || result.status === "failed");
+      if (attempted.length > 0 && attempted.every((result) => result.status === "failed" && result.code !== "BUSY")) ok = false;
       // Publish cards on every pass: cheap, idempotent, and it regroups late arrivals.
       const cards = await publishFeedCards(database);
       if (match) {
@@ -60,7 +64,7 @@ async function main() {
           } catch { ok = false; } // Provider errors are recorded by the sync; keep the news loop alive.
         }
       }
-      if (synced.length || !ok) logger.info({ synced: synced.length, created: synced.reduce((sum, result) => sum + (result.created ?? 0), 0), failed: results.filter((result) => result.status === "failed").length, published: cards.published, held: cards.held }, "worker.pass");
+      if (synced.length || !ok) logger.info({ synced: synced.length, created: synced.reduce((sum, result) => sum + (result.created ?? 0), 0), failed: results.filter((result) => result.status === "failed").length, busy: results.filter((result) => result.code === "BUSY").length, published: cards.published, held: cards.held }, "worker.pass");
       return { ok };
     }, { intervalMs, maxBackoffMs: 10 * 60_000, sleep: abortableSleep, signal: controller.signal, onPass: (pass) => { if (!pass.ok) logger.error({ failures: pass.failures, nextInMs: pass.nextInMs }, "worker.pass_failed"); } });
   } finally {
