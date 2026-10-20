@@ -1459,3 +1459,8 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 ## Match news list
 
 - Dữ kiện → "Tin tức": FotMob-style two-column list (headline, publisher · time, small picture on the right), up to 10 stories, those naming both clubs first, the match review excluded. Publishers whose RSS has no pictures (Bongda.com.vn) get a same-size tile with the club crest, so rows stay aligned; no article page is fetched for images.
+
+## Homepage front
+
+- New front above the morning brief, after the reference design but with real data only: "Điểm nóng hôm nay" (top-ranked story with a publisher picture, labelled "Nhiều báo cùng đưa tin" since ranking is automatic), "90 giây bắt nhịp bóng đá" (links to the brief at `#ban-tin-sang` when it is published), "Dòng chảy bóng đá" cards with tabs Dành cho bạn (viewer's follows, else ranked) / Mới nhất (`?dong=moi-nhat`); sidebar "Nắm nhanh" (next three stories; under the hot story on phones), "Chuyển nhượng" (reported stage, never confirmed) and "Cuộc đua trên BXH" (top six, league switch `?bxh=`).
+- No stock pictures or bookmark buttons; cards without a publisher picture show the club crest. The follow loader is shared by /news and the homepage (`services/viewer-follows.ts`).

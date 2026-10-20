@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { env } from "@/lib/env";
-import { activeUser } from "@/lib/auth";
-import { getDatabase } from "@/lib/db";
-import { logger } from "@/lib/logger";
-import { prismaSyncDatabase } from "@/lib/sync-database";
 import { parseNewsFilters } from "@/lib/news-presentation";
 import { parseFeedOffset } from "@/lib/feed-card-presentation";
 import { newsTabHref, parseNewsTab, type NewsTab } from "@/lib/news-tabs";
 import type { FeedFilters } from "@/types/feed-card";
-import { FollowingService, type ActiveUser } from "@/services/following";
-import { followFixtures, summarizeFollows, type FollowFixtures } from "@/services/following-feed";
+import { viewerFollows, type ViewerFollows } from "@/services/viewer-follows";
 import { readNewsList } from "@/services/news-page-data";
 import { readFeedList } from "@/services/feed-page-data";
 import { NewsShell } from "@/components/news/news-shell";
@@ -29,20 +23,6 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   return { title: "Tin bóng đá | Football Morning Brief", description: "Tin bóng đá tiếng Việt từ các báo, gộp theo câu chuyện và phân loại theo đội, giải, chuyển nhượng.", alternates: { canonical: new URL("/news", env.NEXT_PUBLIC_APP_URL).href }, robots: { index: Object.keys(params).length === 0, follow: true } };
 }
 
-/** What a signed-in viewer follows, if anything; any failure just means the generic top stories. */
-async function followed(now: Date): Promise<{ signedIn: boolean; follow?: NonNullable<FeedFilters["follow"]>; fixtures?: FollowFixtures }> {
-  let user: ActiveUser | null = null;
-  try { user = await activeUser(await headers()); } catch { return { signedIn: false }; }
-  const db = getDatabase();
-  if (!user || !db) return { signedIn: Boolean(user) };
-  try {
-    const database = prismaSyncDatabase(db);
-    const follows = await new FollowingService(database, async () => user).list();
-    if (!follows.length) return { signedIn: true };
-    const summary = await summarizeFollows(database, follows);
-    return { signedIn: true, follow: { entityIds: summary.entityIds, leagueSlugs: summary.leagueSlugs }, fixtures: await followFixtures(database, summary.clubs.map((club) => club.id), now) };
-  } catch { logger.warn({ event: "news_follow_unavailable" }); return { signedIn: true }; }
-}
 const hasGroups = (result: Awaited<ReturnType<typeof readFeedList>>) => result.kind === "ready" && result.data.groups.length > 0;
 
 export default async function NewsPage({ searchParams }: { searchParams: Promise<Params> }) {
@@ -55,8 +35,8 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
     "danh-cho-ban": { league: "all", offset }, "moi-nhat": { league: "all", offset, sort: "latest" },
     "chuyen-nhuong": { league: "all", offset, sort: "latest", storyType: "TRANSFER" }, "giai-dau": { league: league.league, offset },
   };
-  let filters = feedFilters[tab]; let personal: Awaited<ReturnType<typeof followed>> | null = null;
-  if (tab === "danh-cho-ban") { personal = await followed(now); if (personal.follow) filters = { ...filters, follow: personal.follow }; }
+  let filters = feedFilters[tab]; let personal: ViewerFollows | null = null;
+  if (tab === "danh-cho-ban") { personal = await viewerFollows(now); if (personal.follow) filters = { ...filters, follow: personal.follow }; }
   let feed = await readFeedList(filters);
   // A follower with nothing new in the window still gets the day's top stories.
   const fallback = Boolean(filters.follow) && !hasGroups(feed) && offset === 0;
