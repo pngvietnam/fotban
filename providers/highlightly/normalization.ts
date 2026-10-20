@@ -1,8 +1,24 @@
 import { z } from "zod";
 
+const entities: Record<string, string> = { amp: "&", apos: "'", quot: "\"", lt: "<", gt: ">", nbsp: " " };
+/**
+ * Provider names sometimes arrive HTML-escaped ("O&apos;Shea") or as UTF-8 read as Latin-1
+ * ("MartÃ­nez"); both are repaired, anything else is kept as sent.
+ */
+export function cleanName(value: string) {
+  let text = value.replace(/&(#\d{1,6}|#x[0-9a-f]{1,6}|[a-z]{2,6});/gi, (whole, code: string) => {
+    if (code[0] === "#") { const point = code[1].toLowerCase() === "x" ? parseInt(code.slice(2), 16) : Number(code.slice(1)); return point > 0 && point <= 0x10ffff ? String.fromCodePoint(point) : whole; }
+    return entities[code.toLowerCase()] ?? whole;
+  });
+  if (/[ÃÂ][\u0080-\u00bf]/.test(text) && /^[\u0000-\u00ff]*$/.test(text)) {
+    const repaired = Buffer.from(text, "latin1").toString("utf8");
+    if (!repaired.includes("\ufffd")) text = repaired;
+  }
+  return text.trim();
+}
 /** Lenient DTOs: only the fields FotBan reads are checked; unknown fields are ignored. */
 const id = z.union([z.number().int(), z.string().regex(/^\d{1,20}$/)]).transform(String);
-const text = z.string().trim().max(200);
+const text = z.string().trim().max(200).transform(cleanName);
 const team = z.object({ id, name: text });
 export const leagueListSchema = z.object({ data: z.array(z.object({ id, name: text, country: z.object({ name: text.optional() }).partial().optional() })) });
 export const matchListSchema = z.object({ data: z.array(z.object({ id, date: z.string(), homeTeam: team, awayTeam: team })) });

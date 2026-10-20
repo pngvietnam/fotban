@@ -58,5 +58,14 @@ export function matchSquadPlayer(squad: SquadPlayer[], name: string | null) {
     for (let start = 1; start < own.length; start++) if (own.slice(start).join(" ") === surname) return !initial || own[0][0] === initial;
     return own.length === 1 && own[0] === surname && !initial;
   });
-  return bySurname.length === 1 ? bySurname[0].id : null;
+  if (bySurname.length === 1) return bySurname[0].id;
+  if (initial) return null;
+  // Longer or shorter forms of the same name: "Lamine Yamal" and "Lamine Yamal Nasraoui Ebana".
+  const wantedSet = new Set(wanted);
+  const nested = squad.filter((player) => {
+    const own = words(player.name);
+    const shorter = own.length <= wanted.length ? own : wanted; const longer = new Set(own.length <= wanted.length ? wanted : own);
+    return shorter.length >= 2 && shorter.every((word) => longer.has(word)) && own.some((word) => wantedSet.has(word));
+  });
+  return nested.length === 1 ? nested[0].id : null;
 }

@@ -79,3 +79,9 @@ export function groupMatchesByDate(matches: MatchSummary[]) {
   }
   return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
 }
+
+/** Providers may send "Surname, Given"; shown as "Given Surname". */
+export function formatPersonName(value: string | null | undefined) {
+  const match = /^([^,]+),s*([^,]+)$/.exec(value?.trim() ?? "");
+  return match ? `${match[2]} ${match[1]}` : value?.trim() || null;
+}

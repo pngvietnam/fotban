@@ -1427,4 +1427,4 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 
 - Source: Highlightly free Basic plan (see MATCH_PROVIDER.md). Additive migration `20261019190000_match_details` (MatchLineup, MatchDetailSync, ProviderQuota, MatchEvent player names).
 - Match page: Sự kiện is a home-left/away-right timeline, scorers appear under the score, Đội hình draws each formation on a pitch with the bench, Thống kê shows home/away bars, Dữ kiện shows the referee and credits the provider.
-- Pending: the owner registers a free Highlightly key and adds `HIGHLIGHTLY_API_KEY` to `.env`; then run `npm.cmd run matches:details` once and check real responses against the adapter.
+- Live since 2026-10-20: first pass mapped 19 matches (lineups, events, statistics) with 46 of 90 daily requests; field meanings verified (see MATCH_PROVIDER.md). Statistics are grouped like FotMob; the facts tab shows the summary group.

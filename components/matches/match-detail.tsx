@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { MatchDetail } from "../../types/match-ui";
-import { formatMatchDate, formatMatchTime, formatRound, formatUpdated, isMatchStale, teamName } from "../../lib/match-presentation";
+import { formatMatchDate, formatMatchTime, formatPersonName, formatRound, formatUpdated, isMatchStale, teamName } from "../../lib/match-presentation";
 import { MatchAttribution } from "./match-attribution";
 import { MatchScore } from "./match-score";
 import { MatchStatusBadge } from "./match-status";
@@ -10,7 +10,7 @@ import { MatchHighlight } from "./match-highlight";
 import type { VerifiedHighlight } from "../../types/video-provider";
 import type { ReactNode } from "react";
 import type { MatchHub } from "../../services/match-hub";
-import type { MatchTab } from "../../lib/match-tabs";
+import { matchTabHref, type MatchTab } from "../../lib/match-tabs";
 import { MatchTabsView } from "./match-tabs";
 import { EventsList, FormPanel, HeadToHeadPanel, LineupsView, NextMatches, Scorers, StandingsPanel, StatsList, Unavailable } from "./match-tab-views";
 
@@ -38,12 +38,12 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
       <section aria-labelledby="match-info" className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
         <h2 id="match-info" className="text-base font-bold">Thông tin trận đấu</h2>
         <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
-          {[["Giải đấu", match.league.name], ["Mùa giải", match.season.name], ["Vòng đấu", formatRound(match.round) || "Chưa có dữ liệu"], ["Giờ thi đấu", `${formatMatchTime(match.kickoffAt)} · ${formatMatchDate(match.kickoffAt, true)}`], ["Sân vận động", match.venue || "Chưa có dữ liệu"], ["Trọng tài", match.referee || "Chưa có dữ liệu"], ["Cập nhật dữ liệu", updated || "Chưa có thời gian cập nhật"]].map(([label, value]) => <div key={label}><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1.5 font-medium leading-6 text-slate-900">{value}</dd></div>)}
+          {[["Giải đấu", match.league.name], ["Mùa giải", match.season.name], ["Vòng đấu", formatRound(match.round) || "Chưa có dữ liệu"], ["Giờ thi đấu", `${formatMatchTime(match.kickoffAt)} · ${formatMatchDate(match.kickoffAt, true)}`], ["Sân vận động", match.venue || "Chưa có dữ liệu"], ["Trọng tài", formatPersonName(match.referee) || "Chưa có dữ liệu"], ["Cập nhật dữ liệu", updated || "Chưa có thời gian cập nhật"]].map(([label, value]) => <div key={label}><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1.5 font-medium leading-6 text-slate-900">{value}</dd></div>)}
         </dl>
         <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-6 text-slate-500">Giờ Việt Nam · Asia/Ho_Chi_Minh (UTC+7).{isMatchStale(match, now) ? " Dữ liệu có thể đã cũ; trạng thái hiện tại có thể chưa được cập nhật." : ""}</p>
       </section>
       {match.events.length > 0 && <EventsList match={match} />}
-      {match.stats.length > 0 && <StatsList match={match} />}
+      {match.stats.length > 0 && <StatsList match={match} summaryHref={matchTabHref(match.slug, "thong-ke")} />}
       {hub && <FormPanel match={match} hub={hub} />}
       {hub && <NextMatches match={match} hub={hub} />}
       {news}

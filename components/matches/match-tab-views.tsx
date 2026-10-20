@@ -79,41 +79,85 @@ export function Scorers({ match }: { match: MatchDetail }) {
 }
 
 const percentLike = /possession|accuracy|percent/;
-const statOrder = ["ball_possession", "expected_goals", "total_shots", "shots", "shots_on_target", "shots_on_goal", "shots_off_target", "blocked_shots", "shots_accuracy", "corner_kicks", "corners", "offsides", "fouls", "yellow_cards", "red_cards", "goalkeeper_saves", "saves", "total_passes", "passes", "passes_accurate", "accurate_passes", "passes_accuracy", "pass_accuracy"];
 const statText: Record<string, string> = {
-  ball_possession: "Kiểm soát bóng", expected_goals: "Bàn thắng kỳ vọng (xG)", total_shots: "Tổng số cú sút", shots: "Số cú sút", shots_on_target: "Sút trúng đích", shots_on_goal: "Sút trúng đích",
-  shots_off_target: "Sút ra ngoài", blocked_shots: "Sút bị chặn", shots_accuracy: "Tỉ lệ sút trúng", corner_kicks: "Phạt góc", corners: "Phạt góc", offsides: "Việt vị", fouls: "Phạm lỗi",
-  yellow_cards: "Thẻ vàng", red_cards: "Thẻ đỏ", goalkeeper_saves: "Cứu thua", saves: "Cứu thua", total_passes: "Số đường chuyền", passes: "Số đường chuyền",
-  passes_accurate: "Chuyền chính xác", accurate_passes: "Chuyền chính xác", passes_accuracy: "Tỉ lệ chuyền chính xác", pass_accuracy: "Tỉ lệ chuyền chính xác",
+  possession: "Kiểm soát bóng", ball_possession: "Kiểm soát bóng", shots: "Số cú sút", expected_goals: "Bàn thắng kỳ vọng (xG)", expected_assists: "Kiến tạo kỳ vọng (xA)",
+  total_shots: "Tổng số cú sút", shots_on_target: "Sút trúng đích", shots_off_target: "Sút ra ngoài", blocked_shots: "Sút bị chặn",
+  shots_within_penalty_area: "Sút trong vòng cấm", shots_outside_penalty_area: "Sút ngoài vòng cấm", shots_accuracy: "Tỉ lệ sút trúng đích", big_chances_created: "Cơ hội lớn tạo ra",
+  corners: "Phạt góc", corner_kicks: "Phạt góc", total_passes: "Tổng số đường chuyền", successful_passes: "Chuyền thành công", failed_passes: "Chuyền hỏng", key_passes: "Đường chuyền quyết định",
+  long_passes: "Chuyền dài", successful_long_passes: "Chuyền dài thành công", crosses: "Tạt bóng", successful_crosses: "Tạt bóng thành công",
+  passes_into_final_third: "Chuyền vào 1/3 sân đối phương", passes_opposition_half: "Chuyền ở phần sân đối phương", passes_own_half: "Chuyền ở phần sân nhà", backward_passes: "Chuyền về",
+  tackles: "Tắc bóng", successful_tackles: "Tắc bóng thành công", interceptions: "Cắt bóng", clearances: "Phá bóng", goalkeeper_saves: "Cứu thua",
+  aerial_duels: "Không chiến", successful_aerial_duels: "Không chiến thành công", dribbles: "Rê bóng", successful_dribbles: "Rê bóng thành công",
+  fouls: "Phạm lỗi", offsides: "Việt vị", yellow_cards: "Thẻ vàng", red_cards: "Thẻ đỏ", free_kicks: "Đá phạt", goal_kicks: "Phát bóng lên", throw_ins: "Ném biên",
 };
+/** FotMob-like sections; a metric may appear in the summary and again in its own section. Unlisted metrics go to "Khác". */
+const statGroups: { title: string; metrics: string[] }[] = [
+  { title: "Tổng quan", metrics: ["possession", "ball_possession", "expected_goals", "total_shots", "shots", "shots_on_target", "big_chances_created", "corners", "corner_kicks", "fouls"] },
+  { title: "Sút bóng", metrics: ["total_shots", "shots_on_target", "shots_off_target", "blocked_shots", "shots_within_penalty_area", "shots_outside_penalty_area", "shots_accuracy"] },
+  { title: "Chuyền bóng", metrics: ["total_passes", "successful_passes", "failed_passes", "key_passes", "expected_assists", "long_passes", "successful_long_passes", "crosses", "successful_crosses", "passes_into_final_third", "passes_opposition_half", "passes_own_half", "backward_passes"] },
+  { title: "Phòng ngự", metrics: ["tackles", "successful_tackles", "interceptions", "clearances", "goalkeeper_saves", "aerial_duels", "successful_aerial_duels"] },
+  { title: "Rê bóng", metrics: ["dribbles", "successful_dribbles"] },
+  { title: "Kỷ luật", metrics: ["fouls", "yellow_cards", "red_cards", "offsides"] },
+  { title: "Bóng chết", metrics: ["free_kicks", "goal_kicks", "throw_ins"] },
+];
 /** Known metrics in Vietnamese; others keep the provider's English name. */
 export const statLabel = (metric: string) => statText[metric] ?? metric.replaceAll("_", " ").replace(/^./, (char) => char.toUpperCase());
 export function statValue(metric: string, value: number) {
   if (percentLike.test(metric)) return `${Math.round(value <= 1 ? value * 100 : value)}%`;
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, "");
 }
-/** Home vs away bars per metric, like FotMob's statistics tab. */
-export function StatsList({ match }: { match: MatchDetail }) {
-  const clubStats = match.stats.filter((stat) => !stat.player);
-  if (!clubStats.length) return <Unavailable>Chưa có dữ liệu thống kê (kiểm soát bóng, số cú sút, phạt góc…) cho trận này.</Unavailable>;
-  const rank = (metric: string) => { const index = statOrder.indexOf(metric); return index < 0 ? 999 : index; };
-  const metrics = [...new Set(clubStats.map((stat) => stat.metric))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
-  const value = (metric: string, clubId: string | undefined) => { const found = clubStats.find((stat) => stat.metric === metric && stat.club.id === clubId); return found ? Number(found.value) : null; };
+type StatPair = { home: number | null; away: number | null };
+/**
+ * Home/away values per metric. When the provider gives no total, total shots are the shots inside
+ * plus outside the box (a plain sum of its own figures, never an estimate).
+ */
+export function statPairs(match: MatchDetail) {
+  const pairs = new Map<string, StatPair>();
+  for (const stat of match.stats.filter((item) => !item.player)) {
+    const side = stat.club.id && stat.club.id === match.homeClub?.id ? "home" : stat.club.id && stat.club.id === match.awayClub?.id ? "away" : null;
+    if (!side) continue;
+    const pair = pairs.get(stat.metric) ?? { home: null, away: null };
+    pair[side] = Number(stat.value); pairs.set(stat.metric, pair);
+  }
+  const inside = pairs.get("shots_within_penalty_area"); const outside = pairs.get("shots_outside_penalty_area");
+  if (!pairs.has("total_shots") && inside && outside) {
+    const sum = (a: number | null, b: number | null) => a === null || b === null ? null : a + b;
+    pairs.set("total_shots", { home: sum(inside.home, outside.home), away: sum(inside.away, outside.away) });
+  }
+  return pairs;
+}
+function StatRow({ metric, pair }: { metric: string; pair: StatPair }) {
+  const shown = (value: number | null) => value === null ? "—" : statValue(metric, value);
+  const total = (pair.home ?? 0) + (pair.away ?? 0); const homeShare = total > 0 ? (pair.home ?? 0) / total : 0.5;
+  const leader = pair.home !== null && pair.away !== null && pair.home !== pair.away ? (pair.home > pair.away ? "home" : "away") : null;
+  return <li aria-label={`${statLabel(metric)}: ${shown(pair.home)} - ${shown(pair.away)}`}>
+    <div aria-hidden="true" className="flex items-baseline justify-between gap-3 text-sm">
+      <span className={`rounded-md px-1.5 tabular-nums ${leader === "home" ? "bg-slate-900 font-bold text-white" : "font-semibold"}`}>{shown(pair.home)}</span>
+      <span className="text-center text-xs text-slate-600">{statLabel(metric)}</span>
+      <span className={`rounded-md px-1.5 tabular-nums ${leader === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold"}`}>{shown(pair.away)}</span>
+    </div>
+    <div aria-hidden="true" className="mt-1.5 flex h-1.5 gap-1"><span className="rounded-full bg-slate-900" style={{ width: `${homeShare * 100}%` }} /><span className="flex-1 rounded-full bg-lime-500" /></div>
+  </li>;
+}
+/**
+ * Home vs away bars per metric, grouped like FotMob's statistics tab. summaryHref: show only the
+ * "Tổng quan" group with a link to the full tab (nothing at all when there are no figures).
+ */
+export function StatsList({ match, summaryHref }: { match: MatchDetail; summaryHref?: string }) {
+  const pairs = statPairs(match);
+  if (!pairs.size) return summaryHref ? null : <Unavailable>Chưa có dữ liệu thống kê (kiểm soát bóng, số cú sút, phạt góc…) cho trận này.</Unavailable>;
+  const listed = new Set(statGroups.flatMap((group) => group.metrics));
+  const groups = [...statGroups, { title: "Khác", metrics: [...pairs.keys()].filter((metric) => !listed.has(metric)).sort() }]
+    .map((group) => ({ title: group.title, metrics: [...new Set(group.metrics)].filter((metric) => pairs.has(metric)) })).filter((group) => group.metrics.length)
+    .slice(0, summaryHref ? 1 : undefined);
   return <section aria-labelledby="match-stats" className={panel}>
-    <h2 id="match-stats" className="mb-2 font-bold">Thống kê trận đấu</h2>
-    <div className="mb-3 flex justify-between gap-4 text-xs font-semibold text-slate-500"><span>{teamName(match.homeClub, "home", true)}</span><span className="text-right">{teamName(match.awayClub, "away", true)}</span></div>
-    <ul className="space-y-4">{metrics.map((metric) => {
-      const home = value(metric, match.homeClub?.id); const away = value(metric, match.awayClub?.id);
-      const total = (home ?? 0) + (away ?? 0); const homeShare = total > 0 ? (home ?? 0) / total : 0.5;
-      return <li key={metric} aria-label={`${statLabel(metric)}: ${home === null ? "—" : statValue(metric, home)} - ${away === null ? "—" : statValue(metric, away)}`}>
-        <div aria-hidden="true" className="flex items-baseline justify-between gap-3 text-sm">
-          <span className="font-bold tabular-nums">{home === null ? "—" : statValue(metric, home)}</span>
-          <span className="text-center text-xs text-slate-600">{statLabel(metric)}</span>
-          <span className="font-bold tabular-nums">{away === null ? "—" : statValue(metric, away)}</span>
-        </div>
-        <div aria-hidden="true" className="mt-1.5 flex h-1.5 gap-1"><span className="rounded-full bg-slate-900" style={{ width: `${homeShare * 100}%` }} /><span className="flex-1 rounded-full bg-lime-500" /></div>
-      </li>;
-    })}</ul>
+    <h2 id="match-stats" className="mb-2 font-bold">{summaryHref ? "Thống kê nổi bật" : "Thống kê trận đấu"}</h2>
+    <div className="mb-1 flex justify-between gap-4 text-xs font-semibold text-slate-500"><span>{teamName(match.homeClub, "home", true)}</span><span className="text-right">{teamName(match.awayClub, "away", true)}</span></div>
+    {groups.map((group) => <div key={group.title} className="mt-5">
+      <h3 className="mb-3 text-center text-xs font-bold uppercase tracking-wide text-slate-500">{group.title}</h3>
+      <ul className="space-y-4">{group.metrics.map((metric) => <StatRow key={metric} metric={metric} pair={pairs.get(metric)!} />)}</ul>
+    </div>)}
+    {summaryHref && <Link href={summaryHref} className="mt-5 block text-center text-sm font-semibold underline-offset-4 hover:underline">Xem tất cả thống kê →</Link>}
   </section>;
 }
 

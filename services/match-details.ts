@@ -2,7 +2,7 @@ import type { SqlExecutor, SyncDatabase } from "../lib/sync-database";
 import { matchSquadPlayer, pairMatches, type SquadPlayer } from "../lib/match-detail-matching";
 import { HIGHLIGHTLY, highlightlyLeagues } from "../providers/highlightly/config";
 import type { MatchDetailApi } from "../providers/highlightly/provider";
-import type { DetailEvent, HighlightlyDetail, HighlightlyLineups, LineupPlayer } from "../providers/highlightly/normalization";
+import { cleanName, type DetailEvent, type HighlightlyDetail, type HighlightlyLineups, type LineupPlayer } from "../providers/highlightly/normalization";
 import { ProviderError, safeProviderError } from "../providers/errors";
 import { isLeagueSlug } from "./league-hub";
 
@@ -77,9 +77,16 @@ async function leagueExternalId(db: SqlExecutor, findLeagues: MatchDetailApi["le
   await db.query(`INSERT INTO "ExternalIdentity" (id,provider,"entityType","externalId","leagueId","updatedAt") VALUES (gen_random_uuid(),$1,'LEAGUE',$2,$3::uuid,now()) ON CONFLICT DO NOTHING`, [provider, chosen.id, leagueId]);
   return chosen.id;
 }
+/**
+ * The club's players around a match. PlayerClub.startsAt is when a squad sync first saw the player,
+ * not the contract date, so a squad first synced just after the match must still count: players
+ * seen up to 30 days later are included, and players who had left before kickoff are not.
+ */
 async function squad(db: SqlExecutor, clubId: string, at: Date): Promise<SquadPlayer[]> {
-  return db.query<SquadPlayer>(`SELECT p.id,p.name FROM "PlayerClub" pc JOIN "Player" p ON p.id=pc."playerId" WHERE pc."clubId"=$1::uuid AND pc."startsAt"<=$2::timestamptz AND (pc."endsAt" IS NULL OR pc."endsAt">=$2::timestamptz)`, [clubId, at]);
+  return db.query<SquadPlayer>(`SELECT DISTINCT p.id,p.name FROM "PlayerClub" pc JOIN "Player" p ON p.id=pc."playerId" WHERE pc."clubId"=$1::uuid AND pc."startsAt"<=$2::timestamptz+interval '30 days' AND (pc."endsAt" IS NULL OR pc."endsAt">=$2::timestamptz)`, [clubId, at]);
 }
+/** The provider lists an own goal under the team that benefited, so its scorer belongs to the other squad. */
+const scorerClub = (type: string, clubId: string | null, homeClubId: string, awayClubId: string) => type === "OWN_GOAL" && clubId ? (clubId === homeClubId ? awayClubId : homeClubId) : clubId;
 /** Starters stored for the match, by provider team ID, used to tell who came on in a substitution. */
 async function storedStarters(db: SqlExecutor, matchId: string) {
   const rows = await db.query<{ clubId: string; players: LineupPlayer[] }>(`SELECT "clubId",players FROM "MatchLineup" WHERE "matchId"=$1::uuid AND provider=$2`, [matchId, provider]);
@@ -110,7 +117,8 @@ async function storeDetail(db: SyncDatabase, row: Due, detail: HighlightlyDetail
     for (const [index, raw] of detail.events.entries()) {
       const clubId = clubFor(raw.teamId);
       const event = orientSubstitution(raw, clubId ? starters.get(clubId) : undefined);
-      const players = clubId ? squads.get(clubId) ?? [] : [];
+      const owner = scorerClub(event.type, clubId, row.homeClubId, row.awayClubId);
+      const players = owner ? squads.get(owner) ?? [] : [];
       await tx.query(`INSERT INTO "MatchEvent" (id,"matchId",provider,"externalId","clubId","playerId","relatedPlayerId",type,minute,"addedMinute",detail,"playerName","relatedPlayerName","updatedAt")
         VALUES (gen_random_uuid(),$1::uuid,$2,$3,$4::uuid,$5::uuid,$6::uuid,$7::"MatchEventType",$8,$9,$10,$11,$12,now())`,
         [row.matchId, provider, String(index + 1), clubId, matchSquadPlayer(players, event.player), matchSquadPlayer(players, event.related), event.type, event.minute, event.addedMinute, event.detail, event.player, event.related]);
@@ -138,6 +146,39 @@ async function storeLineups(db: SyncDatabase, row: Due, lineups: HighlightlyLine
     }
     await upsertSync(tx, row.matchId, { lineupsFetchedAt: now, lastError: null }, now);
   });
+}
+
+/**
+ * Re-links stored event and lineup names to canonical squad players without any provider request,
+ * e.g. after squads were synced or the name matching improved. Returns how many links changed.
+ */
+export async function relinkMatchDetails(db: SyncDatabase) {
+  let changed = 0;
+  const matches = await db.query<{ id: string; kickoffAt: string; homeClubId: string; awayClubId: string }>(`SELECT DISTINCT m.id,m."kickoffAt",m."homeClubId",m."awayClubId" FROM "Match" m JOIN "MatchDetailSync" d ON d."matchId"=m.id AND d.provider=$1`, [provider]);
+  for (const match of matches) {
+    await db.transaction(async (tx) => {
+      const kickoff = new Date(match.kickoffAt);
+      const squads = new Map([[match.homeClubId, await squad(tx, match.homeClubId, kickoff)], [match.awayClubId, await squad(tx, match.awayClubId, kickoff)]]);
+      const events = await tx.query<{ id: string; type: string; clubId: string | null; playerId: string | null; relatedPlayerId: string | null; playerName: string | null; relatedPlayerName: string | null }>(`SELECT id,type::text,"clubId","playerId","relatedPlayerId","playerName","relatedPlayerName" FROM "MatchEvent" WHERE "matchId"=$1::uuid AND provider=$2`, [match.id, provider]);
+      for (const event of events) {
+        const owner = scorerClub(event.type, event.clubId, match.homeClubId, match.awayClubId);
+        const players = owner ? squads.get(owner) ?? [] : [];
+        const playerName = event.playerName && cleanName(event.playerName); const relatedPlayerName = event.relatedPlayerName && cleanName(event.relatedPlayerName);
+        const playerId = matchSquadPlayer(players, playerName); const relatedPlayerId = matchSquadPlayer(players, relatedPlayerName);
+        if (playerId === event.playerId && relatedPlayerId === event.relatedPlayerId && playerName === event.playerName && relatedPlayerName === event.relatedPlayerName) continue;
+        await tx.query(`UPDATE "MatchEvent" SET "playerId"=$2::uuid,"relatedPlayerId"=$3::uuid,"playerName"=$4,"relatedPlayerName"=$5,"updatedAt"=now() WHERE id=$1::uuid`, [event.id, playerId, relatedPlayerId, playerName, relatedPlayerName]); changed++;
+      }
+      const lineups = await tx.query<{ id: string; clubId: string; players: LineupPlayer[] }>(`SELECT id,"clubId",players FROM "MatchLineup" WHERE "matchId"=$1::uuid AND provider=$2`, [match.id, provider]);
+      for (const lineup of lineups) {
+        const players = squads.get(lineup.clubId) ?? [];
+        const relinked = lineup.players.map((player) => { const name = cleanName(player.name); return { ...player, name, playerId: matchSquadPlayer(players, name) }; });
+        const delta = relinked.filter((player, index) => player.playerId !== (lineup.players[index].playerId ?? null) || player.name !== lineup.players[index].name).length;
+        if (!delta) continue;
+        await tx.query(`UPDATE "MatchLineup" SET players=$2::jsonb,"updatedAt"=now() WHERE id=$1::uuid`, [lineup.id, JSON.stringify(relinked)]); changed += delta;
+      }
+    });
+  }
+  return { matches: matches.length, changed };
 }
 
 /**

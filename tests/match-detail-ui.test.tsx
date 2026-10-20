@@ -29,16 +29,16 @@ describe("match detail tabs with provider data", () => {
     expect($("a[href='/player/player-33333333-3333-4333-8333-333333333333']").length).toBeGreaterThan(0);
     expect($("[aria-label='Bàn thắng đội nhà']").text()).toContain("Alpha Striker 12′");
   });
-  it("shows statistics as home/away pairs with Vietnamese labels and percentages", () => {
-    const stats: MatchDetail["stats"] = [
-      { metric: "ball_possession", value: "0.58", unit: null, club: { id: home.id, name: home.name }, player: null },
-      { metric: "ball_possession", value: "0.42", unit: null, club: { id: away.id, name: away.name }, player: null },
-      { metric: "total_shots", value: "14", unit: null, club: { id: home.id, name: home.name }, player: null },
-    ];
+  it("groups statistics by section, labels them in Vietnamese and sums total shots from inside + outside the box", () => {
+    const stat = (metric: string, value: string, side: typeof home) => ({ metric, value, unit: null, club: { id: side.id, name: side.name }, player: null });
+    const stats: MatchDetail["stats"] = [stat("possession", "0.58", home), stat("possession", "0.42", away), stat("shots_within_penalty_area", "9", home), stat("shots_outside_penalty_area", "5", home),
+      stat("shots_within_penalty_area", "4", away), stat("shots_outside_penalty_area", "3", away), stat("throw_ins", "20", home), stat("brand_new_metric", "2", home)];
     const $ = render(detail({ stats }), "thong-ke");
     expect($("[aria-label='Kiểm soát bóng: 58% - 42%']")).toHaveLength(1);
-    expect($("[aria-label='Tổng số cú sút: 14 - —']")).toHaveLength(1);
-    expect(statLabel("big_chances_created")).toBe("Big chances created");
+    expect($("[aria-label='Tổng số cú sút: 14 - 7']")).toHaveLength(2); // summary and shots section
+    expect($("[aria-label='Ném biên: 20 - —']")).toHaveLength(1);
+    expect($("h3").map((_, node) => $(node).text()).get()).toEqual(["Tổng quan", "Sút bóng", "Bóng chết", "Khác"]);
+    expect(statLabel("brand_new_metric")).toBe("Brand new metric");
     expect(statValue("expected_goals", 1.234)).toBe("1.23");
   });
   it("draws the starting eleven by formation rows and lists the bench", () => {
@@ -61,7 +61,7 @@ describe("match detail tabs with provider data", () => {
     expect(render(detail(), "thong-ke")("[role=status]").text()).toContain("Chưa có dữ liệu thống kê");
   });
   it("shows the referee and credits the detail provider", () => {
-    const $ = render(detail({ referee: "Fixture Referee", detailAttributions: [{ text: "Diễn biến, đội hình và thống kê: Highlightly", url: "https://highlightly.net" }] }), "du-kien");
+    const $ = render(detail({ referee: "Referee, Fixture", detailAttributions: [{ text: "Diễn biến, đội hình và thống kê: Highlightly", url: "https://highlightly.net" }] }), "du-kien");
     expect($.text()).toContain("Fixture Referee");
     expect($("a[href='https://highlightly.net']")).toHaveLength(1);
   });

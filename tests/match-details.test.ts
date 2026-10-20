@@ -4,7 +4,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { SyncDatabase } from "../lib/sync-database";
 import { matchSquadPlayer, pairMatches, teamNameScore } from "../lib/match-detail-matching";
-import { metricKey, normalizeDetail, normalizeLineups, normalizeMatches, parseEventTime } from "../providers/highlightly/normalization";
+import { cleanName, metricKey, normalizeDetail, normalizeLineups, normalizeMatches, parseEventTime } from "../providers/highlightly/normalization";
 import { HighlightlyProvider, type MatchDetailApi } from "../providers/highlightly/provider";
 import { ProviderError } from "../providers/errors";
 import { orientSubstitution, reserveQuota, syncMatchDetails } from "../services/match-details";
@@ -43,6 +43,13 @@ describe("Highlightly normalization", () => {
     ]);
     expect(detail.stats).toContainEqual({ teamId: "10", metric: "ball_possession", value: 0.58 });
   });
+  it("repairs HTML-escaped and mis-decoded names", () => {
+    expect(cleanName("D. O&apos;Shea")).toBe("D. O'Shea");
+    expect(cleanName("N. O&#39;Reilly")).toBe("N. O'Reilly");
+    expect(cleanName("Dani MartÃ­nez")).toBe("Dani Martínez");
+    expect(cleanName("Martin Ødegaard")).toBe("Martin Ødegaard");
+    expect(normalizeLineups({ homeTeam: { id: 1, name: "A", initialLineup: [[{ name: "D. O&apos;Shea", number: 5, position: "Defender" }]], substitutes: [] }, awayTeam: { id: 2, name: "B", initialLineup: [], substitutes: [] } }).home.players[0].name).toBe("D. O'Shea");
+  });
   it("accepts the one-element array form of the detail endpoint and rejects malformed bodies", () => {
     expect(normalizeDetail([detailBody()]).id).toBe("9001");
     expect(() => normalizeDetail({ id: "x" })).toThrow();
@@ -72,6 +79,12 @@ describe("matching provider names to FotBan clubs and players", () => {
     const local = [{ id: "a", kickoffAt: at, home: ["Nottingham Forest FC", "Nottingham"], away: ["Arsenal FC", "Arsenal"] }];
     expect(pairMatches(local, [{ id: "x", kickoffAt: at, home: { name: "Nottingham Forest" }, away: { name: "Arsenal" } }, { id: "y", kickoffAt: at, home: { name: "Everton" }, away: { name: "Chelsea" } }])).toEqual(new Map([["a", "x"]]));
     expect(pairMatches(local, [{ id: "x", kickoffAt: new Date(at.getTime() + 3600_000), home: { name: "Nottingham Forest" }, away: { name: "Arsenal" } }]).size).toBe(0);
+  });
+  it("links longer or shorter forms of a name only when unique", () => {
+    const squad = [{ id: "1", name: "Lamine Yamal" }, { id: "2", name: "Antonio Sivera" }];
+    expect(matchSquadPlayer(squad, "Lamine Yamal Nasraoui Ebana")).toBe("1");
+    expect(matchSquadPlayer(squad, "Sivera")).toBe("2");
+    expect(matchSquadPlayer(squad, "Lamine")).toBeNull();
   });
   it("finds a squad player from a full or initial-and-surname name only when unique", () => {
     const squad = [{ id: "1", name: "Bukayo Saka" }, { id: "2", name: "Martin Ødegaard" }, { id: "3", name: "Gabriel Magalhães" }, { id: "4", name: "Gabriel Martinelli" }];

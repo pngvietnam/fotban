@@ -101,8 +101,11 @@ describe("Match UI", () => {
     expect(html).not.toContain("https://www.youtube.com/watch?v=");
   });
   it("shows events/stats only when persisted records actually exist", () => {
-    const html = render(<MatchDetailView now={uiNow} match={uiDetail({ events: [{ type: "GOAL", minute: 12, addedMinute: null, detail: null, club: { name: "Fixture Alpha" }, player: { name: "Fixture Player" }, relatedPlayer: null }], stats: [{ metric: "shots", value: "3", unit: null, club: { name: "Fixture Alpha" }, player: null }] })} />);
-    expect(html).toContain("Bàn thắng"); expect(html).toContain("Fixture Player"); expect(html).toContain("Số cú sút");
+    const alpha = "11111111-1111-4111-8111-111111111111";
+    const html = render(<MatchDetailView now={uiNow} match={uiDetail({ homeClub: { id: alpha, name: "Fixture Alpha FC", shortName: "Fixture Alpha", tla: "ALP" }, events: [{ type: "GOAL", minute: 12, addedMinute: null, detail: null, club: { id: alpha, name: "Fixture Alpha" }, player: { name: "Fixture Player" }, relatedPlayer: null }], stats: [{ metric: "shots", value: "3", unit: null, club: { id: alpha, name: "Fixture Alpha" }, player: null }] })} />);
+    expect(html).toContain("Bàn thắng"); expect(html).toContain("Fixture Player"); expect(html).toContain("Số cú sút"); expect(html).toContain("Xem tất cả thống kê");
+    // Figures that cannot be placed on a side are not shown, and the facts tab then has no statistics block.
+    expect(render(<MatchDetailView now={uiNow} match={uiDetail({ stats: [{ metric: "shots", value: "3", unit: null, club: { name: "Unknown" }, player: null }] })} />)).not.toContain("Thống kê nổi bật");
   });
   it("distinguishes an invalid/nonexistent slug from a service error", async () => {
     const read = vi.fn().mockResolvedValue(null);
