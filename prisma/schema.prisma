@@ -298,6 +298,7 @@ model Club {
   events            MatchEvent[]
   stats             MatchStat[]
   lineups           MatchLineup[]
+  shots             MatchShot[]
   entities          ArticleEntity[]
   follows           UserFollow[]
   identities        ExternalIdentity[]
@@ -322,6 +323,7 @@ model Player {
   events        MatchEvent[]       @relation("EventPlayer")
   relatedEvents MatchEvent[]       @relation("RelatedPlayer")
   stats         MatchStat[]
+  shots         MatchShot[]
   entities      ArticleEntity[]
   follows       UserFollow[]
   identities    ExternalIdentity[]
@@ -438,6 +440,7 @@ model Match {
   identities         ExternalIdentity[]
   lineups            MatchLineup[]
   detailSyncs        MatchDetailSync[]
+  shots              MatchShot[]
 
   @@unique([provider, externalId])
   @@index([kickoffAt])
@@ -1248,6 +1251,11 @@ model MatchDetailSync {
   detailAttempts     Int       @default(0)
   boxScoreFetchedAt  DateTime? @db.Timestamptz(3)
   boxScoreAttempts   Int       @default(0)
+  venueName          String?
+  venueCity          String?
+  venueCapacity      Int?
+  weather            String?
+  temperatureC       Decimal?  @db.Decimal(4, 1)
   lastError          String?
   createdAt          DateTime  @default(now()) @db.Timestamptz(3)
   updatedAt          DateTime  @updatedAt @db.Timestamptz(3)
@@ -1265,4 +1273,28 @@ model ProviderQuota {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   @@id([provider, day])
+}
+
+/// One shot from a detail provider: who, when, how it ended and where it went in the goal frame.
+model MatchShot {
+  id          String   @id @default(uuid()) @db.Uuid
+  matchId     String   @db.Uuid
+  clubId      String   @db.Uuid
+  provider    String
+  sequence    Int
+  playerName  String?
+  playerId    String?  @db.Uuid
+  minute      Int?
+  addedMinute Int?
+  outcome     String
+  goalTarget  String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  match       Match    @relation(fields: [matchId], references: [id], onDelete: Restrict)
+  club        Club     @relation(fields: [clubId], references: [id], onDelete: Restrict)
+  player      Player?  @relation(fields: [playerId], references: [id], onDelete: Restrict)
+
+  @@unique([matchId, provider, sequence])
+  @@index([clubId])
+  @@index([playerId])
 }

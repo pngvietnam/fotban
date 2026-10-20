@@ -25,6 +25,10 @@ export type MatchDetail = MatchSummary & {
   stats: { metric: string; value: string; unit: string | null; club: { id?: string; name: string }; player: { name: string } | null }[];
   lineups?: { clubId: string; formation: string | null; players: LineupPlayerView[] }[];
   referee?: string | null;
+  /** Venue and weather as reported by the detail provider. */
+  venueInfo?: { name: string | null; city: string | null; capacity: number | null; weather: string | null; temperatureC: number | null } | null;
+  /** Shots with outcome and where they went in the goal frame (no pitch coordinates). */
+  shots?: { clubId: string; minute: number | null; addedMinute: number | null; playerName: string | null; outcome: string; goalTarget: string | null; player: { id: string; name: string } | null }[];
   /** Credits for event/lineup/statistics providers other than the match's own source. */
   detailAttributions?: { text: string; url: string }[];
 };

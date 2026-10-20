@@ -79,7 +79,7 @@ describe("match detail tabs with provider data", () => {
   });
   it("shows the referee and credits the detail provider", () => {
     const $ = render(detail({ referee: "Referee, Fixture", detailAttributions: [{ text: "Diễn biến, đội hình và thống kê: Highlightly", url: "https://highlightly.net" }] }), "du-kien");
-    expect($.text()).toContain("Fixture Referee");
+    expect($("dt").filter((_, node) => $(node).text() === "Trọng tài").next().text()).toBe("Fixture Referee");
     expect($("a[href='https://highlightly.net']")).toHaveLength(1);
   });
 });

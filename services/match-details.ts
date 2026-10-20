@@ -42,7 +42,7 @@ async function dueMatches(db: SqlExecutor, now: Date) {
     FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Club" hc ON hc.id=m."homeClubId" JOIN "Club" ac ON ac.id=m."awayClubId"
     LEFT JOIN "MatchDetailSync" d ON d."matchId"=m.id AND d.provider=$1
     WHERE l.slug IN ('premier-league','la-liga','champions-league') AND m.status NOT IN ('CANCELLED','POSTPONED')
-      AND m."kickoffAt" BETWEEN $2::timestamptz AND $3::timestamptz
+      AND m."kickoffAt"<=$3::timestamptz AND (m."kickoffAt">=$2::timestamptz OR (d."externalId" IS NOT NULL AND m."kickoffAt">=$2::timestamptz-interval '30 days'))
       AND (d."detailFetchedAt" IS NULL OR d."lineupsFetchedAt" IS NULL OR d."boxScoreFetchedAt" IS NULL)
     ORDER BY m."kickoffAt",m.id`, [provider, new Date(now.getTime() - lookbackMs), new Date(now.getTime() + lineupLeadMs)]);
 }
@@ -145,7 +145,15 @@ async function storeDetail(db: SyncDatabase, row: Due, detail: HighlightlyDetail
       const clubId = clubFor(stat.teamId);
       if (clubId) await tx.query(`INSERT INTO "MatchStat" (id,"matchId","clubId",provider,metric,value,"updatedAt") VALUES (gen_random_uuid(),$1::uuid,$2::uuid,$3,$4,$5,now()) ON CONFLICT DO NOTHING`, [row.matchId, clubId, provider, stat.metric, stat.value]);
     }
-    await upsertSync(tx, row.matchId, { referee: detail.referee, ...(complete ? { detailFetchedAt: now, lastError: null } : {}) }, now);
+    await tx.query(`DELETE FROM "MatchShot" WHERE "matchId"=$1::uuid AND provider=$2`, [row.matchId, provider]);
+    for (const [index, shot] of detail.shots.entries()) {
+      const clubId = clubFor(shot.teamId);
+      if (!clubId) continue;
+      await tx.query(`INSERT INTO "MatchShot" (id,"matchId","clubId",provider,sequence,"playerName","playerId",minute,"addedMinute",outcome,"goalTarget","updatedAt") VALUES (gen_random_uuid(),$1::uuid,$2::uuid,$3,$4,$5,$6::uuid,$7,$8,$9,$10,now())`,
+        [row.matchId, clubId, provider, index + 1, shot.player, matchSquadPlayer(squads.get(clubId) ?? [], shot.player), shot.minute, shot.addedMinute, shot.outcome, shot.goalTarget]);
+    }
+    const { venue } = detail;
+    await upsertSync(tx, row.matchId, { referee: detail.referee, venueName: venue.name, venueCity: venue.city, venueCapacity: venue.capacity, weather: venue.weather, temperatureC: venue.temperatureC, ...(complete ? { detailFetchedAt: now, lastError: null } : {}) }, now);
     if (!complete) await bumpAttempt(tx, row.matchId, "detailAttempts", "INCOMPLETE", now);
     else await tx.query(`UPDATE "MatchDetailSync" SET "detailAttempts"="detailAttempts"+1 WHERE "matchId"=$1::uuid AND provider=$2`, [row.matchId, provider]);
   });
@@ -193,6 +201,14 @@ async function storeLineups(db: SyncDatabase, row: Due, lineups: HighlightlyLine
 }
 
 /**
+ * Marks finished matches' events/statistics/shots and box scores to be read again (e.g. after the
+ * adapter learned new fields). Nothing is deleted: the worker replaces them as the daily allowance permits.
+ */
+export async function scheduleDetailRefetch(db: SqlExecutor) {
+  const rows = await db.query(`UPDATE "MatchDetailSync" SET "detailFetchedAt"=NULL,"detailAttempts"=0,"boxScoreFetchedAt"=NULL,"boxScoreAttempts"=0,"updatedAt"=now() WHERE provider=$1 AND "detailFetchedAt" IS NOT NULL RETURNING "matchId"`, [provider]);
+  return { scheduled: rows.length };
+}
+/**
  * Re-links stored event and lineup names to canonical squad players without any provider request,
  * e.g. after squads were synced or the name matching improved. Returns how many links changed.
  */
@@ -213,6 +229,11 @@ export async function relinkMatchDetails(db: SyncDatabase) {
         const playerId = matchSquadPlayer(players, playerName); const relatedPlayerId = matchSquadPlayer(players, relatedPlayerName);
         if (playerId === event.playerId && relatedPlayerId === event.relatedPlayerId && playerName === event.playerName && relatedPlayerName === event.relatedPlayerName) continue;
         await tx.query(`UPDATE "MatchEvent" SET "playerId"=$2::uuid,"relatedPlayerId"=$3::uuid,"playerName"=$4,"relatedPlayerName"=$5,"updatedAt"=now() WHERE id=$1::uuid`, [event.id, playerId, relatedPlayerId, playerName, relatedPlayerName]); changed++;
+      }
+      const shots = await tx.query<{ id: string; clubId: string; playerName: string | null; playerId: string | null }>(`SELECT id,"clubId","playerName","playerId" FROM "MatchShot" WHERE "matchId"=$1::uuid AND provider=$2`, [match.id, provider]);
+      for (const shot of shots) {
+        const playerId = matchSquadPlayer(squads.get(shot.clubId) ?? [], shot.playerName);
+        if (playerId !== shot.playerId) { await tx.query(`UPDATE "MatchShot" SET "playerId"=$2::uuid,"updatedAt"=now() WHERE id=$1::uuid`, [shot.id, playerId]); changed++; }
       }
       const lineups = await tx.query<{ id: string; clubId: string; players: LineupPlayer[] }>(`SELECT id,"clubId",players FROM "MatchLineup" WHERE "matchId"=$1::uuid AND provider=$2`, [match.id, provider]);
       for (const lineup of lineups) {

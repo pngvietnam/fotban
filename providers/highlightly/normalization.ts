@@ -28,8 +28,12 @@ const event = z.object({
   assistingPlayerId: id.optional().nullable(), assist: text.optional().nullable(), substituted: text.optional().nullable(),
 });
 const statistic = z.object({ team, statistics: z.array(z.object({ displayName: text, value: z.number().finite().nullable() })) });
+const shot = z.object({ time: z.union([z.string(), z.number()]).optional().nullable(), outcome: text.optional().nullable(), goalTarget: text.optional().nullable(), playerName: text.optional().nullable() });
+const detailTeam = team.extend({ shots: z.array(shot).optional().nullable() });
 const detail = z.object({
-  id, homeTeam: team, awayTeam: team,
+  id, homeTeam: detailTeam, awayTeam: detailTeam,
+  venue: z.object({ name: text.optional().nullable(), city: text.optional().nullable(), capacity: z.union([z.string(), z.number()]).optional().nullable() }).partial().optional().nullable(),
+  forecast: z.object({ status: text.optional().nullable(), temperature: z.union([z.string(), z.number()]).optional().nullable() }).partial().optional().nullable(),
   events: z.array(event).default([]), statistics: z.array(statistic).default([]),
   referee: z.object({ name: text.optional().nullable() }).partial().optional().nullable(),
 });
@@ -42,7 +46,7 @@ const figure = z.union([z.number(), z.string(), z.null()]).optional();
 const boxPlayer = z.object({
   id: id.optional().nullable(), name: text, fullName: text.optional().nullable(), shirtNumber: z.number().int().min(0).max(999).optional().nullable(),
   matchRating: figure, minutesPlayed: z.number().int().min(0).max(200).optional().nullable(), isCaptain: z.boolean().optional().nullable(),
-  statistics: z.record(z.string(), z.unknown()).optional().nullable(),
+  statistics: z.record(z.string(), z.unknown()).optional().nullable(), offsides: z.number().int().min(0).max(50).optional().nullable(),
 });
 export const boxScoreSchema = z.array(z.object({ team, players: z.array(boxPlayer) }));
 
@@ -54,9 +58,14 @@ export type DetailEvent = {
   detail: string | null; player: string | null; related: string | null;
 };
 export type DetailStat = { teamId: string; metric: string; value: number };
-export type HighlightlyDetail = { id: string; homeTeamId: string; awayTeamId: string; referee: string | null; events: DetailEvent[]; stats: DetailStat[] };
+export type ShotOutcome = "GOAL" | "SAVED" | "MISSED" | "BLOCKED" | "POST" | "OTHER";
+export type DetailShot = { teamId: string; minute: number | null; addedMinute: number | null; player: string | null; outcome: ShotOutcome; goalTarget: string | null };
+export type DetailVenue = { name: string | null; city: string | null; capacity: number | null; weather: string | null; temperatureC: number | null };
+export type HighlightlyDetail = { id: string; homeTeamId: string; awayTeamId: string; referee: string | null; events: DetailEvent[]; stats: DetailStat[]; shots: DetailShot[]; venue: DetailVenue };
 /** Per-player figures kept from the box score (numbers only; percentages are derivable). */
-export const boxFigures = ["goalsScored", "assists", "shotsTotal", "shotsOnTarget", "passesTotal", "passesSuccessful", "passesKey", "tacklesTotal", "interceptionsTotal", "duelsWon", "duelsTotal", "goalsSaved", "cardsYellow", "cardsRed", "expectedGoals", "expectedAssists"] as const;
+export const boxFigures = ["goalsScored", "assists", "shotsTotal", "shotsOnTarget", "shotsOffTarget", "passesTotal", "passesSuccessful", "passesFailed", "passesKey", "tacklesTotal", "interceptionsTotal",
+  "duelsWon", "duelsLost", "duelsTotal", "dribblesTotal", "dribblesSuccessful", "fouledOthers", "fouledByOthers", "goalsSaved", "goalsConceded", "penaltiesScored", "penaltiesMissed", "cardsYellow", "cardsRed",
+  "expectedGoals", "expectedAssists", "offsides"] as const;
 export type BoxPlayer = { externalId: string | null; name: string; fullName: string | null; number: number | null; rating: number | null; minutes: number | null; captain: boolean; stats: Partial<Record<typeof boxFigures[number], number>> };
 export type HighlightlyBoxScore = { teamId: string; players: BoxPlayer[] }[];
 export type LineupPlayer = {
@@ -97,7 +106,16 @@ export function normalizeDetail(body: unknown): HighlightlyDetail {
       player: item.player || null, related: type === "SUBSTITUTION" ? item.substituted || null : item.assist || null };
   }).sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999) || (a.addedMinute ?? 0) - (b.addedMinute ?? 0));
   const stats = match.statistics.flatMap((entry) => entry.statistics.flatMap((stat) => stat.value === null || !metricKey(stat.displayName) ? [] : [{ teamId: entry.team.id, metric: metricKey(stat.displayName), value: stat.value }]));
-  return { id: match.id, homeTeamId: match.homeTeam.id, awayTeamId: match.awayTeam.id, referee: match.referee?.name || null, events, stats };
+  const outcomes: Record<string, ShotOutcome> = { goal: "GOAL", saved: "SAVED", missed: "MISSED", blocked: "BLOCKED", post: "POST" };
+  const shots = [match.homeTeam, match.awayTeam].flatMap((side) => (side.shots ?? []).map((item): DetailShot => ({
+    teamId: side.id, ...parseEventTime(item.time ?? undefined), player: item.playerName || null,
+    outcome: outcomes[(item.outcome ?? "").toLowerCase()] ?? "OTHER", goalTarget: item.goalTarget || null,
+  }))).sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999) || (a.addedMinute ?? 0) - (b.addedMinute ?? 0));
+  const number = (value: unknown) => { const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? "").replace(/[^0-9.-]/g, "")); return Number.isFinite(parsed) ? parsed : null; };
+  const capacity = number(match.venue?.capacity); const temperature = number(match.forecast?.temperature);
+  const venue: DetailVenue = { name: match.venue?.name || null, city: match.venue?.city || null, capacity: capacity !== null && capacity > 0 && capacity < 300000 ? Math.round(capacity) : null,
+    weather: match.forecast?.status || null, temperatureC: temperature !== null && temperature > -50 && temperature < 60 ? Math.round(temperature * 10) / 10 : null };
+  return { id: match.id, homeTeamId: match.homeTeam.id, awayTeamId: match.awayTeam.id, referee: match.referee?.name || null, events, stats, shots, venue };
 }
 export function normalizeLineups(body: unknown): HighlightlyLineups {
   const parsed = lineupsSchema.parse(body);
@@ -119,7 +137,7 @@ export function normalizeBoxScore(body: unknown): HighlightlyBoxScore {
     players: entry.players.map((player) => {
       const rating = toNumber(player.matchRating);
       const stats: BoxPlayer["stats"] = {};
-      for (const key of boxFigures) { const value = toNumber(player.statistics?.[key]); if (value !== null) stats[key] = value; }
+      for (const key of boxFigures) { const value = toNumber(key === "offsides" ? player.offsides : player.statistics?.[key]); if (value !== null) stats[key] = value; }
       return { externalId: player.id ?? null, name: player.name, fullName: player.fullName || null, number: player.shirtNumber ?? null,
         rating: rating !== null && rating >= 0 && rating <= 10 ? Math.round(rating * 100) / 100 : null, minutes: player.minutesPlayed ?? null, captain: player.isCaptain === true, stats };
     }),

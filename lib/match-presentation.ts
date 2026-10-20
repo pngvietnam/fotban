@@ -82,6 +82,6 @@ export function groupMatchesByDate(matches: MatchSummary[]) {
 
 /** Providers may send "Surname, Given"; shown as "Given Surname". */
 export function formatPersonName(value: string | null | undefined) {
-  const match = /^([^,]+),s*([^,]+)$/.exec(value?.trim() ?? "");
+  const match = /^([^,]+),\s*([^,]+)$/.exec(value?.trim() ?? "");
   return match ? `${match[2]} ${match[1]}` : value?.trim() || null;
 }

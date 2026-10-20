@@ -1440,3 +1440,12 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - Dữ kiện now leads like FotMob: "Tường thuật trận đấu" (or "Trước trận đấu" for upcoming matches) picks a Vietnamese publisher story about this match from the attributed cards (linked to the match or naming both clubs; after kickoff within 48 h, or the 3 days before kickoff; roundups excluded; result-like headlines and wider coverage first; up to three feed pages). Hidden when no publisher wrote about the match (e.g. Man City–Ipswich had none).
 - "Thông số nổi bật": possession bar plus xG, shots, shots on target, big chances, accurate passes (with %), corners, fouls, yellow cards; leading side highlighted (not for fouls/cards); link to the full statistics tab.
 - Order: review, top stats, timeline, form, next matches, other related stories, highlight, match information.
+
+## Statistics tab like FotMob
+
+- Team statistics: new "Tranh bóng" group (duels won summed from the box score's per-player figures, aerial duels and dribbles with success %), "Sút trúng xà/cột dọc" counted from shots, percentages next to every "successful" figure (passes, long passes, crosses, tackles).
+- "Cú sút": the free source has no pitch coordinates, so instead of FotMob's pitch shot map each team's shots are drawn on the goal frame (where the ball went, as seen by the shooter; near misses just outside) and listed with minute, player, outcome and target. Stored in `MatchShot` (migration `20261020120000_match_shots`), read from the same match-detail response (no extra request).
+- "Thống kê cầu thủ": everyone who played, best rating first, views Hàng đầu / Tấn công / Chuyền bóng / Phòng ngự / Tranh bóng / Thủ thành (`?tab=thong-ke&bang=…`), from the box score (more figures kept now: dribbles, duels lost, fouls, offsides, goals conceded…).
+- Venue, capacity and weather from the same response fill "Sân vận động", "Sức chứa", "Thời tiết".
+- Not available from free sources: pitch shot map, xGOT and xG split, first/second-half split, physical data, attack zones.
+- Older matches: `npm.cmd run matches:details -- --refetch` schedules a re-read; the worker spreads it over the daily allowance.

@@ -90,18 +90,25 @@ const statText: Record<string, string> = {
   passes_into_final_third: "Chuyền vào 1/3 sân đối phương", passes_opposition_half: "Chuyền ở phần sân đối phương", passes_own_half: "Chuyền ở phần sân nhà", backward_passes: "Chuyền về",
   tackles: "Tắc bóng", successful_tackles: "Tắc bóng thành công", interceptions: "Cắt bóng", clearances: "Phá bóng", goalkeeper_saves: "Cứu thua",
   aerial_duels: "Không chiến", successful_aerial_duels: "Không chiến thành công", dribbles: "Rê bóng", successful_dribbles: "Rê bóng thành công",
+  duels_won: "Tranh chấp thắng", shots_hit_woodwork: "Sút trúng xà/cột dọc",
   fouls: "Phạm lỗi", offsides: "Việt vị", yellow_cards: "Thẻ vàng", red_cards: "Thẻ đỏ", free_kicks: "Đá phạt", goal_kicks: "Phát bóng lên", throw_ins: "Ném biên",
 };
 /** FotMob-like sections; a metric may appear in the summary and again in its own section. Unlisted metrics go to "Khác". */
 const statGroups: { title: string; metrics: string[] }[] = [
   { title: "Tổng quan", metrics: ["possession", "ball_possession", "expected_goals", "total_shots", "shots", "shots_on_target", "big_chances_created", "corners", "corner_kicks", "fouls"] },
-  { title: "Sút bóng", metrics: ["total_shots", "shots_on_target", "shots_off_target", "blocked_shots", "shots_within_penalty_area", "shots_outside_penalty_area", "shots_accuracy"] },
+  { title: "Sút bóng", metrics: ["total_shots", "shots_on_target", "shots_off_target", "blocked_shots", "shots_hit_woodwork", "shots_within_penalty_area", "shots_outside_penalty_area", "shots_accuracy"] },
   { title: "Chuyền bóng", metrics: ["total_passes", "successful_passes", "failed_passes", "key_passes", "expected_assists", "long_passes", "successful_long_passes", "crosses", "successful_crosses", "passes_into_final_third", "passes_opposition_half", "passes_own_half", "backward_passes"] },
-  { title: "Phòng ngự", metrics: ["tackles", "successful_tackles", "interceptions", "clearances", "goalkeeper_saves", "aerial_duels", "successful_aerial_duels"] },
-  { title: "Rê bóng", metrics: ["dribbles", "successful_dribbles"] },
+  { title: "Tranh bóng", metrics: ["duels_won", "successful_aerial_duels", "successful_dribbles"] },
+  { title: "Phòng ngự", metrics: ["tackles", "successful_tackles", "interceptions", "clearances", "goalkeeper_saves"] },
   { title: "Kỷ luật", metrics: ["fouls", "yellow_cards", "red_cards", "offsides"] },
   { title: "Bóng chết", metrics: ["free_kicks", "goal_kicks", "throw_ins"] },
 ];
+/** Shown inside another row as its percentage ("Không chiến thành công 21 (60%)"), not as rows of their own. */
+const denominators: Record<string, string> = {
+  successful_passes: "total_passes", successful_long_passes: "long_passes", successful_crosses: "crosses", successful_dribbles: "dribbles",
+  successful_aerial_duels: "aerial_duels", successful_tackles: "tackles", duels_won: "duels_total",
+};
+const hiddenMetrics = ["aerial_duels", "dribbles", "duels_total"];
 /** Known metrics in Vietnamese; others keep the provider's English name. */
 export const statLabel = (metric: string) => statText[metric] ?? metric.replaceAll("_", " ").replace(/^./, (char) => char.toUpperCase());
 export function statValue(metric: string, value: number) {
@@ -121,6 +128,17 @@ export function statPairs(match: MatchDetail) {
     const pair = pairs.get(stat.metric) ?? { home: null, away: null };
     pair[side] = Number(stat.value); pairs.set(stat.metric, pair);
   }
+  // Team duels are the sum of the provider's per-player figures (box score), never an estimate.
+  const players = (side: "home" | "away") => match.lineups?.find((lineup) => lineup.clubId === (side === "home" ? match.homeClub?.id : match.awayClub?.id))?.players ?? [];
+  const total = (side: "home" | "away", key: string) => { const values = players(side).map((player) => player.stats?.[key]).filter((value): value is number => typeof value === "number"); return values.length ? values.reduce((sum, value) => sum + value, 0) : null; };
+  if (total("home", "duelsWon") !== null || total("away", "duelsWon") !== null) {
+    pairs.set("duels_won", { home: total("home", "duelsWon"), away: total("away", "duelsWon") });
+    pairs.set("duels_total", { home: total("home", "duelsTotal"), away: total("away", "duelsTotal") });
+  }
+  if (match.shots?.length) {
+    const woodwork = (clubId: string | undefined) => match.shots!.filter((shot) => shot.clubId === clubId && shot.outcome === "POST").length;
+    pairs.set("shots_hit_woodwork", { home: woodwork(match.homeClub?.id), away: woodwork(match.awayClub?.id) });
+  }
   const inside = pairs.get("shots_within_penalty_area"); const outside = pairs.get("shots_outside_penalty_area");
   if (!pairs.has("total_shots") && inside && outside) {
     const sum = (a: number | null, b: number | null) => a === null || b === null ? null : a + b;
@@ -128,15 +146,16 @@ export function statPairs(match: MatchDetail) {
   }
   return pairs;
 }
-function StatRow({ metric, pair }: { metric: string; pair: StatPair }) {
-  const shown = (value: number | null) => value === null ? "—" : statValue(metric, value);
+function StatRow({ metric, pair, of }: { metric: string; pair: StatPair; of?: StatPair }) {
+  const share = (value: number | null, whole: number | null | undefined) => value !== null && whole ? ` (${Math.round((value / whole) * 100)}%)` : "";
+  const shown = (value: number | null, side?: "home" | "away") => value === null ? "—" : `${statValue(metric, value)}${of && side ? share(value, of[side]) : ""}`;
   const total = (pair.home ?? 0) + (pair.away ?? 0); const homeShare = total > 0 ? (pair.home ?? 0) / total : 0.5;
   const leader = pair.home !== null && pair.away !== null && pair.home !== pair.away ? (pair.home > pair.away ? "home" : "away") : null;
-  return <li aria-label={`${statLabel(metric)}: ${shown(pair.home)} - ${shown(pair.away)}`}>
+  return <li aria-label={`${statLabel(metric)}: ${shown(pair.home, "home")} - ${shown(pair.away, "away")}`}>
     <div aria-hidden="true" className="flex items-baseline justify-between gap-3 text-sm">
-      <span className={`rounded-md px-1.5 tabular-nums ${leader === "home" ? "bg-slate-900 font-bold text-white" : "font-semibold"}`}>{shown(pair.home)}</span>
+      <span className={`rounded-md px-1.5 tabular-nums ${leader === "home" ? "bg-slate-900 font-bold text-white" : "font-semibold"}`}>{shown(pair.home, "home")}</span>
       <span className="text-center text-xs text-slate-600">{statLabel(metric)}</span>
-      <span className={`rounded-md px-1.5 tabular-nums ${leader === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold"}`}>{shown(pair.away)}</span>
+      <span className={`rounded-md px-1.5 tabular-nums ${leader === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold"}`}>{shown(pair.away, "away")}</span>
     </div>
     <div aria-hidden="true" className="mt-1.5 flex h-1.5 gap-1"><span className="rounded-full bg-slate-900" style={{ width: `${homeShare * 100}%` }} /><span className="flex-1 rounded-full bg-lime-500" /></div>
   </li>;
@@ -145,7 +164,7 @@ function StatRow({ metric, pair }: { metric: string; pair: StatPair }) {
 export function StatsList({ match }: { match: MatchDetail }) {
   const pairs = statPairs(match);
   if (!pairs.size) return <Unavailable>Chưa có dữ liệu thống kê (kiểm soát bóng, số cú sút, phạt góc…) cho trận này.</Unavailable>;
-  const listed = new Set(statGroups.flatMap((group) => group.metrics));
+  const listed = new Set([...statGroups.flatMap((group) => group.metrics), ...hiddenMetrics]);
   const groups = [...statGroups, { title: "Khác", metrics: [...pairs.keys()].filter((metric) => !listed.has(metric)).sort() }]
     .map((group) => ({ title: group.title, metrics: [...new Set(group.metrics)].filter((metric) => pairs.has(metric)) })).filter((group) => group.metrics.length);
   return <section aria-labelledby="match-stats" className={panel}>
@@ -153,7 +172,7 @@ export function StatsList({ match }: { match: MatchDetail }) {
     <div className="mb-1 flex justify-between gap-4 text-xs font-semibold text-slate-500"><span>{teamName(match.homeClub, "home", true)}</span><span className="text-right">{teamName(match.awayClub, "away", true)}</span></div>
     {groups.map((group) => <div key={group.title} className="mt-5">
       <h3 className="mb-3 text-center text-xs font-bold uppercase tracking-wide text-slate-500">{group.title}</h3>
-      <ul className="space-y-4">{group.metrics.map((metric) => <StatRow key={metric} metric={metric} pair={pairs.get(metric)!} />)}</ul>
+      <ul className="space-y-4">{group.metrics.map((metric) => <StatRow key={metric} metric={metric} pair={pairs.get(metric)!} of={denominators[metric] ? pairs.get(denominators[metric]) : undefined} />)}</ul>
     </div>)}
   </section>;
 }

@@ -10,7 +10,9 @@ import { ProviderError } from "../providers/errors";
 import { orientSubstitutions, reserveQuota, syncMatchDetails } from "../services/match-details";
 
 const detailBody = (overrides: Record<string, unknown> = {}) => ({
-  id: 9001, homeTeam: { id: 10, name: "Arsenal" }, awayTeam: { id: 20, name: "Chelsea" }, referee: { name: "Michael Oliver" },
+  id: 9001, homeTeam: { id: 10, name: "Arsenal", shots: [{ time: "23'", outcome: "Goal", goalTarget: "Low Left", playerName: "Bukayo Saka" }, { time: "50'", outcome: "Post", goalTarget: null, playerName: "Mystery Man" }] },
+  awayTeam: { id: 20, name: "Chelsea", shots: [{ time: "45+1'", outcome: "Saved", goalTarget: "High Centre", playerName: "Cole Palmer" }] }, referee: { name: "Michael Oliver" },
+  venue: { name: "Emirates Stadium", city: "London", capacity: "60704" }, forecast: { status: "clear day", temperature: "11.15°C" },
   events: [
     { team: { id: 10, name: "Arsenal" }, time: "23", type: "Goal", player: "B. Saka", assist: "M. Ødegaard" },
     { team: { id: 20, name: "Chelsea" }, time: "45+2", type: "Yellow Card", player: "C. Palmer" },
@@ -152,7 +154,7 @@ describe("syncMatchDetails (SQL)", () => {
     };
   }, 60000);
   beforeEach(async () => {
-    await db.exec('TRUNCATE "ProviderQuota","MatchDetailSync","MatchLineup","MatchEvent","MatchStat","ExternalIdentity","Match","PlayerClub","Player","ClubSeason","Season","Club","League" CASCADE');
+    await db.exec('TRUNCATE "ProviderQuota","MatchShot","MatchDetailSync","MatchLineup","MatchEvent","MatchStat","ExternalIdentity","Match","PlayerClub","Player","ClubSeason","Season","Club","League" CASCADE');
     await database.query(`INSERT INTO "League" (id,slug,name,country,"updatedAt") VALUES ($1::uuid,'premier-league','Premier League','England',now())`, [ids.league]);
     await database.query(`INSERT INTO "Season" (id,"leagueId",name,"startsAt","endsAt","updatedAt") VALUES ($1::uuid,$2::uuid,'2026/2027','2026-08-01','2027-06-30',now())`, [ids.season, ids.league]);
     for (const [id, name, short] of [[ids.arsenal, "Arsenal FC", "Arsenal"], [ids.chelsea, "Chelsea FC", "Chelsea"]]) await database.query(`INSERT INTO "Club" (id,slug,name,"shortName","updatedAt") VALUES ($1::uuid,$2,$3,$4,now())`, [id, `club-${id}`, name, short]);
@@ -197,8 +199,13 @@ describe("syncMatchDetails (SQL)", () => {
     expect(lineup.players.find((player) => player.name === "Bukayo Saka")).toMatchObject({ rating: 8.4, minutes: 90, fullName: "Bukayo Ayoyinka Temidayo Saka", stats: { goalsScored: 1, expectedGoals: 0.62 } });
     const [chelsea] = await database.query<{ players: { name: string; rating: number | null }[] }>(`SELECT players FROM "MatchLineup" WHERE "clubId"=$1::uuid`, [ids.chelsea]);
     expect(chelsea.players.find((player) => player.name === "Cole Palmer")?.rating).toBe(6.1);
-    const [sync] = await database.query<{ referee: string; detailFetchedAt: Date | null; lineupsFetchedAt: Date | null }>(`SELECT referee,"detailFetchedAt","lineupsFetchedAt" FROM "MatchDetailSync" WHERE "matchId"=$1::uuid`, [ids.match]);
-    expect(sync.referee).toBe("Michael Oliver"); expect(sync.detailFetchedAt).not.toBeNull(); expect(sync.lineupsFetchedAt).not.toBeNull();
+    const [sync] = await database.query<{ referee: string; detailFetchedAt: Date | null; lineupsFetchedAt: Date | null; venueName: string; venueCapacity: number; weather: string; temperatureC: string }>(`SELECT referee,"detailFetchedAt","lineupsFetchedAt","venueName","venueCapacity",weather,"temperatureC"::text FROM "MatchDetailSync" WHERE "matchId"=$1::uuid`, [ids.match]);
+    expect(sync.referee).toBe("Michael Oliver");
+    expect(sync).toMatchObject({ venueName: "Emirates Stadium", venueCapacity: 60704, weather: "clear day", temperatureC: "11.2" });
+    const shots = await database.query<{ clubId: string; minute: number; addedMinute: number | null; outcome: string; goalTarget: string | null; playerId: string | null }>(`SELECT "clubId",minute,"addedMinute",outcome,"goalTarget","playerId" FROM "MatchShot" WHERE "matchId"=$1::uuid ORDER BY sequence`, [ids.match]);
+    expect(shots.map((shot) => [shot.clubId, shot.minute, shot.addedMinute, shot.outcome, shot.goalTarget, shot.playerId])).toEqual([
+      [ids.arsenal, 23, null, "GOAL", "Low Left", ids.saka], [ids.chelsea, 45, 1, "SAVED", "High Centre", ids.palmer], [ids.arsenal, 50, null, "POST", null, null],
+    ]); expect(sync.detailFetchedAt).not.toBeNull(); expect(sync.lineupsFetchedAt).not.toBeNull();
     const again = fakeApi();
     expect(await syncMatchDetails(database, again.api, new Date(now.getTime() + 3600_000))).toEqual({ mapped: 0, lineups: 0, details: 0, boxScores: 0, requests: 0, stopped: "DONE" });
     expect(again.calls).toEqual([]);

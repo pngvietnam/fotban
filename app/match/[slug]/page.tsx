@@ -11,6 +11,7 @@ import { VideoStore } from "@/services/video-store";
 import { prismaSyncDatabase } from "@/lib/sync-database";
 import type { ReactNode } from "react";
 import { parseMatchTab } from "@/lib/match-tabs";
+import { parsePlayerStatView } from "@/components/matches/match-stats-extra";
 import { pickMatchReview, type MatchReview } from "@/lib/match-review";
 import { matchHub, type MatchHub } from "@/services/match-hub";
 import { readFeedList } from "@/services/feed-page-data";
@@ -20,7 +21,8 @@ export const metadata: Metadata = { title: "Chi tiết trận đấu | Football 
 export const dynamic = "force-dynamic";
 export default async function MatchPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { slug } = await params;
-  const tab = parseMatchTab((await searchParams).tab);
+  const query = await searchParams;
+  const tab = parseMatchTab(query.tab);
   const result = await loadMatchDetail(slug, async () => {
     const db = getDatabase();
     if (!db) throw new Error("Database unavailable");
@@ -57,5 +59,5 @@ export default async function MatchPage({ params, searchParams }: { params: Prom
       }
     }
   }
-  return <MatchShell>{result.kind === "ready" ? <MatchDetailView match={result.match} highlight={highlight} now={now} tab={tab} hub={hub} news={news} review={review} /> : <><h1 className="text-2xl font-bold">Chi tiết trận đấu</h1><MatchState kind="error" /></>}</MatchShell>;
+  return <MatchShell>{result.kind === "ready" ? <MatchDetailView match={result.match} highlight={highlight} now={now} tab={tab} hub={hub} news={news} review={review} statsView={parsePlayerStatView(query.bang)} /> : <><h1 className="text-2xl font-bold">Chi tiết trận đấu</h1><MatchState kind="error" /></>}</MatchShell>;
 }

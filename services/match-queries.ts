@@ -54,7 +54,8 @@ export async function readMatchBySlug(db: PrismaClient, slug: string) {
     events: { select: { type: true, minute: true, addedMinute: true, detail: true, provider: true, playerName: true, relatedPlayerName: true, club: { select: { id: true, name: true } }, player: { select: { id: true, name: true } }, relatedPlayer: { select: { id: true, name: true } } }, orderBy: [{ minute: "asc" }, { addedMinute: "asc" }, { externalId: "asc" }], take: 200 },
     stats: { select: { metric: true, value: true, unit: true, provider: true, club: { select: { id: true, name: true } }, player: { select: { name: true } } }, orderBy: [{ metric: "asc" }, { id: "asc" }], take: 200 },
     lineups: { select: { clubId: true, formation: true, players: true, provider: true }, take: 4 },
-    detailSyncs: { select: { referee: true }, take: 1 },
+    detailSyncs: { select: { referee: true, venueName: true, venueCity: true, venueCapacity: true, weather: true, temperatureC: true }, take: 1 },
+    shots: { select: { clubId: true, minute: true, addedMinute: true, playerName: true, outcome: true, goalTarget: true, player: { select: { id: true, name: true } } }, orderBy: [{ minute: "asc" }, { addedMinute: "asc" }, { sequence: "asc" }], take: 120 },
   } });
   if (!row) return null;
   const { detailSyncs, ...rest } = row;
@@ -63,7 +64,9 @@ export async function readMatchBySlug(db: PrismaClient, slug: string) {
   const ids = [...new Set(lineups.flatMap((lineup) => lineup.players.flatMap((player) => player.playerId ? [player.playerId] : [])))];
   const photos = ids.length ? new Map((await db.playerImage.findMany({ where: { playerId: { in: ids }, status: "FOUND" }, select: { playerId: true, thumbUrl: true } })).map((image) => [image.playerId, image.thumbUrl])) : new Map<string, string | null>();
   const providers = [...new Set([...row.events.map((event) => event.provider), ...row.stats.map((stat) => stat.provider), ...lineups.map((lineup) => lineup.provider)])];
-  return { ...rest, referee: detailSyncs[0]?.referee ?? null, stats: row.stats.map((stat) => ({ ...stat, value: stat.value.toString() })),
+  const sync = detailSyncs[0];
+  const venueInfo = sync && (sync.venueName || sync.weather) ? { name: sync.venueName, city: sync.venueCity, capacity: sync.venueCapacity, weather: sync.weather, temperatureC: sync.temperatureC === null ? null : Number(sync.temperatureC) } : null;
+  return { ...rest, referee: sync?.referee ?? null, venueInfo, stats: row.stats.map((stat) => ({ ...stat, value: stat.value.toString() })),
     lineups: lineups.map((lineup) => ({ ...lineup, players: lineup.players.map((player) => ({ ...player, photoUrl: player.playerId ? photos.get(player.playerId) ?? null : null })) })),
     attribution: dataSources[row.provider]?.attribution ?? null,
     detailAttributions: providers.filter((name) => name !== row.provider).flatMap((name) => dataSources[name] ? [dataSources[name].attribution] : []) };
