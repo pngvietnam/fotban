@@ -15,10 +15,10 @@ type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<s
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params; const query = parsePlayerQuery(await searchParams);
   const result = playerIdFromSlug(slug) && query ? await readPlayer(slug) : null;
-  if (result?.kind !== "ready" || !query) return { title: "Không tìm thấy cầu thủ | Football Morning Brief", robots: { index: false, follow: false } };
+  if (result?.kind !== "ready" || !query) return { title: "Không tìm thấy cầu thủ | Fotban", robots: { index: false, follow: false } };
   const { player } = result.data;
   // Pages show publisher text, so they are not indexed; the canonical stays the tab URL.
-  return { title: `${player.name} | Football Morning Brief`, description: `Tin tức và chuyển nhượng về ${player.name} (${player.club.name}).`, alternates: { canonical: new URL(playerHref(slug, { tab: query.tab }), env.NEXT_PUBLIC_APP_URL).href }, robots: { index: false, follow: true } };
+  return { title: `${player.name} | Fotban`, description: `Tin tức và chuyển nhượng về ${player.name} (${player.club.name}).`, alternates: { canonical: new URL(playerHref(slug, { tab: query.tab }), env.NEXT_PUBLIC_APP_URL).href }, robots: { index: false, follow: true } };
 }
 export default async function PlayerPage({ params, searchParams }: Props) {
   const { slug } = await params;

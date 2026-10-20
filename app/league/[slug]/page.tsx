@@ -16,9 +16,9 @@ type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<s
 const indexable = new Set(["bang-xep-hang", "lich-thi-dau", "doi-bong"]);
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params;
-  if (!isLeagueSlug(slug)) return { title: "Không tìm thấy giải đấu | Football Morning Brief", robots: { index: false } };
+  if (!isLeagueSlug(slug)) return { title: "Không tìm thấy giải đấu | Fotban", robots: { index: false } };
   const query = parseLeagueQuery(await searchParams, new Date());
-  return { title: `${leagueNames[slug].name} | Football Morning Brief`, description: `Tin tức, bảng xếp hạng, lịch thi đấu và đội bóng ${leagueNames[slug].name}.`,
+  return { title: `${leagueNames[slug].name} | Fotban`, description: `Tin tức, bảng xếp hạng, lịch thi đấu và đội bóng ${leagueNames[slug].name}.`,
     alternates: { canonical: new URL(leagueHref(slug, query ? { tab: query.tab } : {}), env.NEXT_PUBLIC_APP_URL).href }, robots: { index: Boolean(query && indexable.has(query.tab)), follow: true } };
 }
 export default async function LeaguePage({ params, searchParams }: Props) {

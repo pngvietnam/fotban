@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 type Params = Record<string, string | string[] | undefined>;
 export async function generateMetadata({ searchParams }: { searchParams: Promise<Params> }): Promise<Metadata> {
   const params = await searchParams;
-  return { title: "Tin bóng đá | Football Morning Brief", description: "Tin bóng đá tiếng Việt từ các báo, gộp theo câu chuyện và phân loại theo đội, giải, chuyển nhượng.", alternates: { canonical: new URL("/news", env.NEXT_PUBLIC_APP_URL).href }, robots: { index: Object.keys(params).length === 0, follow: true } };
+  return { title: "Tin bóng đá | Fotban", description: "Tin bóng đá tiếng Việt từ các báo, gộp theo câu chuyện và phân loại theo đội, giải, chuyển nhượng.", alternates: { canonical: new URL("/news", env.NEXT_PUBLIC_APP_URL).href }, robots: { index: Object.keys(params).length === 0, follow: true } };
 }
 
 const hasGroups = (result: Awaited<ReturnType<typeof readFeedList>>) => result.kind === "ready" && result.data.groups.length > 0;

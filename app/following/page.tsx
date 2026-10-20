@@ -15,11 +15,11 @@ import { ClubFixtureLists } from "../../components/club/club-hub";
 import { FollowingEmpty, FollowSummaryView } from "../../components/account/following-feed";
 
 // Personal page: never indexed, never shared-cached, always evaluated per request.
-export const metadata: Metadata = { title: "Bảng tin của tôi | Football Morning Brief", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Bảng tin của tôi | Fotban", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 type Feeds = Awaited<ReturnType<typeof readFeedList>>;
 type Loaded = { kind: "unavailable" } | { kind: "empty" } | { kind: "ready"; summary: FollowSummary; fixtures: FollowFixtures; news: Feeds; transfers: Feeds; fun: Feeds };
-const Unavailable = () => <SportsShell section="account"><h1 className="text-2xl font-bold">Bảng tin tạm thời chưa khả dụng</h1><p className="mt-4 text-sm text-slate-600">Vui lòng thử lại sau. Bạn vẫn có thể đọc nội dung công khai.</p></SportsShell>;
+const Unavailable = () => <SportsShell section="following"><h1 className="text-2xl font-bold">Bảng tin tạm thời chưa khả dụng</h1><p className="mt-4 text-sm text-slate-600">Vui lòng thử lại sau. Bạn vẫn có thể đọc nội dung công khai.</p></SportsShell>;
 
 async function load(user: ActiveUser, offset: number, now: Date): Promise<Loaded> {
   const db = getDatabase();
@@ -51,9 +51,9 @@ export default async function FollowingPage({ searchParams }: { searchParams: Pr
   const now = new Date();
   const data = await load(user, offset ?? 0, now);
   if (data.kind === "unavailable") return <Unavailable />;
-  if (data.kind === "empty") return <SportsShell section="account"><h1 className="mb-6 text-3xl font-bold tracking-tight">Bảng tin của tôi</h1><FollowingEmpty /></SportsShell>;
+  if (data.kind === "empty") return <SportsShell section="following"><h1 className="mb-6 text-3xl font-bold tracking-tight">Bảng tin của tôi</h1><FollowingEmpty /></SportsShell>;
   const { summary, fixtures, news, transfers, fun } = data;
-  return <SportsShell section="account">
+  return <SportsShell section="following">
     <header className="mb-6"><h1 className="text-3xl font-bold tracking-tight">Bảng tin của tôi</h1><p className="mt-2 text-sm leading-7 text-slate-600">Tin, lịch và kết quả của những đội, cầu thủ và giải bạn theo dõi, gom về một chỗ.</p></header>
     <FollowSummaryView summary={summary} />
     <div className="space-y-6">

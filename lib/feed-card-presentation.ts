@@ -24,6 +24,6 @@ export function parseFeedOffset(value: string | string[] | undefined) {
 }
 /** Card pages reproduce publisher text, so they are never indexed; the original stays canonical. */
 export function feedMetadata(card: FeedCardView | null): Metadata {
-  if (!card) return { title: "Tin chưa khả dụng | Football Morning Brief", robots: { index: false, follow: false } };
-  return { title: `${card.title} | Football Morning Brief`, robots: { index: false, follow: true }, ...(card.url ? { alternates: { canonical: card.url } } : {}) };
+  if (!card) return { title: "Tin chưa khả dụng | Fotban", robots: { index: false, follow: false } };
+  return { title: `${card.title} | Fotban`, robots: { index: false, follow: true }, ...(card.url ? { alternates: { canonical: card.url } } : {}) };
 }

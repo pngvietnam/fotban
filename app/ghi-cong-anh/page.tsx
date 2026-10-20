@@ -5,7 +5,7 @@ import { NewsState } from "@/components/news/news-state";
 import { playerPath } from "@/lib/player-presentation";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "Ghi công ảnh | Football Morning Brief", description: "Tác giả và giấy phép của ảnh cầu thủ trên Football Morning Brief.", robots: { index: false, follow: true } };
+export const metadata: Metadata = { title: "Ghi công ảnh | Fotban", description: "Tác giả và giấy phép của ảnh cầu thủ trên Fotban.", robots: { index: false, follow: true } };
 export const dynamic = "force-dynamic";
 export default async function PhotoCreditsPage() {
   const credits = await readPhotoCredits();

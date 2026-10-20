@@ -21,7 +21,7 @@ describe("canonical following and private preference ownership", () => {
   afterAll(async () => { await db?.close(); });
   it("authenticated club follow and repeated follow remain unique", async () => {
     await follows.set(club, true); await follows.set(club, true);
-    expect(await follows.list()).toEqual([{ ...club, name: "Arsenal", following: true }]);
+    expect(await follows.list()).toEqual([{ ...club, name: "Arsenal", following: true, crestUrl: null }]);
     expect((await db.query('SELECT * FROM "UserFollow"')).rows).toHaveLength(1);
   });
   it("unfollow is idempotent and scoped to the active user", async () => {

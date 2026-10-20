@@ -16,7 +16,7 @@ export function transferHref(filters: TransferFilters) {
   return `/transfers${params.size ? `?${params}` : ""}`;
 }
 export function transferMetadata(view: TransferView | null, origin: string): Metadata {
-  if (!view?.slug) return { title: "Chuyển nhượng chưa khả dụng | Football Morning Brief", robots: { index: false, follow: false } };
+  if (!view?.slug) return { title: "Chuyển nhượng chưa khả dụng | Fotban", robots: { index: false, follow: false } };
   const url = new URL(`/transfers/${view.slug}`, origin).href;
-  return { title: `${view.story.titleVi} | Football Morning Brief`, description: view.story.summaryVi, alternates: { canonical: url }, robots: { index: true, follow: true }, openGraph: { type: "article", locale: "vi_VN", url, title: view.story.titleVi, description: view.story.summaryVi } };
+  return { title: `${view.story.titleVi} | Fotban`, description: view.story.summaryVi, alternates: { canonical: url }, robots: { index: true, follow: true }, openGraph: { type: "article", locale: "vi_VN", url, title: view.story.titleVi, description: view.story.summaryVi } };
 }

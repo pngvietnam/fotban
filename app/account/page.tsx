@@ -10,7 +10,7 @@ import { FollowingService, UserPreferenceService, type FollowedEntity } from "..
 import { AccountView } from "../../components/account/account-view";
 import { SportsShell } from "../../components/sports-shell";
 
-export const metadata: Metadata = { title: "Tài khoản & theo dõi | Football Morning Brief", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Tài khoản & theo dõi | Fotban", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 export default async function AccountPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;

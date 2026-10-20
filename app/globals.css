@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root { color-scheme: light dark; }
-body { margin: 0; font-family: Arial, Helvetica, sans-serif; }
+body { margin: 0; font-family: var(--font-be-vietnam), "Be Vietnam Pro", Arial, sans-serif; }
 button { cursor: pointer; }
 *:focus-visible { outline: 3px solid #10b981; outline-offset: 4px; }
 

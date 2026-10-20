@@ -5,7 +5,7 @@ import { LoginButton } from "../../components/account/account-controls";
 import { authReadiness, safeReturnPath } from "../../lib/auth-policy";
 import { env } from "../../lib/env";
 
-export const metadata: Metadata = { title: "Đăng nhập | Football Morning Brief", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Đăng nhập | Fotban", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 export default async function LoginPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams; const ready = authReadiness(env, process.env.NODE_ENV).ready;

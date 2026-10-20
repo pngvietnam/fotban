@@ -17,9 +17,9 @@ const indexable = new Set(["lich-thi-dau", "cau-thu"]);
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params; const query = parseClubQuery(await searchParams);
   const result = clubIdFromSlug(slug) && query ? await readClub(slug, query.tab) : null;
-  if (result?.kind !== "ready" || !query) return { title: "Không tìm thấy câu lạc bộ | Football Morning Brief", robots: { index: false, follow: false } };
+  if (result?.kind !== "ready" || !query) return { title: "Không tìm thấy câu lạc bộ | Fotban", robots: { index: false, follow: false } };
   const { club } = result.data;
-  return { title: `${club.name} | Football Morning Brief`, description: `Tin tức, lịch thi đấu, bảng xếp hạng, chuyển nhượng và cầu thủ ${club.name}.`,
+  return { title: `${club.name} | Fotban`, description: `Tin tức, lịch thi đấu, bảng xếp hạng, chuyển nhượng và cầu thủ ${club.name}.`,
     alternates: { canonical: new URL(clubHref(slug, { tab: query.tab }), env.NEXT_PUBLIC_APP_URL).href }, robots: { index: indexable.has(query.tab), follow: true } };
 }
 export default async function ClubPage({ params, searchParams }: Props) {

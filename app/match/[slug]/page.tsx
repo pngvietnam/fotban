@@ -17,7 +17,7 @@ import { matchHub, type MatchHub } from "@/services/match-hub";
 import { readFeedList } from "@/services/feed-page-data";
 import { MatchNewsList, orderMatchNews } from "@/components/matches/match-news";
 
-export const metadata: Metadata = { title: "Chi tiết trận đấu | Football Morning Brief" };
+export const metadata: Metadata = { title: "Chi tiết trận đấu | Fotban" };
 export const dynamic = "force-dynamic";
 export default async function MatchPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { slug } = await params;

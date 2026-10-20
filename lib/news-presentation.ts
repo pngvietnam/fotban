@@ -47,11 +47,11 @@ export function newsRelativeTime(value: string, now: Date, dateOnly = false) {
   return newsAbsoluteTime(value);
 }
 export function newsMetadata(story: NewsStory | null, appUrl: string): Metadata {
-  if (!story?.titleVi?.trim() || !story.summaryVi?.trim()) return { title: "Tin chưa khả dụng | Football Morning Brief", robots: { index: false, follow: false } };
+  if (!story?.titleVi?.trim() || !story.summaryVi?.trim()) return { title: "Tin chưa khả dụng | Fotban", robots: { index: false, follow: false } };
   const url = new URL(`/news/${story.slug}`, appUrl).href;
   return {
-    title: `${story.titleVi} | Football Morning Brief`, description: story.summaryVi,
+    title: `${story.titleVi} | Fotban`, description: story.summaryVi,
     alternates: { canonical: url }, robots: { index: true, follow: true },
-    openGraph: { type: "article", locale: "vi_VN", siteName: "Football Morning Brief", url, title: story.titleVi, description: story.summaryVi, publishedTime: story.publishedAt, modifiedTime: story.updatedAt },
+    openGraph: { type: "article", locale: "vi_VN", siteName: "Fotban", url, title: story.titleVi, description: story.summaryVi, publishedTime: story.publishedAt, modifiedTime: story.updatedAt },
   };
 }

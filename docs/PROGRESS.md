@@ -1495,3 +1495,10 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 
 - "Video trận đấu": the highlight in a large player (YouTube embed on play), title, "channel · language · time" and an "Mở trên YouTube" button; the long disclaimer is gone. Beside it, "Video về trận đấu (n)": the match's other clips from the same reviewed channel; picking one plays it in the large player.
 - Related clips (`validateRelatedClip`, stored as validated `RELATED_CLIP`, never chosen as the highlight): same reviewed channel and competition mapping, posted from kickoff to 48 h after, naming one of the clubs or a lineup player (full name or "first last"), not a preview/prediction/watch-along, not a matchday round-up ("THẾ GIỚI NGOẠI HẠNG (19/10)", "TỔNG HỢP … VÒNG 9"). Example: Tottenham–Coventry shows the highlight plus Maddison, Ben Davies and Marmoush goals and a defensive-error clip.
+
+## UI redesign P0: fotban shell
+
+- Plan and owner decisions: `docs/UI_REDESIGN_PLAN.md` (prototype in `fotban_prototype/`, excluded from typecheck/lint).
+- Design tokens (`styles/fotban/tokens.css`) and the prototype's app shell (`styles/fotban/shell.css`, values kept, classes prefixed `fb-`, header/main scoped) loaded globally; Be Vietnam Pro self-hosted with `next/font/google` (Vietnamese subset).
+- `SportsShell` now renders the prototype layout: sidebar (Bảng tin, Trận đấu, Tin tức, Chuyển nhượng, Giải đấu; Bảng tin của tôi; Đội bóng của tôi from real follows with crests; "Bóng đá. Theo cách của bạn." card), top bar (tagline, Vietnam time, account/Đăng nhập), bottom tab bar on phones. Reader state loads on the client from `GET /api/following` (401 = guest), so pages stay statically renderable. The bell is hidden (no notifications yet); "Tin đã lưu" arrives with saving in a later phase; "Giải đấu" points to the Premier League hub until the leagues page exists.
+- Brand renamed from "Football Morning Brief" to "Fotban" in titles, sign-in app name and share metadata.

@@ -8,7 +8,7 @@ import { MatchFilters } from "@/components/matches/match-filters";
 import { MatchList } from "@/components/matches/match-list";
 import { MatchState } from "@/components/matches/match-state";
 
-export const metadata: Metadata = { title: "Lịch đấu & kết quả | Football Morning Brief" };
+export const metadata: Metadata = { title: "Lịch đấu & kết quả | Fotban" };
 export const dynamic = "force-dynamic";
 export default async function MatchesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const now = new Date();

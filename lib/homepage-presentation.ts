@@ -13,8 +13,8 @@ export function homeInitials(name: string) { return name.trim().split(/\s+/).sli
 export function homeItemIdentity(item: BriefContentItem) { return item.transferId ? `transfer:${item.transferId}` : item.clusterId ? `story:${item.clusterId}` : item.match ? `match:${item.match.id}` : item.key; }
 export function homeSources(item: HomeItem) { return [...new Set(item.item.citations.map((citation) => citation.sourceName))]; }
 export function homepageMetadata(origin: string, preview: boolean): Metadata {
-  const title = "Bản tin sáng bóng đá | Football Morning Brief";
+  const title = "Bản tin sáng bóng đá | Fotban";
   const description = "Kết quả Premier League và La Liga, highlight đã xác minh, tin đáng chú ý và chuyển nhượng. Gọn mỗi sáng, rõ nguồn và mức độ xác nhận.";
   const url = new URL("/", origin).href;
-  return { title, description, alternates: { canonical: url }, robots: { index: !preview, follow: !preview }, openGraph: { title, description, type: "website", locale: "vi_VN", siteName: "Football Morning Brief", url } };
+  return { title, description, alternates: { canonical: url }, robots: { index: !preview, follow: !preview }, openGraph: { title, description, type: "website", locale: "vi_VN", siteName: "Fotban", url } };
 }

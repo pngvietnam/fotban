@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
+import "../styles/fotban/tokens.css";
+import "../styles/fotban/shell.css";
+
+// Self-hosted at build time by next/font; the prototype's typeface, with Vietnamese glyphs.
+const beVietnam = Be_Vietnam_Pro({ subsets: ["vietnamese", "latin"], weight: ["400", "500", "600", "700", "800", "900"], variable: "--font-be-vietnam", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Football Morning Brief",
-  description: "Bản tin bóng đá buổi sáng bằng tiếng Việt.",
+  title: "Fotban",
+  description: "Không chỉ tỷ số. Cả câu chuyện. Tin bóng đá, lịch đấu và kết quả bằng tiếng Việt.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="vi"><body className="bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-100">{children}</body></html>;
+  return <html lang="vi" className={beVietnam.variable}><body className="bg-[#f7f8fa] text-[#192920]">{children}</body></html>;
 }

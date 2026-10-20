@@ -6,7 +6,7 @@ import type { AuthSettings } from "./auth-policy";
 export function authenticationOptions(database: BetterAuthOptions["database"], settings: AuthSettings, onLogin: (userId: string) => Promise<void>, production: boolean): BetterAuthOptions {
   const stripTokens = <T extends Record<string, unknown>>(account: T) => ({ ...account, accessToken: null, refreshToken: null, idToken: null, accessTokenExpiresAt: null, refreshTokenExpiresAt: null, scope: null, password: null });
   return {
-    appName: "Football Morning Brief", baseURL: new URL(settings.NEXT_PUBLIC_APP_URL).origin, basePath: "/api/auth",
+    appName: "Fotban", baseURL: new URL(settings.NEXT_PUBLIC_APP_URL).origin, basePath: "/api/auth",
     secret: settings.AUTH_SECRET, database, trustedOrigins: [new URL(settings.NEXT_PUBLIC_APP_URL).origin],
     emailAndPassword: { enabled: false },
     socialProviders: { google: { clientId: settings.AUTH_GOOGLE_ID!, clientSecret: settings.AUTH_GOOGLE_SECRET!, accessType: "online", disableIdTokenSignIn: true, mapProfileToUser: (profile) => { if (!profile.email_verified) throw new Error("UNVERIFIED_GOOGLE_EMAIL"); return {}; } } },

@@ -5,7 +5,8 @@ import type { SyncDatabase } from "../lib/sync-database";
 
 export type ActiveUser = { id: string; name?: string; email?: string };
 export type SessionResolver = () => Promise<ActiveUser | null>;
-export type FollowedEntity = FollowTarget & { name: string; following: boolean };
+/** crestUrl: the club crest for followed clubs (sidebar "Đội bóng của tôi"), null otherwise. */
+export type FollowedEntity = FollowTarget & { name: string; following: boolean; crestUrl?: string | null };
 const targets = { CLUB: { table: "Club", column: "clubId" }, PLAYER: { table: "Player", column: "playerId" }, COMPETITION: { table: "League", column: "leagueId" } } as const;
 
 export async function requireAccount(resolve: SessionResolver) {
@@ -18,9 +19,9 @@ export class FollowingService {
   constructor(private db: SyncDatabase, private session: SessionResolver) {}
   async list(): Promise<FollowedEntity[]> {
     const user = await requireAccount(this.session);
-    const rows = await this.db.query<{ type: FollowTarget["type"]; entityId: string; name: string }>(`SELECT
+    const rows = await this.db.query<{ type: FollowTarget["type"]; entityId: string; name: string; crestUrl: string | null }>(`SELECT
       CASE WHEN f."clubId" IS NOT NULL THEN 'CLUB' WHEN f."playerId" IS NOT NULL THEN 'PLAYER' ELSE 'COMPETITION' END AS type,
-      COALESCE(f."clubId",f."playerId",f."leagueId") AS "entityId", COALESCE(c.name,p.name,l.name) AS name
+      COALESCE(f."clubId",f."playerId",f."leagueId") AS "entityId", COALESCE(c.name,p.name,l.name) AS name, c."externalCrestUrl" AS "crestUrl"
       FROM "UserFollow" f JOIN "UserPreference" u ON u.id=f."preferenceId"
       LEFT JOIN "Club" c ON c.id=f."clubId" LEFT JOIN "Player" p ON p.id=f."playerId" LEFT JOIN "League" l ON l.id=f."leagueId"
       WHERE u."userId"=$1::uuid ORDER BY name, f.id`, [user.id]);
