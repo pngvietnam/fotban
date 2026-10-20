@@ -166,8 +166,22 @@ model User {
   accounts          AuthAccount[]
   publishedBriefs   BriefRevision[] @relation("BriefPublisher")
   feedCardDecisions FeedCard[]      @relation("FeedCardDecider")
+  storyLikes        StoryLike[]
 
   @@unique([authProvider, authSubject])
+}
+
+/// A signed-in reader likes a feed story; counts shown on the site come only from these rows.
+model StoryLike {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  articleId String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([articleId])
 }
 
 // Better Auth owns OAuth state and revocable server-validated sessions.
@@ -630,6 +644,7 @@ model Article {
   feedSnapshot           ArticleFeedSnapshot?
   feedCard               FeedCard?
   reliabilityAssessments ReliabilityAssessment[]
+  storyLikes             StoryLike[]
 
   @@index([publicationStatus, publishedAt])
   @@index([sourceId, publishedAt])

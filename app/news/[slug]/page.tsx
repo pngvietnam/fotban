@@ -5,6 +5,7 @@ import { newsMetadata } from "@/lib/news-presentation";
 import { feedArticleIdFromSlug, feedMetadata } from "@/lib/feed-card-presentation";
 import { readNewsPage } from "@/services/news-page-data";
 import { readFeedPage } from "@/services/feed-page-data";
+import { viewerStoryLikes } from "@/services/viewer-likes";
 import { NewsShell } from "@/components/news/news-shell";
 import { NewsDetailView } from "@/components/news/news-detail";
 import { FeedDetailView } from "@/components/news/feed-detail";
@@ -25,7 +26,8 @@ export default async function NewsDetailPage({ params }: Props) {
   if (feedId) {
     const result = await readFeedPage(feedId);
     if (result.kind === "not-found") notFound();
-    return <NewsShell>{result.kind === "ready" ? <FeedDetailView card={result.card} others={result.others} related={result.related} context={result.context} now={new Date()} /> : <><h1 className="sr-only">Tin tức chưa khả dụng</h1><NewsState kind="error" /></>}</NewsShell>;
+    const likes = result.kind === "ready" ? await viewerStoryLikes([{ key: result.card.articleId, lead: result.card, others: result.others, latestAt: result.card.publishedAt }]) : undefined;
+    return <NewsShell>{result.kind === "ready" ? <FeedDetailView card={result.card} others={result.others} related={result.related} context={result.context} now={new Date()} likes={likes} /> : <><h1 className="sr-only">Tin tức chưa khả dụng</h1><NewsState kind="error" /></>}</NewsShell>;
   }
   const result = await readNewsPage(slug);
   if (result.kind === "not-found") notFound();

@@ -1,6 +1,6 @@
 import React from "react";
 import { renderToStaticMarkup as render } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { load } from "cheerio";
 import { FeedGroupCard } from "../components/news/feed-card";
 import { FeedDetailView } from "../components/news/feed-detail";
@@ -8,6 +8,7 @@ import { FeedSection } from "../components/news/feed-section";
 import { feedArticleIdFromSlug, feedMetadata, parseFeedOffset } from "../lib/feed-card-presentation";
 import type { FeedCardView } from "../types/feed-card";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ back: vi.fn(), push: vi.fn() }) }));
 const now = new Date("2026-10-19T03:00:00Z");
 const card = (overrides: Partial<FeedCardView> = {}): FeedCardView => ({
   slug: "bao-2f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", articleId: "2f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69",

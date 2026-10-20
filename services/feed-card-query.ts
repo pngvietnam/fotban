@@ -10,6 +10,7 @@ import { allowedImageUrl } from "../providers/news/vietnamese-provider";
 import { cardImageUrl } from "../lib/news-image-size";
 import type { FeedCardView, FeedDetailResult, FeedFilters, FeedGroupView, FeedListData, FeedListResult } from "../types/feed-card";
 import type { NewsEntity } from "../types/news-ui";
+import { likeCounts } from "./story-likes";
 
 const listWindowDays = 7;
 const groupsPerPage = 24;
@@ -63,6 +64,13 @@ const publicView = (card: FeedCardView & { groupKey: string; priority: number })
   return view as FeedCardView;
 };
 
+/** "Sôi nổi": stories of the last 48 hours, by distinct publishers plus reader likes, newest first on a tie. */
+export async function buzzOrder(tx: SqlExecutor, groups: FeedGroupView[], now: Date) {
+  const recent = groups.filter((group) => now.getTime() - Date.parse(group.latestAt) <= 48 * 3600000);
+  const likes = await likeCounts(tx, recent.map((group) => [group.lead, ...group.others].map((card) => card.articleId)));
+  const score = new Map(recent.map((group, index) => [group.key, new Set([group.lead, ...group.others].map((card) => card.publisher)).size + likes[index]]));
+  return recent.sort((a, b) => score.get(b.key)! - score.get(a.key)! || b.latestAt.localeCompare(a.latestAt) || a.key.localeCompare(b.key));
+}
 export class FeedCardQueryService {
   constructor(private db: SyncDatabase) {}
   private read<T>(work: (tx: SqlExecutor) => Promise<T>) {
@@ -81,7 +89,8 @@ export class FeedCardQueryService {
         .filter((group) => !filters.follow || [group.lead, ...group.others].some((card) => card.entities.some((entity) => entity.id && filters.follow!.entityIds.includes(entity.id) && entity.kind !== "league") || card.leagueSlugs.some((slug) => filters.follow!.leagueSlugs.includes(slug))))
         .filter((group) => !filters.storyType || [group.lead, ...group.others].some((card) => card.storyType === filters.storyType))
         .filter((group) => !filters.storyTypes || [group.lead, ...group.others].some((card) => filters.storyTypes!.includes(card.storyType)));
-      const ranked = filters.sort === "latest" ? [...built].sort((a, b) => b.latestAt.localeCompare(a.latestAt) || a.key.localeCompare(b.key)) : null;
+      const ranked = filters.sort === "latest" ? [...built].sort((a, b) => b.latestAt.localeCompare(a.latestAt) || a.key.localeCompare(b.key))
+        : filters.sort === "buzz" ? await buzzOrder(tx, built, now) : null;
       const groups = ranked ?? rankFeedGroups(built.map((group) => ({ ...group, leadTitle: group.lead.title, leadPublisher: group.lead.publisher, publishers: [group.lead, ...group.others].map((card) => card.publisher), hasMedia: [group.lead, ...group.others].some((card) => card.label === "MEDIA") })), now)
         .map(({ key, lead, others, latestAt }): FeedGroupView => ({ key, lead, others, latestAt }));
       const page = groups.slice(filters.offset, filters.offset + groupsPerPage);

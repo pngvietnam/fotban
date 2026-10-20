@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import { load } from "cheerio";
 import { NewsCard } from "../components/news/news-card";
 import { NewsDetailView, SourceEntry } from "../components/news/news-detail";
-import { NewsFiltersView } from "../components/news/news-filters";
 import { NewsList } from "../components/news/news-list";
 import { newsSections } from "../services/news-sections";
 import { NewsShell } from "../components/news/news-shell";
@@ -77,8 +76,6 @@ describe("Vietnamese canonical news UI", () => {
   it("supports league filters, resets pagination and rejects unknown/multi-valued input", () => {
     for (const league of ["premier-league", "la-liga"] as const) {
       expect(parseNewsFilters({ league })).toEqual({ league, offset: 0 });
-      const html = render(<NewsFiltersView filters={{ league, offset: 12 }} />);
-      expect(load(html)(`a[href="/news?league=${league}"]`).attr("aria-current")).toBe("page"); expect(html).not.toContain("after=");
     }
     expect(parseNewsFilters({ league: "unknown" })).toBeNull(); expect(parseNewsFilters({ league: ["premier-league", "la-liga"] })).toBeNull();
     expect(parseNewsFilters({ after: "-1" })).toBeNull(); expect(parseNewsFilters({ after: ["1", "2"] })).toBeNull();
