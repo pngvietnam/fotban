@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 import { load } from "cheerio";
 import { safeCrestUrl } from "../lib/crest";
 import { TeamBadge } from "../components/ui/team-badge";
-import { TeamIdentity } from "../components/matches/team-identity";
+import { MatchHero } from "../components/matches/match-hero";
+import { uiDetail, uiNow } from "./fixtures/match-ui";
 
 describe("club crests", () => {
   it("accepts only https provider crest files and rejects everything else", () => {
@@ -24,7 +25,7 @@ describe("club crests", () => {
     expect(unsafe("img")).toHaveLength(0); expect(unsafe.text()).toBe("ARS");
   });
   it("uses the crest on match teams", () => {
-    const $ = load(render(<TeamIdentity team={{ name: "Arsenal FC", shortName: "Arsenal", tla: "ARS", externalCrestUrl: "https://crests.football-data.org/57.png" }} side="home" large />));
-    expect($("img").attr("src")).toContain("57.png"); expect($.text()).toContain("Arsenal");
+    const $ = load(render(<MatchHero now={uiNow} venueName={null} match={uiDetail({ homeClub: { name: "Arsenal FC", shortName: "Arsenal", tla: "ARS", externalCrestUrl: "https://crests.football-data.org/57.png" }, awayClub: { name: "Chelsea FC", tla: "CHE", externalCrestUrl: "https://evil.example/x.png" } })} />));
+    expect($("img")).toHaveLength(1); expect($("img").attr("src")).toContain("57.png"); expect($("b").first().text()).toBe("Arsenal"); expect($(".dp-hero-monogram").text()).toBe("CHE");
   });
 });

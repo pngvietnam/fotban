@@ -1,0 +1,20 @@
+/* Match detail hero and back link from prototype v2 (domain-pages.css, ui-refinements.css). Buttons there are links here. */
+.dp-kicker{font-size:8px;font-weight:600;letter-spacing:1.1px;color:#7c986a;line-height:1.9}
+.dp-back{display:block;font-size:9px;color:#87a071;margin:0 0 24px;padding:0;line-height:1.9;text-align:left}
+.dp-match-hero{padding:30px;background:#163e2e;border:1px solid #24523b;border-radius:12px;color:#e6f2d9;text-align:center}
+.dp-match-hero>.dp-kicker{color:#a9ca88}
+.dp-match-hero>div{display:flex;align-items:center;justify-content:center;gap:55px;margin:30px 0}
+.dp-match-hero>div>:is(a,span:not(:nth-child(2))){display:flex;flex-direction:column;align-items:center;gap:15px;width:170px}
+.dp-match-hero img{height:70px;width:70px;object-fit:contain}
+.dp-match-hero b{font-size:20px;font-weight:550;line-height:1.6}
+.dp-match-hero strong{font-size:48px;font-weight:550;letter-spacing:-1px;line-height:1;white-space:nowrap;color:#d4ecb1}
+.dp-match-hero small{display:block;font-size:9px;color:#9cbe87;line-height:1.9;margin-top:14px}
+.dp-match-hero>p{font-size:8px;color:#84a475;line-height:1.9}
+@media(max-width:650px){.dp-kicker{font-size:7px;letter-spacing:.7px}.dp-back{font-size:8px;margin-bottom:20px}.dp-match-hero{padding:25px 16px}.dp-match-hero>div{gap:14px;margin:27px 0}.dp-match-hero>div>:is(a,span:not(:nth-child(2))){width:100px;gap:12px}.dp-match-hero img{height:49px;width:49px}.dp-match-hero b{font-size:13px}.dp-match-hero strong{font-size:30px}.dp-match-hero small{font-size:6px}.dp-match-hero>p{font-size:6px}}
+.fb-app .dp-kicker{font-size:var(--fb-type-meta-size);line-height:var(--fb-type-meta-line);color:var(--fb-color-muted);letter-spacing:normal}
+/* FotBan additions: crest fallback, scorers strip inside the hero, score column. */
+.dp-match-hero>div>span:nth-child(2){display:flex;flex-direction:column;align-items:center}
+.dp-hero-monogram{display:grid;place-items:center;height:70px;width:70px;border-radius:50%;background:#24523b;color:#d4ecb1;font-size:18px;font-weight:700}
+.dp-hero-scorers{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:520px;margin:-12px auto 18px;font-size:var(--fb-type-meta-size);line-height:1.9;color:#b9d6a3}
+.dp-hero-scorers>ul{margin:0;padding:0;list-style:none}
+@media(max-width:650px){.dp-hero-monogram{height:49px;width:49px;font-size:13px}.dp-hero-scorers{gap:12px;font-size:var(--fb-type-caption-size)}}

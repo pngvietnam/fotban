@@ -49,6 +49,17 @@ export async function listMatches(db: PrismaClient, input: z.infer<typeof matchR
   const total = await db.match.count({ where });
   return { matches: rows.map((row) => ({ ...row, attribution: dataSources[row.provider]?.attribution ?? null })), page: input.page, pageSize: 50, total };
 }
+/** Every match on the given Vietnam calendar days, optionally only those of some clubs. */
+export async function listMatchesOnDays(db: PrismaClient, days: string[], options: { leagueSlugs: string[]; clubIds?: string[] | null }) {
+  if (!days.length) return [];
+  const where = {
+    OR: days.map((day) => ({ kickoffAt: dateBounds(day, day, matchTimeZone) })),
+    league: { slug: { in: options.leagueSlugs } },
+    ...(options.clubIds ? { AND: [{ OR: [{ homeClubId: { in: options.clubIds } }, { awayClubId: { in: options.clubIds } }] }] } : {}),
+  };
+  const rows = await db.match.findMany({ where, select: matchSelect, orderBy: [{ kickoffAt: "asc" }, { id: "asc" }], take: 400 });
+  return rows.map((row) => ({ ...row, attribution: dataSources[row.provider]?.attribution ?? null }));
+}
 export async function readMatchBySlug(db: PrismaClient, slug: string) {
   const row = await db.match.findUnique({ where: { slug }, select: { ...matchSelect,
     events: { select: { type: true, minute: true, addedMinute: true, detail: true, provider: true, playerName: true, relatedPlayerName: true, club: { select: { id: true, name: true } }, player: { select: { id: true, name: true } }, relatedPlayer: { select: { id: true, name: true } } }, orderBy: [{ minute: "asc" }, { addedMinute: "asc" }, { externalId: "asc" }], take: 200 },

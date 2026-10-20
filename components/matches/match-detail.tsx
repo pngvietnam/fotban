@@ -1,10 +1,8 @@
-import Link from "next/link";
 import type { MatchDetail } from "../../types/match-ui";
 import { formatMatchDate, formatMatchTime, formatPersonName, formatRound, formatUpdated, isMatchStale, teamName } from "../../lib/match-presentation";
 import { MatchAttribution } from "./match-attribution";
-import { MatchScore } from "./match-score";
-import { MatchStatusBadge } from "./match-status";
-import { TeamIdentity } from "./team-identity";
+import { BackToSchedule } from "./timeline-client";
+import { MatchHero } from "./match-hero";
 import { FollowLink } from "../account/follow-link";
 import { MatchHighlight } from "./match-highlight";
 import type { VerifiedHighlight } from "../../types/video-provider";
@@ -14,7 +12,7 @@ import { matchTabHref, type MatchTab } from "../../lib/match-tabs";
 import { MatchTabsView } from "./match-tabs";
 import { LineupsView } from "./match-lineups";
 import { StatsTab, type PlayerStatView, type PlayerTeamFilter } from "./match-stats-extra";
-import { EventsList, FormPanel, HeadToHeadPanel, MatchReviewCard, NextMatches, Scorers, StandingsPanel, TopStats, Unavailable } from "./match-tab-views";
+import { EventsList, FormPanel, HeadToHeadPanel, MatchReviewCard, NextMatches, StandingsPanel, TopStats, Unavailable } from "./match-tab-views";
 import type { MatchReview } from "../../lib/match-review";
 
 const weatherText: Record<string, string> = { "clear day": "Trời quang", "clear night": "Trời quang", "partly cloudy day": "Ít mây", "partly cloudy night": "Ít mây", cloudy: "Nhiều mây", rain: "Mưa", snow: "Tuyết", sleet: "Mưa tuyết", wind: "Gió mạnh", fog: "Sương mù" };
@@ -28,22 +26,9 @@ export function MatchDetailView({ match, now, highlight, relatedVideos = [], tab
   const venueName = match.venue || match.venueInfo?.name || null;
   const weather = formatWeather(match.venueInfo);
   return <>
-    <Link href="/matches" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-950"><span aria-hidden="true">←</span> Các trận đấu</Link>
-    <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-      <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{match.league.name}{match.round ? ` · ${formatRound(match.round)}` : ""}</p><h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Chi tiết trận đấu</h1></div>
-      <MatchStatusBadge status={match.status} />
-    </div>
-    <section aria-label={`${teamName(match.homeClub, "home", true)} gặp ${teamName(match.awayClub, "away", true)}`} className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-      <div className="h-1.5 bg-[#c7f36b]" />
-      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 py-9 sm:gap-6 sm:px-12 sm:py-14">
-        <TeamIdentity team={match.homeClub} side="home" large /><MatchScore match={match} large /><TeamIdentity team={match.awayClub} side="away" large />
-      </div>
-      <Scorers match={match} />
-      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-slate-100 bg-slate-50 px-5 py-4 text-center text-xs leading-6 text-slate-600">
-        <span><strong className="font-semibold text-slate-900">{formatMatchTime(match.kickoffAt)}</strong> · {formatMatchDate(match.kickoffAt, true)}</span>
-        <span>{venueName || "Chưa có dữ liệu sân đấu"}</span>
-      </div>
-    </section>
+    <BackToSchedule className="dp-back">← Quay lại lịch đấu</BackToSchedule>
+    <h1 className="sr-only">Chi tiết trận đấu: {teamName(match.homeClub, "home", true)} – {teamName(match.awayClub, "away", true)}</h1>
+    <MatchHero match={match} now={now} venueName={venueName} />
     <MatchTabsView slug={match.slug} active={tab} />
     {tab === "du-kien" && <div className="mt-6 space-y-6">
       {review && <MatchReviewCard review={review} now={now} />}

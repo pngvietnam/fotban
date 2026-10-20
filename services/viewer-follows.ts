@@ -8,7 +8,7 @@ import type { FeedFilters } from "../types/feed-card";
 import { FollowingService, type ActiveUser } from "./following";
 import { followFixtures, summarizeFollows, type FollowFixtures } from "./following-feed";
 
-export type ViewerFollows = { signedIn: boolean; follow?: NonNullable<FeedFilters["follow"]>; fixtures?: FollowFixtures };
+export type ViewerFollows = { signedIn: boolean; follow?: NonNullable<FeedFilters["follow"]>; fixtures?: FollowFixtures; clubs?: { id: string; name: string }[] };
 
 /** What a signed-in viewer follows, if anything; any failure just means the generic top stories. */
 export async function viewerFollows(now: Date, options: { fixtures?: boolean } = {}): Promise<ViewerFollows> {
@@ -22,6 +22,6 @@ export async function viewerFollows(now: Date, options: { fixtures?: boolean } =
     if (!follows.length) return { signedIn: true };
     const summary = await summarizeFollows(database, follows);
     const follow = { entityIds: summary.entityIds, leagueSlugs: summary.leagueSlugs };
-    return options.fixtures === false ? { signedIn: true, follow } : { signedIn: true, follow, fixtures: await followFixtures(database, summary.clubs.map((club) => club.id), now) };
+    return options.fixtures === false ? { signedIn: true, follow, clubs: summary.clubs } : { signedIn: true, follow, clubs: summary.clubs, fixtures: await followFixtures(database, summary.clubs.map((club) => club.id), now) };
   } catch { logger.warn({ event: "viewer_follows_unavailable" }); return { signedIn: true }; }
 }

@@ -70,12 +70,13 @@ export function EventsList({ match }: { match: MatchDetail }) {
   </section>;
 }
 /** Goal scorers under the scoreboard, per side. */
-export function Scorers({ match }: { match: MatchDetail }) {
+/** Goal scorers under the score; `className` restyles the strip (the match hero uses its own). */
+export function Scorers({ match, className = "grid grid-cols-2 gap-6 border-t border-slate-100 px-5 py-3 text-xs leading-6 text-slate-600" }: { match: MatchDetail; className?: string }) {
   const goals = match.events.filter((event) => isGoal(event.type));
   if (!goals.length) return null;
   const side = (home: boolean) => goals.filter((event) => Boolean(match.homeClub?.id && event.club?.id === match.homeClub.id) === home)
     .map((event, index) => <li key={index}>{personName(event.player, event.playerName) ?? "Bàn thắng"} {minuteText(event)}{event.type === "PENALTY" ? " (pen)" : event.type === "OWN_GOAL" ? " (phản lưới)" : ""}</li>);
-  return <div className="grid grid-cols-2 gap-6 border-t border-slate-100 px-5 py-3 text-xs leading-6 text-slate-600">
+  return <div className={className}>
     <ul aria-label="Bàn thắng đội nhà" className="text-right">{side(true)}</ul><ul aria-label="Bàn thắng đội khách">{side(false)}</ul>
   </div>;
 }
