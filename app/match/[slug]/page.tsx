@@ -6,7 +6,7 @@ import { loadMatchDetail, readMatchBySlug } from "@/services/match-ui-data";
 import { MatchShell } from "@/components/matches/match-shell";
 import { MatchDetailView } from "@/components/matches/match-detail";
 import { MatchState } from "@/components/matches/match-state";
-import { readVerifiedHighlight } from "@/services/video-query";
+import { readRelatedVideos, readVerifiedHighlight } from "@/services/video-query";
 import { VideoStore } from "@/services/video-store";
 import { prismaSyncDatabase } from "@/lib/sync-database";
 import type { ReactNode } from "react";
@@ -29,9 +29,9 @@ export default async function MatchPage({ params, searchParams }: { params: Prom
     return readMatchBySlug(db, slug);
   }, () => logger.error({ requestId: crypto.randomUUID() }, "matches.ui_detail_failed"));
   if (result.kind === "not-found") notFound();
-  let highlight = null;
+  let highlight = null; let relatedVideos: Awaited<ReturnType<typeof readRelatedVideos>> = [];
   if (result.kind === "ready" && result.match.status === "FINISHED") {
-    try { const db = getDatabase(); if (db) highlight = await readVerifiedHighlight(new VideoStore(prismaSyncDatabase(db)), result.match.id); }
+    try { const db = getDatabase(); if (db) { const store = new VideoStore(prismaSyncDatabase(db)); highlight = await readVerifiedHighlight(store, result.match.id); relatedVideos = await readRelatedVideos(store, result.match.id); } }
     catch { logger.warn({ requestId: crypto.randomUUID() }, "video.ui_highlight_unavailable"); }
   }
   if (!tab) notFound();
@@ -59,5 +59,5 @@ export default async function MatchPage({ params, searchParams }: { params: Prom
       }
     }
   }
-  return <MatchShell>{result.kind === "ready" ? <MatchDetailView match={result.match} highlight={highlight} now={now} tab={tab} hub={hub} news={news} review={review} statsView={parsePlayerStatView(query.bang)} statsTeam={parsePlayerTeamFilter(query.doi)} /> : <><h1 className="text-2xl font-bold">Chi tiết trận đấu</h1><MatchState kind="error" /></>}</MatchShell>;
+  return <MatchShell>{result.kind === "ready" ? <MatchDetailView match={result.match} highlight={highlight} relatedVideos={relatedVideos} now={now} tab={tab} hub={hub} news={news} review={review} statsView={parsePlayerStatView(query.bang)} statsTeam={parsePlayerTeamFilter(query.doi)} /> : <><h1 className="text-2xl font-bold">Chi tiết trận đấu</h1><MatchState kind="error" /></>}</MatchShell>;
 }

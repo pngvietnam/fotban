@@ -1490,3 +1490,8 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - The match highlight plays on the page in YouTube's own embedded player (privacy-enhanced `youtube-nocookie.com`, loaded only when the viewer presses play; YouTube's thumbnail is the play button). Nothing is downloaded or stored; the "Xem trên YouTube" link stays.
 - Embeddability comes from YouTube's public oEmbed endpoint (200 = embeddable, 401/403 = owner turned embedding off → link only, 404 = gone), checked when a highlight is first stored and re-checked daily. All 10 current highlights are embeddable.
 - The highlight block moved up on Dữ kiện, right under the match review.
+
+## Match video gallery
+
+- "Video trận đấu": the highlight in a large player (YouTube embed on play), title, "channel · language · time" and an "Mở trên YouTube" button; the long disclaimer is gone. Beside it, "Video về trận đấu (n)": the match's other clips from the same reviewed channel; picking one plays it in the large player.
+- Related clips (`validateRelatedClip`, stored as validated `RELATED_CLIP`, never chosen as the highlight): same reviewed channel and competition mapping, posted from kickoff to 48 h after, naming one of the clubs or a lineup player (full name or "first last"), not a preview/prediction/watch-along, not a matchday round-up ("THẾ GIỚI NGOẠI HẠNG (19/10)", "TỔNG HỢP … VÒNG 9"). Example: Tottenham–Coventry shows the highlight plus Maddison, Ben Davies and Marmoush goals and a defensive-error clip.

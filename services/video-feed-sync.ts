@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { registeredChannel } from "../providers/youtube/sources";
 import type { YouTubeFeedReader } from "../providers/youtube/rss";
 import { VideoProviderError, type VideoCandidate, type VideoSource } from "../types/video-provider";
-import { normalizedVideoText, sourceAllowed, validateVideo } from "./video-policy";
+import { normalizedVideoText, sourceAllowed, validateRelatedClip, validateVideo } from "./video-policy";
 import type { VideoStore } from "./video-store";
 
 export type FeedSyncReport = { sources: number; feeds: number; feedVideos: number; matches: number; stored: number; primary: number; rechecked: number; removed: number; errors: number; skipped: string };
@@ -53,7 +53,9 @@ export class VideoFeedSync {
           for (const { source, mapping } of mappings) {
             const feed = feeds.get(source.id)!;
             for (const video of feed.videos) {
-              if (!validateVideo(video, feed.source, mapping, match, now).valid) continue;
+              // The match highlight, or another clip about the match (goal, moment, reaction) listed beside it.
+              const related = !validateVideo(video, feed.source, mapping, match, now).valid;
+              if (related && !validateRelatedClip(video, feed.source, mapping, match, now).valid) continue;
               // Whether the owner allows playing it on other sites: asked once, then re-checked daily below.
               let embedAllowed = known.get(video.externalId) ?? null;
               if (embedAllowed === null) {
@@ -61,7 +63,7 @@ export class VideoFeedSync {
                 if (status === "GONE") continue;
                 embedAllowed = status === null ? null : status === "EMBEDDABLE";
               }
-              await this.store.persist(match, feed.source, mapping, { ...video, embedAllowed }, now); report.stored++;
+              await this.store.persist(match, feed.source, mapping, { ...video, embedAllowed }, now, related); report.stored++;
             }
           }
           if (await this.store.select(match, now)) report.primary++;
@@ -75,7 +77,7 @@ export class VideoFeedSync {
           const status = await this.reader.embedStatus(row.externalId, row.channelName);
           if (status === "GONE") { await this.store.missing([row.externalId], now); report.removed++; continue; }
           const [match] = await this.store.matches(now, row.matchId);
-          if (match) { await this.store.persist(match, stored.source, stored.mapping, { ...stored.video, embedAllowed: status === "EMBEDDABLE" }, now); report.rechecked++; await this.store.select(match, now); }
+          if (match) { await this.store.persist(match, stored.source, stored.mapping, { ...stored.video, embedAllowed: status === "EMBEDDABLE" }, now, row.validationReason === "RELATED_CLIP"); report.rechecked++; await this.store.select(match, now); }
         } catch (error) { report.errors++; code = error instanceof VideoProviderError ? error.code : "RECHECK_ERROR"; }
       }
       return report;

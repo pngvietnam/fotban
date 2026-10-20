@@ -103,7 +103,7 @@ describe("Match UI", () => {
     const html = render(<MatchDetailView match={uiDetail()} now={uiNow} />);
     for (const text of ["Chi tiết trận đấu", "Fixture Alpha FC", "Fixture Beta FC", "Fixture Ground", "2026/2027", "Vòng 8", "Asia/Ho_Chi_Minh"]) expect(html).toContain(text);
     for (const text of ["Kiểm soát bóng", "Số cú sút", "AI Match", "Fan Pulse", "undefined", "<img"]) expect(html).not.toContain(text);
-    expect(html).toContain("Chưa tìm thấy highlight tiếng Việt từ nguồn được xác minh.");
+    expect(html).toContain("Chưa có highlight tiếng Việt từ kênh bản quyền.");
     expect(html).not.toContain("https://www.youtube.com/watch?v=");
   });
   it("shows events/stats only when persisted records actually exist", () => {

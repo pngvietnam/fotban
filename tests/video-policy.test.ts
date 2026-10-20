@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyVideo, primaryVideo, sourceAllowed, statedDates, validateVideo } from "../services/video-policy";
+import { classifyVideo, primaryVideo, sourceAllowed, statedDates, validateRelatedClip, validateVideo } from "../services/video-policy";
 import { videoCandidate, videoMapping, videoMatch, videoNow, videoSource } from "./fixtures/videos";
 
 const entry = () => ({ video: videoCandidate(), source: videoSource(), mapping: videoMapping() });
@@ -75,5 +75,24 @@ describe("titles used by Vietnamese rights holders (verified 2026-10-20 on their
     const cl = { ...videoMatch, leagueSlug: "champions-league" };
     expect(at("HIGHLIGHTS: ARSENAL - CHELSEA | UEFA CHAMPIONS LEAGUE 26/27", undefined, cl)).toBe(true);
     expect(at("HIGHLIGHTS: ARSENAL - CHELSEA | CÚP C1 CHÂU ÂU", undefined, cl)).toBe(true);
+  });
+});
+
+describe("related clips about a match", () => {
+  const related = (title: string, publishedAt = "2026-10-16T21:00:00Z", players: string[] = []) => validateRelatedClip(videoCandidate({ title, description: null, publishedAt }), videoSource(), videoMapping(), { ...videoMatch, players }, videoNow);
+  it("keeps clips naming one of the clubs or a lineup player, posted after kickoff", () => {
+    expect(related("Saka sút xa giúp Arsenal vượt lên").valid).toBe(true);
+    expect(related("JAMES MADDISON \"NỔ\" SIÊU PHẨM SÚT XA", undefined, ["James Daniel Maddison"]).valid).toBe(true);
+    expect(related("Bàn thắng đẹp nhất mùa giải có lẽ đã lộ diện").reason).toBe("TEAMS");
+    expect(related("Arsenal sẵn sàng cho trận đấu", "2026-10-16T12:00:00Z").reason).toBe("TIME");
+  });
+  it("leaves out matchday round-ups, previews and watch-alongs", () => {
+    expect(related("THẾ GIỚI NGOẠI HẠNG (17/10): ARSENAL NHỌC NHẰN").reason).toBe("ROUNDUP");
+    expect(related("TỔNG HỢP BÀN THẮNG VÒNG 7 | ARSENAL").reason).toBe("ROUNDUP");
+    expect(related("Nhận định Arsenal trận tới").reason).toBe("KIND");
+  });
+  it("is never chosen as the match highlight", () => {
+    const clip = { video: videoCandidate({ title: "Saka sút xa giúp Arsenal vượt lên", publishedAt: "2026-10-16T21:00:00Z" }), source: videoSource(), mapping: videoMapping() };
+    expect(primaryVideo([clip], videoMatch, videoNow)).toBeNull();
   });
 });

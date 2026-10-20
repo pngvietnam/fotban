@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { SyncDatabase } from "../lib/sync-database";
 import { initialVideoSources } from "../providers/youtube/sources";
 import { videoCandidateSchema, type VideoCandidate, type VideoMapping, type VideoMatch, type VideoSource } from "../types/video-provider";
-import { primaryVideo, validateVideo } from "./video-policy";
+import { primaryVideo, validateRelatedClip, validateVideo } from "./video-policy";
 
 export type StoredVideo = { id: string; video: VideoCandidate; source: VideoSource; mapping: VideoMapping; lastCheckedAt: string; selectedAsPrimary: boolean; validationStatus: string };
 type RegistryRow = { source: VideoSource; mapping: VideoMapping };
@@ -29,20 +29,20 @@ export class VideoStore {
     return this.db.query<RegistryRow>(`SELECT to_jsonb(s) AS source,to_jsonb(c) AS mapping FROM "VideoSourceCompetition" c JOIN "VideoSource" s ON s.id=c."videoSourceId" WHERE c."competitionId"=$1::uuid AND c.season=$2 AND c.enabled AND s.enabled AND s.verified ORDER BY c.priority,s.priority,s.id LIMIT 10`, [match.leagueId, match.season]);
   }
   async matches(now: Date, matchId?: string): Promise<VideoMatch[]> {
-    const rows = await this.db.query<VideoMatch & { kickoffAt: Date }>(`SELECT m.id,m."leagueId",l.slug AS "leagueSlug",s.name AS season,m."kickoffAt",m.status,h.aliases || ARRAY[h.name,h."shortName"] AS home,a.aliases || ARRAY[a.name,a."shortName"] AS away FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Season" s ON s.id=m."seasonId" JOIN "Club" h ON h.id=m."homeClubId" JOIN "Club" a ON a.id=m."awayClubId" WHERE m.status='FINISHED' AND l.slug IN ('premier-league','la-liga','champions-league') AND ${matchId ? 'm.id=$1::uuid' : 'm."kickoffAt">=$1::timestamptz-interval \'7 days\' AND m."kickoffAt"<$1::timestamptz'} ORDER BY m."kickoffAt" DESC,m.id LIMIT 3`, matchId ? [matchId] : [now]);
-    return rows.map((row) => ({ ...row, kickoffAt: new Date(row.kickoffAt).toISOString(), home: row.home.filter(Boolean), away: row.away.filter(Boolean) }));
+    const rows = await this.db.query<VideoMatch & { kickoffAt: Date }>(`SELECT m.id,m."leagueId",l.slug AS "leagueSlug",s.name AS season,m."kickoffAt",m.status,h.aliases || ARRAY[h.name,h."shortName"] AS home,a.aliases || ARRAY[a.name,a."shortName"] AS away,(SELECT array_agg(DISTINCT COALESCE(NULLIF(p->>'fullName',''),p->>'name')) FROM "MatchLineup" ml, jsonb_array_elements(ml.players) p WHERE ml."matchId"=m.id) AS players FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Season" s ON s.id=m."seasonId" JOIN "Club" h ON h.id=m."homeClubId" JOIN "Club" a ON a.id=m."awayClubId" WHERE m.status='FINISHED' AND l.slug IN ('premier-league','la-liga','champions-league') AND ${matchId ? 'm.id=$1::uuid' : 'm."kickoffAt">=$1::timestamptz-interval \'7 days\' AND m."kickoffAt"<$1::timestamptz'} ORDER BY m."kickoffAt" DESC,m.id LIMIT 3`, matchId ? [matchId] : [now]);
+    return rows.map((row) => ({ ...row, kickoffAt: new Date(row.kickoffAt).toISOString(), home: row.home.filter(Boolean), away: row.away.filter(Boolean), players: (row.players ?? []).filter(Boolean) }));
   }
   /** Finished matches recent enough to still be in a channel feed (the feed keeps about the last 15 uploads). */
   async recentFinished(now: Date, days = 3, limit = 80): Promise<VideoMatch[]> {
-    const rows = await this.db.query<VideoMatch & { kickoffAt: Date }>(`SELECT m.id,m."leagueId",l.slug AS "leagueSlug",s.name AS season,m."kickoffAt",m.status,h.aliases || ARRAY[h.name,h."shortName"] AS home,a.aliases || ARRAY[a.name,a."shortName"] AS away
+    const rows = await this.db.query<VideoMatch & { kickoffAt: Date }>(`SELECT m.id,m."leagueId",l.slug AS "leagueSlug",s.name AS season,m."kickoffAt",m.status,h.aliases || ARRAY[h.name,h."shortName"] AS home,a.aliases || ARRAY[a.name,a."shortName"] AS away,(SELECT array_agg(DISTINCT COALESCE(NULLIF(p->>'fullName',''),p->>'name')) FROM "MatchLineup" ml, jsonb_array_elements(ml.players) p WHERE ml."matchId"=m.id) AS players
       FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Season" s ON s.id=m."seasonId" JOIN "Club" h ON h.id=m."homeClubId" JOIN "Club" a ON a.id=m."awayClubId"
       WHERE m.status='FINISHED' AND l.slug IN ('premier-league','la-liga','champions-league') AND m."kickoffAt">=$1::timestamptz-($2::int * interval '1 day') AND m."kickoffAt"<$1::timestamptz
       ORDER BY m."kickoffAt" DESC,m.id LIMIT $3`, [now, days, limit]);
-    return rows.map((row) => ({ ...row, kickoffAt: new Date(row.kickoffAt).toISOString(), home: row.home.filter(Boolean), away: row.away.filter(Boolean) }));
+    return rows.map((row) => ({ ...row, kickoffAt: new Date(row.kickoffAt).toISOString(), home: row.home.filter(Boolean), away: row.away.filter(Boolean), players: (row.players ?? []).filter(Boolean) }));
   }
   /** Stored videos of recent matches last checked before `before`, for the keyless availability re-check. */
   async dueForRecheck(now: Date, before: Date, limit = 40) {
-    return this.db.query<{ matchId: string; externalId: string; channelName: string }>(`SELECT v."matchId",v."externalId",v."channelName" FROM "Video" v JOIN "Match" m ON m.id=v."matchId"
+    return this.db.query<{ matchId: string; externalId: string; channelName: string; validationReason: string | null }>(`SELECT v."matchId",v."externalId",v."channelName",v."validationReason" FROM "Video" v JOIN "Match" m ON m.id=v."matchId"
       WHERE v.provider='YOUTUBE' AND v."validationStatus"='VALIDATED' AND v."lastCheckedAt"<$2::timestamptz AND m."kickoffAt">=$1::timestamptz-interval '30 days' ORDER BY v."lastCheckedAt" LIMIT $3`, [now, before, limit]);
   }
   async stored(matchId: string): Promise<StoredVideo[]> {
@@ -52,8 +52,10 @@ export class VideoStore {
       return parsed.success && row.lastCheckedAt ? [{ id, video: parsed.data, source, mapping, lastCheckedAt: new Date(String(row.lastCheckedAt)).toISOString(), selectedAsPrimary: row.selectedAsPrimary === true, validationStatus: String(row.validationStatus) }] : [];
     });
   }
-  async persist(match: VideoMatch, source: VideoSource, mapping: VideoMapping, video: VideoCandidate, now: Date) {
-    const checked = validateVideo(video, source, mapping, match, now);
+  /** related: store a clip that is not a highlight but passes the related-clip rule as validated "RELATED_CLIP". */
+  async persist(match: VideoMatch, source: VideoSource, mapping: VideoMapping, video: VideoCandidate, now: Date, related = false) {
+    const highlight = validateVideo(video, source, mapping, match, now);
+    const checked = !highlight.valid && related ? validateRelatedClip(video, source, mapping, match, now) : highlight;
     const trust = ({ RIGHTS_HOLDER: "RIGHTS_HOLDER", OFFICIAL_LEAGUE: "LEAGUE_OFFICIAL", OFFICIAL_CLUB: "CLUB_OFFICIAL" } as Record<string, string>)[source.sourceType] ?? "REVIEWED";
     await this.db.query(`INSERT INTO "Video" (id,provider,"externalId",title,"channelId","channelName",url,"publishedAt","durationSeconds",language,description,"videoType","availabilityStatus","vietnamAvailability","embedAllowed","videoSourceId","sourceMappingId","matchId","trustLevel","validationStatus","validationReason","checkedAt","lastCheckedAt","collectedAt","updatedAt") VALUES ($1::uuid,'YOUTUBE',$2,$3,$4,$5,$6,$7::timestamptz,$8,$9,$10,$11,$12,$13,$14,$15::uuid,$16::uuid,$17::uuid,$18::"VideoTrustLevel",$19::"ValidationStatus",$20,$21::timestamptz,$21::timestamptz,$21::timestamptz,$21::timestamptz) ON CONFLICT (provider,"externalId") DO UPDATE SET title=excluded.title,"channelId"=excluded."channelId","channelName"=excluded."channelName",description=excluded.description,"publishedAt"=excluded."publishedAt","durationSeconds"=excluded."durationSeconds",language=excluded.language,"videoType"=excluded."videoType","availabilityStatus"=excluded."availabilityStatus","vietnamAvailability"=excluded."vietnamAvailability","embedAllowed"=excluded."embedAllowed","sourceMappingId"=excluded."sourceMappingId","trustLevel"=excluded."trustLevel","validationStatus"=excluded."validationStatus","validationReason"=excluded."validationReason","selectedAsPrimary"=false,"checkedAt"=excluded."checkedAt","lastCheckedAt"=excluded."lastCheckedAt","updatedAt"=excluded."updatedAt" WHERE "Video"."matchId"=excluded."matchId" AND "Video"."videoSourceId"=excluded."videoSourceId"`, [randomUUID(), video.externalId, video.title, video.channelId, video.channelName, `https://www.youtube.com/watch?v=${video.externalId}`, video.publishedAt, video.durationSeconds, video.language, video.description, checked.kind, video.availability, video.vietnamAvailability, video.embedAllowed, source.id, mapping.id, match.id, trust, checked.valid ? "VALIDATED" : video.availability !== "AVAILABLE" ? "UNAVAILABLE" : "REJECTED", checked.reason, now]);
   }

@@ -23,7 +23,7 @@ function formatWeather(info: MatchDetail["venueInfo"]) {
   if (!info || (!info.weather && info.temperatureC === null)) return null;
   return [info.weather ? weatherText[info.weather.toLowerCase()] ?? info.weather : null, info.temperatureC !== null ? `${Math.round(info.temperatureC)}°C` : null].filter(Boolean).join(" · ");
 }
-export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, news, review, statsView = "hang-dau", statsTeam = "all" }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode; /** The lead publisher story about this match. */ review?: MatchReview | null; /** Player statistics table view and team filter on the Thống kê tab. */ statsView?: PlayerStatView; statsTeam?: PlayerTeamFilter }) {
+export function MatchDetailView({ match, now, highlight, relatedVideos = [], tab = "du-kien", hub, news, review, statsView = "hang-dau", statsTeam = "all" }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; /** The match's other clips from its reviewed channels. */ relatedVideos?: VerifiedHighlight[]; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode; /** The lead publisher story about this match. */ review?: MatchReview | null; /** Player statistics table view and team filter on the Thống kê tab. */ statsView?: PlayerStatView; statsTeam?: PlayerTeamFilter }) {
   const updated = formatUpdated(match.lastUpdatedAt);
   const venueName = match.venue || match.venueInfo?.name || null;
   const weather = formatWeather(match.venueInfo);
@@ -47,7 +47,7 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
     <MatchTabsView slug={match.slug} active={tab} />
     {tab === "du-kien" && <div className="mt-6 space-y-6">
       {review && <MatchReviewCard review={review} now={now} />}
-      {match.status === "FINISHED" && <MatchHighlight highlight={highlight} />}
+      {match.status === "FINISHED" && <MatchHighlight highlight={highlight} related={relatedVideos} />}
       <TopStats match={match} href={matchTabHref(match.slug, "thong-ke")} />
       {match.events.length > 0 && <EventsList match={match} />}
       {hub && <FormPanel match={match} hub={hub} />}

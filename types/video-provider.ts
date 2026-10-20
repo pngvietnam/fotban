@@ -9,7 +9,8 @@ export const videoCandidateSchema = z.object({
   availability: z.enum(availability), vietnamAvailability: z.enum(["AVAILABLE", "UNAVAILABLE", "UNKNOWN"]), embedAllowed: z.boolean().nullable(),
 }).strict();
 export type VideoCandidate = z.infer<typeof videoCandidateSchema>;
-export type VideoMatch = { id: string; leagueId: string; leagueSlug: string; season: string; kickoffAt: string; status: string; home: string[]; away: string[] };
+/** players: full names (two words or more) from the match's stored lineups, used only for related clips. */
+export type VideoMatch = { id: string; leagueId: string; leagueSlug: string; season: string; kickoffAt: string; status: string; home: string[]; away: string[]; players?: string[] };
 export type VideoSource = { id: string; platform: string; channelId: string | null; channelHandle: string; name: string; country: string; language: string; verified: boolean; enabled: boolean; priority: number; sourceType: string; lastVerifiedAt: string | null; reviewReference: string };
 export type VideoMapping = { id: string; videoSourceId: string; competitionId: string; season: string; market: string; language: string; rightsType: string; priority: number; validFrom: string; validTo: string; enabled: boolean; evidenceUrl: string };
 export interface VideoProvider {

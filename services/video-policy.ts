@@ -56,6 +56,26 @@ export function validateVideo(video: VideoCandidate, source: VideoSource, mappin
   if (statedDates(video.title).some((stated) => stated !== date)) return { valid: false, reason: "DATE", kind };
   return { valid: true, reason: "BOTH_TEAMS_COMPETITION_TIME_REVIEWED_SOURCE", kind };
 }
+/**
+ * A clip about the match that is not its highlight (a goal, a moment, the coach's reaction): from
+ * the same reviewed channel and competition mapping, public, posted from kickoff to 48 hours after,
+ * naming at least one of the two clubs or a player from the match's lineups, and not a preview,
+ * prediction or watch-along. It is listed next to the highlight, never chosen as it.
+ */
+export function validateRelatedClip(video: VideoCandidate, source: VideoSource, mapping: VideoMapping, match: VideoMatch, now: Date) {
+  const title = normalizedVideoText(video.title); const kind = classifyVideo(video.title);
+  if (!sourceAllowed(source, mapping, match, now) || sourceRank(source, mapping) > 4 || video.channelId !== source.channelId || match.status !== "FINISHED") return { valid: false, reason: "SOURCE_OR_MATCH", kind };
+  if (video.availability !== "AVAILABLE" || video.vietnamAvailability === "UNAVAILABLE") return { valid: false, reason: "UNAVAILABLE", kind };
+  if (["WATCH_ALONG", "ANALYSIS"].includes(kind) || /nhan dinh|du doan|soi keo|truc tiep/.test(title)) return { valid: false, reason: "KIND", kind };
+  // Round-ups of a whole matchday ("THẾ GIỚI NGOẠI HẠNG (19/10)", "TỔNG HỢP BÀN THẮNG VÒNG 9") are not about one match.
+  if (/the gioi ngoai hang|tong hop|ban tin|diem tin|\bvong \d+\b|\bmatchday\b/.test(title) || statedDates(video.title).length) return { valid: false, reason: "ROUNDUP", kind };
+  const published = Date.parse(video.publishedAt); const kickoff = Date.parse(match.kickoffAt);
+  if (published < kickoff || published > kickoff + 48 * 3600000 || published > now.getTime()) return { valid: false, reason: "TIME", kind };
+  // Full names, plus "first last" for longer ones ("James Daniel Maddison" is titled "James Maddison").
+  const players = (match.players ?? []).flatMap((name) => { const words = name.trim().split(/\s+/); return words.length >= 3 ? [name, `${words[0]} ${words[words.length - 1]}`] : words.length === 2 ? [name] : []; });
+  if (!mention(title, match.home) && !mention(title, match.away) && !mention(title, players)) return { valid: false, reason: "TEAMS", kind };
+  return { valid: true, reason: "RELATED_CLIP", kind };
+}
 export function primaryVideo<T extends { video: VideoCandidate; source: VideoSource; mapping: VideoMapping }>(items: T[], match: VideoMatch, now: Date) {
   const kinds = ["HIGHLIGHT", "EXTENDED_HIGHLIGHT", "GOALS"];
   return items.filter((item) => validateVideo(item.video, item.source, item.mapping, match, now).valid && kinds.includes(classifyVideo(item.video.title))).sort((a, b) => sourceRank(a.source, a.mapping) - sourceRank(b.source, b.mapping) || kinds.indexOf(classifyVideo(a.video.title)) - kinds.indexOf(classifyVideo(b.video.title)) || a.mapping.priority - b.mapping.priority || a.source.priority - b.source.priority || a.video.externalId.localeCompare(b.video.externalId))[0] ?? null;
