@@ -50,7 +50,8 @@ describe("facts tab", () => {
       stat("total_passes", "400", home), stat("successful_passes", "320", home), stat("total_passes", "500", away), stat("successful_passes", "450", away), stat("fouls", "12", home), stat("fouls", "9", away)];
     const $ = load(renderToStaticMarkup(<MatchDetailView match={detail({ stats })} now={uiNow} review={review} />));
     const headings = $("h2").map((_, node) => $(node).text()).get();
-    expect(headings.slice(0, 2)).toEqual(["Tường thuật trận đấu", "Thông số nổi bật"]);
+    // A finished match: review, then its highlight, then the headline figures.
+    expect(headings.slice(0, 3)).toEqual(["Tường thuật trận đấu", "Highlight trên YouTube", "Thông số nổi bật"]);
     expect($("#match-review").parent().text()).toContain("Cùng đưa tin: Dân trí");
     expect($("[aria-label='Kiểm soát bóng: 47% - 53%']")).toHaveLength(1);
     expect($("[aria-label='Bàn thắng kỳ vọng (xG): 0.43 - 1.47']")).toHaveLength(1);
