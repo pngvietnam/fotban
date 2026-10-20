@@ -1464,3 +1464,10 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 
 - New front above the morning brief, after the reference design but with real data only: "Điểm nóng hôm nay" (top-ranked story with a publisher picture, labelled "Nhiều báo cùng đưa tin" since ranking is automatic), "90 giây bắt nhịp bóng đá" (links to the brief at `#ban-tin-sang` when it is published), "Dòng chảy bóng đá" cards with tabs Dành cho bạn (viewer's follows, else ranked) / Mới nhất (`?dong=moi-nhat`); sidebar "Nắm nhanh" (next three stories; under the hot story on phones), "Chuyển nhượng" (reported stage, never confirmed) and "Cuộc đua trên BXH" (top six, league switch `?bxh=`).
 - No stock pictures or bookmark buttons; cards without a publisher picture show the club crest. The follow loader is shared by /news and the homepage (`services/viewer-follows.ts`).
+
+## YouTube highlights check (2026-10-20)
+
+- State: no video has ever been stored (`Video` 0 rows). `YOUTUBE_API_KEY` is not set, both sources' channel IDs were never resolved, and video sync runs only from the morning scheduler, not the worker.
+- Sources are real and active (checked on their public RSS feeds): FPT Bóng Đá (`UC4LvrpNXujjbGOS4RDvr41g`) posts "HIGHLIGHTS: HOME - AWAY | … | NGOẠI HẠNG ANH 26/27" within hours; SCTV Thể Thao (`UCiWyQp2HgKX2-WQUq11V8FA`) posts "HOME - AWAY | … | LALIGA EA SPORTS 26/27". No Champions League source is registered.
+- Policy fixes: "26/27" seasons were read as a date and rejected 4 of 5 real highlights; SCTV titles without the word "highlight" were never chosen; half-time clips are now excluded; Champions League titles are recognised. Real titles are regression tests.
+- Open: the API search budget is 10 searches/day (about half a busy matchday). Proposed: discover videos from the two channels' public RSS feeds (no key, no quota) and keep the API only for optional metadata checks.

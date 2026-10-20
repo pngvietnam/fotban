@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyVideo, primaryVideo, sourceAllowed, validateVideo } from "../services/video-policy";
+import { classifyVideo, primaryVideo, sourceAllowed, statedDates, validateVideo } from "../services/video-policy";
 import { videoCandidate, videoMapping, videoMatch, videoNow, videoSource } from "./fixtures/videos";
 
 const entry = () => ({ video: videoCandidate(), source: videoSource(), mapping: videoMapping() });
@@ -44,5 +44,35 @@ describe("reviewed match highlights policy", () => {
   });
   it("rejects geo-blocks, another channel, prematch and late uploads", () => {
     for (const change of [{ vietnamAvailability: "UNAVAILABLE" as const }, { channelId: `UC${"z".repeat(22)}` }, { publishedAt: "2026-10-16T18:00:00Z" }, { publishedAt: "2026-10-20T21:00:00Z" }]) expect(primaryVideo([{ ...entry(), video: videoCandidate(change) }], videoMatch, videoNow)).toBeNull();
+  });
+});
+
+describe("titles used by Vietnamese rights holders (verified 2026-10-20 on their public feeds)", () => {
+  const at = (title: string, publishedAt = "2026-10-17T00:30:00Z", match = videoMatch) => {
+    const result = validateVideo(videoCandidate({ title, description: null, publishedAt }), videoSource(), videoMapping(), match, videoNow);
+    return result.valid && ["HIGHLIGHT", "EXTENDED_HIGHLIGHT", "GOALS"].includes(classifyVideo(title));
+  };
+  it("reads a season such as 26/27 as a season, not as a date", () => {
+    expect(at("HIGHLIGHTS: ARSENAL - CHELSEA | KỊCH TÍNH ĐẾN PHÚT CUỐI | NGOẠI HẠNG ANH 26/27")).toBe(true);
+    expect(at("HIGHLIGHTS: ARSENAL - CHELSEA | NGOẠI HẠNG ANH 2026/27")).toBe(true);
+    expect(statedDates("NGOẠI HẠNG ANH 26/27")).toEqual([]);
+    expect(statedDates("THẾ GIỚI NGOẠI HẠNG (19/10): ...")).toEqual(["19/10"]);
+    expect(statedDates("Arsenal Chelsea 19.10.2026")).toEqual(["19/10"]);
+    // A real date that is not the match day still rules the video out.
+    expect(at("HIGHLIGHTS: ARSENAL - CHELSEA (20/10) | NGOẠI HẠNG ANH 26/27")).toBe(false);
+  });
+  it("accepts SCTV-style 'HOME - AWAY | headline | COMPETITION' titles without the word highlight", () => {
+    expect(classifyVideo("REAL MADRID - SEVILLA | BƯỚC CHẠY ĐÀ QUAN TRỌNG CHO EL CLASICO | LALIGA EA SPORTS 26/27")).toBe("HIGHLIGHT");
+    expect(at("ARSENAL - CHELSEA | CHIẾN THẮNG NHẸ NHÀNG | NGOẠI HẠNG ANH 26/27")).toBe(true);
+  });
+  it("leaves out half-time clips, single moments and round-ups", () => {
+    expect(at("ARSENAL - CHELSEA | THẾ TRẬN GIẰNG CO | ĐIỂM NHẤN HIỆP 1 | NGOẠI HẠNG ANH 26/27", "2026-10-16T19:30:00Z")).toBe(false);
+    expect(at("SAKA \"NỔ\" SIÊU PHẨM SÚT XA | NGOẠI HẠNG ANH 26/27")).toBe(false);
+    expect(at("THẾ GIỚI NGOẠI HẠNG (17/10): ARSENAL NHỌC NHẰN")).toBe(false);
+  });
+  it("recognises Champions League highlights", () => {
+    const cl = { ...videoMatch, leagueSlug: "champions-league" };
+    expect(at("HIGHLIGHTS: ARSENAL - CHELSEA | UEFA CHAMPIONS LEAGUE 26/27", undefined, cl)).toBe(true);
+    expect(at("HIGHLIGHTS: ARSENAL - CHELSEA | CÚP C1 CHÂU ÂU", undefined, cl)).toBe(true);
   });
 });
