@@ -1434,3 +1434,9 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - Đội hình tab: both teams on one pitch (home left / away right on wide screens, home top / away bottom on phones), lines ordered from each team's left to right as the provider sends them; player rating chips (Highlightly box score, 0-10, ★ for the match's best), goals, own goals, cards and substitution minutes; team bar with formation and average rating; both benches with minute on, cards and ratings.
 - Box score: one extra request per finished match (`MatchDetailSync.boxScoreFetchedAt`, migration `20261020090000_match_box_scores`), merged into the stored lineup (rating, minutes, full name, per-player figures). No coach or captain data is available.
 - Fix: the provider is inconsistent about which substitution name came on; substitutions are now replayed against who is on the pitch (starters, then each change), with short/full name matching. Verified: 172 of 175 oriented, 0 wrong, 3 left as sent (names not in the lineup).
+
+## Facts tab: match review and top statistics
+
+- Dữ kiện now leads like FotMob: "Tường thuật trận đấu" (or "Trước trận đấu" for upcoming matches) picks a Vietnamese publisher story about this match from the attributed cards (linked to the match or naming both clubs; after kickoff within 48 h, or the 3 days before kickoff; roundups excluded; result-like headlines and wider coverage first; up to three feed pages). Hidden when no publisher wrote about the match (e.g. Man City–Ipswich had none).
+- "Thông số nổi bật": possession bar plus xG, shots, shots on target, big chances, accurate passes (with %), corners, fouls, yellow cards; leading side highlighted (not for fouls/cards); link to the full statistics tab.
+- Order: review, top stats, timeline, form, next matches, other related stories, highlight, match information.

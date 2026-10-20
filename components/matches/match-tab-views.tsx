@@ -6,6 +6,9 @@ import { resultLabel, resultText } from "../../lib/league-presentation";
 import { teamName } from "../../lib/match-presentation";
 import { playerPath } from "../../lib/player-presentation";
 import { FixtureItem, StandingsTable } from "../league/league-hub";
+import { NewsImage } from "../ui/news-image";
+import type { MatchReview } from "../../lib/match-review";
+import { newsRelativeTime } from "../../lib/news-presentation";
 
 const eventLabels: Record<string, string> = { GOAL: "Bàn thắng", OWN_GOAL: "Phản lưới", PENALTY: "Phạt đền", YELLOW_CARD: "Thẻ vàng", RED_CARD: "Thẻ đỏ", SUBSTITUTION: "Thay người", OTHER: "Sự kiện" };
 const panel = "rounded-2xl border border-slate-200 bg-white p-5 sm:p-6";
@@ -138,25 +141,74 @@ function StatRow({ metric, pair }: { metric: string; pair: StatPair }) {
     <div aria-hidden="true" className="mt-1.5 flex h-1.5 gap-1"><span className="rounded-full bg-slate-900" style={{ width: `${homeShare * 100}%` }} /><span className="flex-1 rounded-full bg-lime-500" /></div>
   </li>;
 }
-/**
- * Home vs away bars per metric, grouped like FotMob's statistics tab. summaryHref: show only the
- * "Tổng quan" group with a link to the full tab (nothing at all when there are no figures).
- */
-export function StatsList({ match, summaryHref }: { match: MatchDetail; summaryHref?: string }) {
+/** Home vs away bars per metric, grouped like FotMob's statistics tab. */
+export function StatsList({ match }: { match: MatchDetail }) {
   const pairs = statPairs(match);
-  if (!pairs.size) return summaryHref ? null : <Unavailable>Chưa có dữ liệu thống kê (kiểm soát bóng, số cú sút, phạt góc…) cho trận này.</Unavailable>;
+  if (!pairs.size) return <Unavailable>Chưa có dữ liệu thống kê (kiểm soát bóng, số cú sút, phạt góc…) cho trận này.</Unavailable>;
   const listed = new Set(statGroups.flatMap((group) => group.metrics));
   const groups = [...statGroups, { title: "Khác", metrics: [...pairs.keys()].filter((metric) => !listed.has(metric)).sort() }]
-    .map((group) => ({ title: group.title, metrics: [...new Set(group.metrics)].filter((metric) => pairs.has(metric)) })).filter((group) => group.metrics.length)
-    .slice(0, summaryHref ? 1 : undefined);
+    .map((group) => ({ title: group.title, metrics: [...new Set(group.metrics)].filter((metric) => pairs.has(metric)) })).filter((group) => group.metrics.length);
   return <section aria-labelledby="match-stats" className={panel}>
-    <h2 id="match-stats" className="mb-2 font-bold">{summaryHref ? "Thống kê nổi bật" : "Thống kê trận đấu"}</h2>
+    <h2 id="match-stats" className="mb-2 font-bold">Thống kê trận đấu</h2>
     <div className="mb-1 flex justify-between gap-4 text-xs font-semibold text-slate-500"><span>{teamName(match.homeClub, "home", true)}</span><span className="text-right">{teamName(match.awayClub, "away", true)}</span></div>
     {groups.map((group) => <div key={group.title} className="mt-5">
       <h3 className="mb-3 text-center text-xs font-bold uppercase tracking-wide text-slate-500">{group.title}</h3>
       <ul className="space-y-4">{group.metrics.map((metric) => <StatRow key={metric} metric={metric} pair={pairs.get(metric)!} />)}</ul>
     </div>)}
-    {summaryHref && <Link href={summaryHref} className="mt-5 block text-center text-sm font-semibold underline-offset-4 hover:underline">Xem tất cả thống kê →</Link>}
+  </section>;
+}
+
+/** FotMob's "Thống kê hàng đầu": a possession bar, then the figures fans look at first. */
+const topMetrics = ["expected_goals", "total_shots", "shots", "shots_on_target", "big_chances_created", "successful_passes", "corners", "corner_kicks", "fouls", "yellow_cards"];
+export function TopStats({ match, href }: { match: MatchDetail; href: string }) {
+  const pairs = statPairs(match);
+  const possession = pairs.get("possession") ?? pairs.get("ball_possession");
+  const metrics = topMetrics.filter((metric) => pairs.has(metric)).filter((metric, index, list) => !(metric === "shots" && list.includes("total_shots")) && !(metric === "corner_kicks" && list.includes("corners")));
+  if (!possession && !metrics.length) return null;
+  const share = (value: number | null) => value === null ? null : value <= 1 ? value * 100 : value;
+  const home = share(possession?.home ?? null); const away = share(possession?.away ?? null);
+  const passes = pairs.get("total_passes");
+  // "Chuyền chính xác 412 (86%)": accurate passes with their share of all passes, both from the provider.
+  const passShare = (side: "home" | "away") => { const done = pairs.get("successful_passes")?.[side]; const total = passes?.[side]; return done != null && total ? ` (${Math.round((done / total) * 100)}%)` : ""; };
+  return <section aria-labelledby="match-top-stats" className={panel}>
+    <h2 id="match-top-stats" className="mb-4 font-bold">Thông số nổi bật</h2>
+    {home !== null && away !== null && <div className="mb-5">
+      <p className="mb-2 text-center text-xs font-semibold text-slate-600">Kiểm soát bóng</p>
+      <div role="img" aria-label={`Kiểm soát bóng: ${Math.round(home)}% - ${Math.round(away)}%`} className="flex h-8 overflow-hidden rounded-full text-sm font-bold">
+        <span className="flex items-center bg-slate-900 pl-3 text-white" style={{ width: `${Math.max(12, Math.min(88, home))}%` }}>{Math.round(home)}%</span>
+        <span className="flex flex-1 items-center justify-end bg-lime-500 pr-3 text-slate-950">{Math.round(away)}%</span>
+      </div>
+    </div>}
+    <ul className="space-y-3">{metrics.map((metric) => {
+      const pair = pairs.get(metric)!;
+      const shown = (side: "home" | "away") => pair[side] === null ? "—" : `${statValue(metric, pair[side]!)}${metric === "successful_passes" ? passShare(side) : ""}`;
+      const leader = pair.home !== null && pair.away !== null && pair.home !== pair.away ? (pair.home > pair.away ? "home" : "away") : null;
+      // Fewer fouls and cards is the better side, so those are not highlighted.
+      const highlight = ["fouls", "yellow_cards"].includes(metric) ? null : leader;
+      return <li key={metric} aria-label={`${statLabel(metric)}: ${shown("home")} - ${shown("away")}`} className="flex items-center justify-between gap-3 text-sm">
+        <span aria-hidden="true" className={`rounded-full px-2.5 py-0.5 tabular-nums ${highlight === "home" ? "bg-slate-900 font-bold text-white" : "font-semibold"}`}>{shown("home")}</span>
+        <span aria-hidden="true" className="text-center text-xs text-slate-600">{statLabel(metric)}</span>
+        <span aria-hidden="true" className={`rounded-full px-2.5 py-0.5 tabular-nums ${highlight === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold"}`}>{shown("away")}</span>
+      </li>;
+    })}</ul>
+    <Link href={href} className="mt-5 block text-center text-sm font-semibold underline-offset-4 hover:underline">Xem tất cả thống kê →</Link>
+  </section>;
+}
+/** FotMob's "Match review": the leading Vietnamese publisher story about this match. */
+export function MatchReviewCard({ review, now }: { review: MatchReview; now: Date }) {
+  const { lead, others } = review.group;
+  const pictured = [lead, ...others].find((card) => card.image);
+  const publishers = [...new Set(others.map((card) => card.publisher))].filter((name) => name !== lead.publisher);
+  return <section aria-labelledby="match-review" className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+    <h2 id="match-review" className="px-5 pt-4 text-xs font-bold uppercase tracking-wide text-slate-500 sm:px-6">{review.kind === "review" ? "Tường thuật trận đấu" : "Trước trận đấu"}</h2>
+    <Link href={`/news/${lead.slug}`} className="group flex flex-col gap-4 p-5 sm:flex-row sm:p-6">
+      {pictured && <span className="shrink-0 sm:w-56"><NewsImage src={pictured.image} className="aspect-video rounded-xl" /><span className="mt-1 block text-[10px] text-slate-400">Ảnh: {pictured.publisher}</span></span>}
+      <span className="min-w-0">
+        <span className="block break-words text-lg font-bold leading-snug group-hover:underline">{lead.title}</span>
+        {lead.description && <span className="mt-2 line-clamp-3 block break-words text-sm leading-6 text-slate-600">{lead.description}</span>}
+        <span className="mt-3 block text-xs text-slate-500"><span className="font-semibold text-slate-700">{lead.publisher}</span> · <time dateTime={lead.publishedAt}>{newsRelativeTime(lead.publishedAt, now)}</time>{publishers.length ? ` · Cùng đưa tin: ${publishers.slice(0, 3).join(", ")}` : ""}</span>
+      </span>
+    </Link>
   </section>;
 }
 

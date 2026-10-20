@@ -13,9 +13,10 @@ import type { MatchHub } from "../../services/match-hub";
 import { matchTabHref, type MatchTab } from "../../lib/match-tabs";
 import { MatchTabsView } from "./match-tabs";
 import { LineupsView } from "./match-lineups";
-import { EventsList, FormPanel, HeadToHeadPanel, NextMatches, Scorers, StandingsPanel, StatsList, Unavailable } from "./match-tab-views";
+import { EventsList, FormPanel, HeadToHeadPanel, MatchReviewCard, NextMatches, Scorers, StandingsPanel, StatsList, TopStats, Unavailable } from "./match-tab-views";
+import type { MatchReview } from "../../lib/match-review";
 
-export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, news }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode }) {
+export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, news, review }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode; /** The lead publisher story about this match. */ review?: MatchReview | null }) {
   const updated = formatUpdated(match.lastUpdatedAt);
   return <>
     <Link href="/matches" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-950"><span aria-hidden="true">←</span> Các trận đấu</Link>
@@ -36,6 +37,13 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
     </section>
     <MatchTabsView slug={match.slug} active={tab} />
     {tab === "du-kien" && <div className="mt-6 space-y-6">
+      {review && <MatchReviewCard review={review} now={now} />}
+      <TopStats match={match} href={matchTabHref(match.slug, "thong-ke")} />
+      {match.events.length > 0 && <EventsList match={match} />}
+      {hub && <FormPanel match={match} hub={hub} />}
+      {hub && <NextMatches match={match} hub={hub} />}
+      {news}
+      {match.status === "FINISHED" && <MatchHighlight highlight={highlight} />}
       <section aria-labelledby="match-info" className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
         <h2 id="match-info" className="text-base font-bold">Thông tin trận đấu</h2>
         <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
@@ -43,12 +51,6 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
         </dl>
         <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-6 text-slate-500">Giờ Việt Nam · Asia/Ho_Chi_Minh (UTC+7).{isMatchStale(match, now) ? " Dữ liệu có thể đã cũ; trạng thái hiện tại có thể chưa được cập nhật." : ""}</p>
       </section>
-      {match.events.length > 0 && <EventsList match={match} />}
-      {match.stats.length > 0 && <StatsList match={match} summaryHref={matchTabHref(match.slug, "thong-ke")} />}
-      {hub && <FormPanel match={match} hub={hub} />}
-      {hub && <NextMatches match={match} hub={hub} />}
-      {news}
-      {match.status === "FINISHED" && <MatchHighlight highlight={highlight} />}
     </div>}
     {tab === "su-kien" && <div className="mt-6"><EventsList match={match} /></div>}
     {tab === "doi-hinh" && <div className="mt-6"><LineupsView match={match} /></div>}
