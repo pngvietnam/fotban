@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import "../styles/fotban/tokens.css";
+import "../styles/fotban/components.css";
 import "../styles/fotban/shell.css";
 
 // Self-hosted at build time by next/font; the prototype's typeface, with Vietnamese glyphs.

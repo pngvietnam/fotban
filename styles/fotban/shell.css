@@ -3,7 +3,7 @@
  * Values are kept exactly; class names carry an fb- prefix and the prototype's bare header/main
  * selectors become .fb-topbar/.fb-main so pages' own <header>/<main> elements are not restyled.
  */
-.fb-app{display:flex;min-height:100vh;font-family:var(--font-be-vietnam),'Be Vietnam Pro',sans-serif;color:#192920;background:#f7f8fa;font-synthesis:none}
+.fb-app{--fb-font-family:var(--font-be-vietnam),"Be Vietnam Pro",sans-serif;display:flex;min-height:100vh;font-family:var(--font-be-vietnam),'Be Vietnam Pro',sans-serif;color:#192920;background:#f7f8fa;font-synthesis:none}
 .fb-app button,.fb-app a{-webkit-tap-highlight-color:transparent}
 .fb-sidebar{width:236px;flex-shrink:0;border-right:1px solid #e5e9e7;background:#fff;padding:33px 20px 18px;position:fixed;height:100vh;display:flex;flex-direction:column;z-index:20;overflow-y:auto}
 .fb-brand{font-size:34px;font-weight:850;letter-spacing:-1.8px;display:flex;align-items:center;gap:9px;padding:0 9px;color:#192920}
@@ -38,7 +38,6 @@
 .fb-icon-button{position:relative;display:flex;align-items:center;padding:4px;color:#192920}
 .fb-login{display:flex;gap:14px;align-items:center;background:#075c3c;color:white;padding:11px 16px;border-radius:6px;font-size:10px;font-weight:550}
 .fb-login:hover{filter:brightness(.95)}
-.fb-account{display:flex;gap:8px;align-items:center;font-size:10px;font-weight:600;color:#192920;border:1px solid #e1e8dc;border-radius:6px;padding:8px 12px}
 .fb-main{max-width:1430px;margin:auto;padding:42px 38px 20px;min-width:0}
 .fb-skip-link{position:absolute;left:1rem;top:-5rem;z-index:50;border-radius:.5rem;background:#103d2e;color:#fff;padding:.75rem 1rem;font-size:12px}
 .fb-skip-link:focus{top:.75rem}
@@ -58,4 +57,28 @@
   .fb-header-actions{gap:17px}
   .fb-login{font-size:9px;padding:9px 12px}
   .fb-main{padding:26px 18px 80px}
+}
+
+/*
+ * Prototype v2 refinements (fotban_prototype/v2/fotban-source/src/ui-refinements.css): larger meta text,
+ * 44px touch targets, the "Của tôi" disclosure; on phones the login button gives way to "Của tôi".
+ */
+.fb-app .fb-nav-label{font-size:var(--fb-type-meta-size);line-height:var(--fb-type-meta-line);color:var(--fb-color-muted);letter-spacing:normal}
+.fb-app :is(.fb-nav-item,.fb-team-nav){font-size:var(--fb-type-meta-size);line-height:var(--fb-type-meta-line);min-height:var(--fb-touch-target)}
+.fb-app .fb-icon-button{min-width:var(--fb-touch-target);min-height:var(--fb-touch-target)}
+.fb-app .fb-side-footer{font-size:var(--fb-type-caption-size);line-height:var(--fb-type-meta-line)}
+.fb-app :is(button,a,input,select,textarea):focus-visible{outline:var(--fb-focus-width) solid var(--fb-color-focus);outline-offset:var(--fb-space-4)}
+.fb-account-disclosure{position:relative}
+.fb-account-disclosure>.fb-button{color:var(--fb-color-brand);border-color:var(--fb-color-border);min-height:var(--fb-touch-target)}
+.fb-account-actions{position:absolute;right:0;top:calc(100% + var(--fb-space-12));width:calc(var(--fb-space-64)*4);background:var(--fb-color-surface);border:var(--fb-border-width) solid var(--fb-color-border);border-radius:var(--fb-radius-card);padding:var(--fb-space-12);box-shadow:0 var(--fb-space-12) var(--fb-space-40) color-mix(in srgb,var(--fb-color-ink) 10%,transparent);z-index:80}
+.fb-account-heading{display:block;color:var(--fb-color-muted);padding:var(--fb-space-8);margin-bottom:var(--fb-space-4)}
+.fb-account-actions>.fb-button{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:var(--fb-space-4);padding:var(--fb-space-12);text-align:left}
+.fb-account-actions>.fb-button small{color:var(--fb-color-muted)}
+.fb-account-actions>.fb-button:hover{background:var(--fb-color-canvas);filter:none}
+@media(max-width:650px){
+  .fb-app .fb-topbar{padding-left:var(--fb-space-16);padding-right:var(--fb-space-16)}
+  .fb-app .fb-header-actions{gap:var(--fb-space-8)}
+  .fb-app .fb-header-actions>.fb-login{display:none}
+  .fb-app .fb-account-disclosure>.fb-button{padding:var(--fb-space-8) var(--fb-space-12);font-size:var(--fb-type-meta-size)}
+  .fb-app .fb-nav-item{font-size:var(--fb-type-caption-size);min-height:var(--fb-touch-target);padding:var(--fb-space-8) var(--fb-space-4)}
 }
