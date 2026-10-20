@@ -12,7 +12,7 @@ import { timelineLeague, timelineLeagues } from "../../lib/match-timeline";
 import { kindOfStoryType, newsKinds, newsTabs, newsViewHref, type NewsView } from "../../lib/news-tabs";
 import { newsAbsoluteTime, newsRelativeTime, safeNewsUrl, storyLabels } from "../../lib/news-presentation";
 import type { LeagueSlug } from "../../types/league-hub";
-import { FeedFilterMenus, LikeStats, SaveButton } from "./feed-actions";
+import { FeedFilterMenus, PostActions, SaveButton } from "./feed-actions";
 import { OvPhoto } from "../home/overview-client";
 
 const cardsOf = (group: FeedGroupView) => [group.lead, ...group.others];
@@ -22,6 +22,8 @@ const kindTone: Record<string, string> = { "chuyen-nhuong": "type-2", "phan-tich
 const initials = (name: string) => name.replace(/[^\p{L}\p{N} ]/gu, "").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => [...word][0]).join("").toUpperCase() || "F";
 // eslint-disable-next-line @next/next/no-img-element -- hotlinked football-data crest
 const Crest = ({ url }: { url: string | null }) => { const safe = safeCrestUrl(url); return safe ? <img src={safe} alt="" loading="lazy" referrerPolicy="no-referrer" /> : null; };
+/** "22:40 18/10": time and day in Vietnam, without the year. */
+const shortStamp = (value: string) => `${formatMatchTime(value)} ${new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit" }).format(new Date(value))}`;
 const Arrow = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M5 12h14 M14 7l5 5-5 5" /></svg>;
 
 /** One story as a post: publisher, headline and description as published, picture with credit, source and context, like/share/save. */
@@ -42,15 +44,18 @@ export function FeedPost({ group, likes, now }: { group: FeedGroupView; likes: S
     <div className="post-copy"><h2><Link className="dp-feed-title" href={`/news/${lead.slug}`}>{lead.title}</Link></h2>{lead.description && <p>{lead.description}</p>}</div>
     {photo && <figure className="social-photo plain"><OvPhoto src={photo.image} /><figcaption>Ảnh: {photo.publisher}</figcaption></figure>}
     {stage && <div className="feed-transfer-context compact"><div className="feed-transfer-status"><span className="fb-badge fb-badge-info">{stage}</span><span className="fb-text fb-text-caption">THEO CÁCH BÁO ĐƯA TIN</span></div></div>}
-    <div className={`feed-source-context ${opinion ? "is-opinion" : ""}`}>
-      <div><span className="fb-text fb-text-caption">{opinion ? "GÓC NHÌN CỘNG ĐỒNG" : "NGUỒN & NGỮ CẢNH"}</span><span className="fb-text fb-text-meta">{lead.attribution} · {newsAbsoluteTime(lead.publishedAt)}{group.others.length ? ` · ${group.others.length + 1} báo cùng đưa tin` : ""}</span></div>
-      <span className="fb-text fb-text-caption">{opinion ? "Ý kiến cá nhân, không phải thông tin được xác nhận." : lead.officialWording ? officialWordingNotice : url ? <a href={url} target="_blank" rel="noopener noreferrer nofollow">Đọc bài gốc trên {lead.publisher} ↗</a> : null}</span>
+    <div className={`post-source-line ${opinion ? "is-opinion" : ""}`}>
+      <span><b>{opinion ? "Góc nhìn cộng đồng" : "Nguồn"}</b> · {lead.publisher} · <time dateTime={lead.publishedAt} title={newsAbsoluteTime(lead.publishedAt)}>{shortStamp(lead.publishedAt)}</time>{group.others.length ? ` · ${group.others.length + 1} báo cùng đưa` : ""}</span>
+      {url && <a href={url} target="_blank" rel="noopener noreferrer nofollow" aria-label={`Đọc bài gốc trên ${lead.publisher} (mở thẻ mới)`}>Bài gốc ↗</a>}
     </div>
-    {(entities.length > 0 || league) && <div className="feed-entity-chips">
-      {entities.map((entity) => <Link key={`${entity.kind}:${entity.id}`} className="fb-button fb-button-ghost" href={entity.kind === "club" ? clubPath(entity.id!) : playerPath(entity.id!)}>{entity.name} ↗</Link>)}
-      {league && <Link className="fb-button fb-button-ghost" href={leagueHref(league as LeagueSlug)}>{timelineLeague(league)!.label} ↗</Link>}
-    </div>}
-    <LikeStats articleId={lead.articleId} signedIn={likes.signedIn} liked={likes.liked[group.key] ?? false} count={likes.counts[group.key] ?? 0} others={group.others.length} sharePath={`/news/${lead.slug}`} title={lead.title} />
+    {(opinion || lead.officialWording) && <p className="post-source-note">{opinion ? "Ý kiến cá nhân, không phải thông tin được xác nhận." : officialWordingNotice}</p>}
+    <div className="post-footer">
+      {(entities.length > 0 || league) && <div className="post-chips" aria-label="Liên quan">
+        {entities.map((entity) => <Link key={`${entity.kind}:${entity.id}`} href={entity.kind === "club" ? clubPath(entity.id!) : playerPath(entity.id!)}>{entity.name}</Link>)}
+        {league && <Link href={leagueHref(league as LeagueSlug)}>{timelineLeague(league)!.label}</Link>}
+      </div>}
+      <PostActions articleId={lead.articleId} signedIn={likes.signedIn} liked={likes.liked[group.key] ?? false} count={likes.counts[group.key] ?? 0} sharePath={`/news/${lead.slug}`} title={lead.title} />
+    </div>
   </article>;
 }
 

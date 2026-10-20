@@ -29,9 +29,9 @@ describe("feed posts", () => {
     expect($(".post-byline b").text()).toBe("VnExpress Sport"); expect($(".post-type").text()).toBe("Trận đấu");
     expect($("a.dp-feed-title").attr("href")).toBe("/news/bao-Arsenal-th-ng");
     expect($(".social-photo figcaption").text()).toBe("Ảnh: VnExpress Sport");
-    const original = $(".feed-source-context a");
+    const original = $(".post-source-line a");
     expect(original.attr("href")).toBe("https://vnexpress.net/bai-viet.html"); expect(original.attr("rel")).toBe("noopener noreferrer nofollow");
-    expect($(".feed-entity-chips a").map((_, node) => $(node).attr("href")).get()).toEqual(["/club/club-c1", "/league/premier-league"]);
+    expect($(".post-chips a").map((_, node) => $(node).attr("href")).get()).toEqual(["/club/club-c1", "/league/premier-league"]);
     // No stored likes and one publisher: no numbers at all, only the actions.
     expect($(".post-stats")).toHaveLength(0); expect($(".post-actions button").map((_, node) => $(node).text()).get()).toEqual(["Thích", "Chia sẻ"]);
     expect($.html()).not.toContain("bình luận"); expect($.html()).not.toContain("Bình luận");
@@ -39,14 +39,14 @@ describe("feed posts", () => {
   it("counts only stored likes and the publishers carrying the story", () => {
     const value = group("b", card("Tin B"), [card("Tin B2", { publisher: "Dân trí" })]);
     const $ = post(value, { signedIn: true, counts: { b: 3 }, liked: { b: true } });
-    expect($(".post-stats").text()).toContain("3 lượt thích"); expect($(".post-stats").text()).toContain("2 báo cùng đưa tin");
-    expect($(".post-actions button").first().text()).toBe("Đã thích");
+    expect($(".post-source-line").text()).toContain("2 báo cùng đưa"); expect($(".post-stats")).toHaveLength(0);
+    expect($(".post-actions button").first().text()).toBe("Đã thích3"); expect($(".post-like-count").attr("aria-label")).toBe("3 lượt thích");
   });
   it("labels transfer talk as the press reports it and community posts as opinion", () => {
     const transfer = post(group("t", card("Arsenal hỏi mua", { storyType: "TRANSFER", transferStage: "NEGOTIATION" })));
     expect(transfer(".feed-transfer-status .fb-badge").text()).toBe("Đang đàm phán"); expect(transfer.html()).not.toContain("Đã xác nhận");
     const opinion = post(group("o", card("Fan nói", { storyType: "SOCIAL", publisher: "Cộng đồng" })));
-    expect(opinion(".feed-source-context").text()).toContain("GÓC NHÌN CỘNG ĐỒNG"); expect(opinion(".post-type").text()).toBe("Fan nói gì");
+    expect(opinion(".post-source-line").text()).toContain("Góc nhìn cộng đồng"); expect(opinion(".post-source-note").text()).toContain("Ý kiến cá nhân"); expect(opinion(".post-type").text()).toBe("Fan nói gì");
   });
 });
 

@@ -10,7 +10,7 @@ import { timelineLeague } from "../../lib/match-timeline";
 import { kindOfStoryType } from "../../lib/news-tabs";
 import { newsAbsoluteTime, newsRelativeTime, safeNewsUrl, storyLabels } from "../../lib/news-presentation";
 import type { LeagueSlug } from "../../types/league-hub";
-import { LikeStats, SaveButton, ShareButton } from "./feed-actions";
+import { PostActions, SaveButton, ShareButton } from "./feed-actions";
 import { BackToReading } from "./back-to-reading";
 
 const matchLink = (slug: string) => `/match/${encodeURIComponent(slug)}`;
@@ -73,7 +73,7 @@ export function FeedDetailView({ card, others, related = [], context = [], now, 
           <p className="fb-text fb-text-meta">{card.attribution} · {newsAbsoluteTime(card.publishedAt)}{others.length ? ` · ${others.length + 1} báo cùng đưa tin` : ""}</p>
           <p className="fb-text fb-text-body">Tiêu đề, mô tả và ảnh do {card.publisher} đăng. Toàn bài nằm trên trang của báo.</p>
         </div>
-        <div className="post-like-bar"><LikeStats articleId={card.articleId} signedIn={likes.signedIn} liked={likes.liked[card.articleId] ?? false} count={likes.counts[card.articleId] ?? 0} others={others.length} sharePath={`/news/${card.slug}`} title={card.title} /></div>
+        <div className="post-like-bar"><PostActions articleId={card.articleId} signedIn={likes.signedIn} liked={likes.liked[card.articleId] ?? false} count={likes.counts[card.articleId] ?? 0} sharePath={`/news/${card.slug}`} title={card.title} /></div>
         {others.length > 0 && <section aria-labelledby="other-coverage"><h2 id="other-coverage" className="fb-text fb-text-section">Các báo khác cùng đưa tin ({others.length})</h2><div className="context-story-grid">{others.map((other) => <StoryCard key={other.articleId} card={other} now={now} />)}</div></section>}
         {contexts.length > 0 && <section aria-labelledby="club-context"><h2 id="club-context" className="fb-text fb-text-section">Bối cảnh từ dữ liệu Fotban</h2><div className="context-club-grid">{contexts.map((club) => <ClubContextCard key={club.clubId} club={club} />)}</div><p className="fb-text fb-text-caption">Football data provided by the Football-Data.org API.</p></section>}
         {(entities.length > 0 || league || card.match) && <section aria-labelledby="context-next"><h2 id="context-next" className="fb-text fb-text-section">Đi tiếp đúng ngữ cảnh</h2><div className="context-chips">

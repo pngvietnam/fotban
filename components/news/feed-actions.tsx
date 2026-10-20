@@ -32,7 +32,7 @@ const Glyph = ({ name, size = 18 }: { name: "heart" | "share" | "bookmark"; size
  * "Thích": a signed-in reader's like is stored in the account and counted; a guest's stays in this
  * browser and is not counted (only real, stored likes are ever shown as a number).
  */
-export function LikeButton({ articleId, signedIn, liked: initialLiked, onCount }: { articleId: string; signedIn: boolean; liked: boolean; onCount?: (count: number) => void }) {
+export function LikeButton({ articleId, signedIn, liked: initialLiked, count = 0, onCount }: { articleId: string; signedIn: boolean; liked: boolean; count?: number; onCount?: (count: number) => void }) {
   const guestLikes = parseList(useSyncExternalStore(subscribe, () => read(likedKey), () => null), isString);
   const [accountLiked, setAccountLiked] = useState(initialLiked);
   const [busy, setBusy] = useState(false);
@@ -47,7 +47,7 @@ export function LikeButton({ articleId, signedIn, liked: initialLiked, onCount }
       if (typeof data.count === "number") onCount?.(data.count);
     } catch { setAccountLiked(liked); } finally { setBusy(false); }
   };
-  return <button type="button" className={liked ? "is-selected" : ""} aria-pressed={liked} disabled={busy} onClick={toggle} title={signedIn ? undefined : "Lượt thích của khách chỉ lưu trên trình duyệt này"}><Glyph name="heart" />{liked ? "Đã thích" : "Thích"}</button>;
+  return <button type="button" className={liked ? "is-selected" : ""} aria-pressed={liked} disabled={busy} onClick={toggle} title={signedIn ? undefined : "Lượt thích của khách chỉ lưu trên trình duyệt này"}><Glyph name="heart" />{liked ? "Đã thích" : "Thích"}{count > 0 && <span className="post-like-count" aria-label={`${count} lượt thích`}>{count}</span>}</button>;
 }
 
 /** Share through the device share sheet, or copy the link. */
@@ -72,13 +72,10 @@ export function SaveButton({ story, className = "post-save", label = false }: { 
   return <button type="button" className={`${className} ${on ? "is-selected" : ""}`} aria-pressed={on} aria-label={on ? "Bỏ lưu tin" : "Lưu tin"} onClick={toggle}>{label ? (on ? "Đã lưu ✓" : "+ Lưu tin") : <Glyph name="bookmark" />}</button>;
 }
 
-/** The like total next to the actions; it changes only with stored likes. */
-export function LikeStats({ articleId, signedIn, liked, count, others, sharePath, title }: { articleId: string; signedIn: boolean; liked: boolean; count: number; others: number; sharePath: string; title: string }) {
+/** Thích (with the stored like total beside it) and Chia sẻ in one compact group. */
+export function PostActions({ articleId, signedIn, liked, count, sharePath, title }: { articleId: string; signedIn: boolean; liked: boolean; count: number; sharePath: string; title: string }) {
   const [total, setTotal] = useState(count);
-  return <>
-    {(total > 0 || others > 0) && <div className="post-stats">{total > 0 ? <span><span className="reaction-dot"><Glyph name="heart" size={10} /></span>{total} lượt thích</span> : <span />}{others > 0 && <span>{others + 1} báo cùng đưa tin</span>}</div>}
-    <div className="post-actions"><LikeButton articleId={articleId} signedIn={signedIn} liked={liked} onCount={setTotal} /><ShareButton path={sharePath} title={title} /></div>
-  </>;
+  return <div className="post-actions compact"><LikeButton articleId={articleId} signedIn={signedIn} liked={liked} count={total} onCount={setTotal} /><ShareButton path={sharePath} title={title} /></div>;
 }
 
 /** "Loại tin" and "Giải đấu" as disclosure menus of links (prototype v2 FeedControls). */

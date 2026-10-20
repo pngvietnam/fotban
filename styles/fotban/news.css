@@ -264,3 +264,26 @@ a.social-fixture{color:inherit}
 .dp-article-meta>.dp-secondary{display:inline-flex;align-items:center;gap:6px}
 @media(max-width:950px){.dp-article-layout{grid-template-columns:1fr}}
 @media(max-width:650px){.social-home .social-heading h1{font-size:var(--fb-type-page-size)}.feed-transfer-context.compact{margin:0 16px}}
+/* Compact post footer: one source line, then related links and Thích / Chia sẻ on a single row. */
+.post-source-line{display:flex;align-items:center;justify-content:space-between;gap:var(--fb-space-12);margin:var(--fb-space-12) 20px 0;font-size:var(--fb-type-meta-size);line-height:1.6;color:var(--fb-color-muted)}
+.post-source-line>span{min-width:0}
+.post-source-line b{font-weight:600;color:#3d5045}
+.post-source-line.is-opinion b{color:#8a6a2f}
+.post-source-line a{flex-shrink:0;color:var(--fb-color-brand);font-weight:600;white-space:nowrap}
+.post-source-note{margin:4px 20px 0;font-size:var(--fb-type-caption-size);line-height:1.6;color:var(--fb-color-muted)}
+.post-footer{display:flex;align-items:center;gap:var(--fb-space-12);margin:var(--fb-space-12) 20px 0;padding:var(--fb-space-4) 0;border-top:1px solid #eef1eb}
+.post-chips{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+.post-chips::-webkit-scrollbar{display:none}
+.post-chips>a{flex-shrink:0;white-space:nowrap;font-size:var(--fb-type-caption-size);font-weight:600;line-height:1.6;color:#24623d;background:#f2f6ef;border-radius:999px;padding:4px 10px}
+.post-chips>a:hover{background:#e6efe6}
+.fb-app .post-actions.compact{display:flex;gap:2px;flex-shrink:0;margin:0 0 0 auto;padding:0;border:0}
+.fb-app .post-actions.compact>button{flex:none;gap:6px;padding:0 10px;font-size:var(--fb-type-meta-size)}
+.post-like-count{font-weight:700;margin-left:2px}
+.post-like-bar .post-actions.compact{justify-content:flex-start;padding:4px 8px}
+@media(max-width:650px){.post-source-line,.post-source-note,.post-footer{margin-left:16px;margin-right:16px}.post-source-line{flex-wrap:wrap;gap:2px var(--fb-space-12)}.fb-app .post-actions.compact>button{padding:0 8px}}
+/* Byline stays on one line on phones (the save icon no longer drops below). */
+.fb-app .post-byline{flex-wrap:nowrap}
+.fb-app .post-byline>div:nth-child(2){flex:1}
+@media(max-width:650px){.post-source-line{flex-wrap:nowrap;align-items:flex-start}.fb-app .post-byline .post-type{padding:var(--fb-space-4) var(--fb-space-8)}}
+.fb-app .post-byline small{flex-wrap:wrap;row-gap:0}
+.fb-app .post-byline small>time{white-space:nowrap}
