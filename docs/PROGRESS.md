@@ -1455,3 +1455,7 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - Read top-down: team colour key with quick links (Tổng quan, Cú sút, Chỉ số đội, Cầu thủ); "Thống kê hàng đầu" beside the shots card; team figures as six small cards (Sút bóng, Chuyền bóng, Tranh bóng, Phòng ngự, Kỷ luật, Bóng chết) without bars, leading side highlighted (not for fouls/cards/offsides); low-value figures in a collapsed "Chỉ số khác".
 - Shots: one-line summary per team, goal frame, list collapsed.
 - Player table: compact rows, crest beside the name, best value per column highlighted, ★ on the top rating, team filter (`&doi=nha|khach`).
+
+## Match news list
+
+- Dữ kiện → "Tin tức": FotMob-style two-column list (headline, publisher · time, small picture on the right), up to 10 stories, those naming both clubs first, the match review excluded. Publishers whose RSS has no pictures (Bongda.com.vn) get a same-size tile with the club crest, so rows stay aligned; no article page is fetched for images.

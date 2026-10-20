@@ -15,7 +15,7 @@ import { parsePlayerStatView, parsePlayerTeamFilter } from "@/components/matches
 import { pickMatchReview, type MatchReview } from "@/lib/match-review";
 import { matchHub, type MatchHub } from "@/services/match-hub";
 import { readFeedList } from "@/services/feed-page-data";
-import { FeedSection } from "@/components/news/feed-section";
+import { MatchNewsList, orderMatchNews } from "@/components/matches/match-news";
 
 export const metadata: Metadata = { title: "Chi tiết trận đấu | Football Morning Brief" };
 export const dynamic = "force-dynamic";
@@ -54,8 +54,8 @@ export default async function MatchPage({ params, searchParams }: { params: Prom
           groups.push(...more.data.groups); next = more.data.nextOffset;
         }
         review = pickMatchReview(groups,{ slug: match.slug, kickoffAt: match.kickoffAt, status: match.status, homeClubId: match.homeClub?.id, awayClubId: match.awayClub?.id });
-        const rest = feed.data.groups.filter((group) => group.key !== review?.group.key).slice(0, 4);
-        if (rest.length) news = <FeedSection result={{ kind: "ready", data: { groups: rest, nextOffset: null } }} filters={{ league: "all", offset: 0 }} now={now} />;
+        const rest = orderMatchNews(groups.filter((group) => group.key !== review?.group.key), clubIds);
+        if (rest.length) news = <MatchNewsList groups={rest} now={now} />;
       }
     }
   }

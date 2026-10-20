@@ -62,3 +62,17 @@ describe("facts tab", () => {
     expect($("#match-review")).toHaveLength(0); expect($("#match-top-stats")).toHaveLength(0);
   });
 });
+
+describe("match news list", () => {
+  it("puts stories about both clubs first, keeps the feed order otherwise, and caps the list", async () => {
+    const { orderMatchNews, MatchNewsList } = await import("../components/matches/match-news");
+    const oneClub = (key: string) => group(key, card(`Tin ${key}`, "2026-10-17T13:00:00Z", { entities: [{ id: home, kind: "club", name: "Everton", initials: "EVE", crestUrl: "https://crests.football-data.org/62.png" }] }));
+    const both = group("both", card("Everton gặp Chelsea", "2026-10-17T12:00:00Z"));
+    expect(orderMatchNews([oneClub("a"), both, oneClub("b")], [home, away]).map((item) => item.key)).toEqual(["both", "a", "b"]);
+    expect(orderMatchNews(Array.from({ length: 14 }, (_, index) => oneClub(String(index))), [home, away])).toHaveLength(10);
+    const $ = load(renderToStaticMarkup(<MatchNewsList groups={[both, oneClub("a")]} now={uiNow} />));
+    expect($("#match-news").text()).toBe("Tin tức");
+    expect($("li a").first().attr("href")).toBe(`/news/${both.lead.slug}`);
+    expect($("li").first().text()).toContain("VnExpress Sport");
+  });
+});
