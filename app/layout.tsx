@@ -6,6 +6,7 @@ import "../styles/fotban/components.css";
 import "../styles/fotban/shell.css";
 import "../styles/fotban/matches.css";
 import "../styles/fotban/match-detail.css";
+import "../styles/fotban/home.css";
 
 // Self-hosted at build time by next/font; the prototype's typeface, with Vietnamese glyphs.
 const beVietnam = Be_Vietnam_Pro({ subsets: ["vietnamese", "latin"], weight: ["400", "500", "600", "700", "800", "900"], variable: "--font-be-vietnam", display: "swap" });

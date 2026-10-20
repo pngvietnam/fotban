@@ -2,13 +2,12 @@ import { env } from "@/lib/env";
 import { homepageMetadata } from "@/lib/homepage-presentation";
 import { readHomepage } from "@/services/homepage-page-data";
 import { readFeedList } from "@/services/feed-page-data";
-import { readMyTeams } from "@/services/my-teams";
-import { readHomeStandings } from "@/services/home-front-data";
+import { readHomeMatches, readHomeStandings } from "@/services/home-front-data";
+import { biteTypes, deepReadTypes, parseUpdateTab, splitFront, updateTabs } from "@/services/home-overview";
 import { viewerFollows } from "@/services/viewer-follows";
-import { MyTeamsSection } from "@/components/home/my-teams";
 import { crestsByName } from "@/services/crest-lookup";
 import { MorningHomepage } from "@/components/home/morning-homepage";
-import { HomeFront, parseHomeFlowTab } from "@/components/home/home-front";
+import { Overview } from "@/components/home/overview";
 
 export const dynamic = "force-dynamic";
 
@@ -22,19 +21,31 @@ const groupsOf = (result: Awaited<ReturnType<typeof readFeedList>>) => result.ki
 export default async function Home({ searchParams }: Props) {
   const params = await searchParams;
   const now = new Date();
-  const tab = parseHomeFlowTab(params.dong);
-  const viewer = await viewerFollows(now, { fixtures: false });
-  // "Dành cho bạn" follows the viewer's clubs, players and leagues when there are any; otherwise it is the ranked feed.
-  const [result, ranked, latest, personal, transfers, standings, mine] = await Promise.all([
+  const updateTab = parseUpdateTab(params.loai);
+  const types = updateTabs.find((tab) => tab.key === updateTab)?.types;
+  const [result, ranked, latest, deep, bites, transfers, standings, matches, viewer] = await Promise.all([
     readHomepage(params.preview), readFeedList({ league: "all", offset: 0 }),
-    tab === "moi-nhat" ? readFeedList({ league: "all", offset: 0, sort: "latest" }) : null,
-    tab === "danh-cho-ban" && viewer.follow ? readFeedList({ league: "all", offset: 0, follow: viewer.follow }) : null,
-    readFeedList({ league: "all", offset: 0, sort: "latest", storyType: "TRANSFER" }), readHomeStandings(params.bxh, now), readMyTeams(),
+    readFeedList({ league: "all", offset: 0, sort: "latest", ...(types ? { storyTypes: [...types] } : {}) }),
+    readFeedList({ league: "all", offset: 0, sort: "latest", storyTypes: deepReadTypes }),
+    readFeedList({ league: "all", offset: 0, sort: "latest", storyTypes: biteTypes }),
+    readFeedList({ league: "all", offset: 0, sort: "latest", storyType: "TRANSFER" }),
+    readHomeStandings(params.bxh, now), readHomeMatches(now), viewerFollows(now),
   ]);
-  const personalGroups = personal ? groupsOf(personal) : [];
-  const flow = latest ? groupsOf(latest) : personalGroups.length ? personalGroups : groupsOf(ranked);
-  const names = result.kind === "ready" ? result.view.sections.flatMap((section) => section.items.flatMap((entry) => entry.item.match ? [entry.item.match.home, entry.item.match.away] : [])) : [];
-  const crests = await crestsByName(names);
-  const front = <HomeFront now={now} data={{ ranked: groupsOf(ranked), flow, transfers: groupsOf(transfers), standings, tab, personal: personalGroups.length > 0, briefReady: result.kind === "ready" }} />;
-  return <MorningHomepage result={result} now={now} crests={crests} front={front} before={mine ? <MyTeamsSection data={mine} now={now} /> : null} />;
+  // Each story appears once on the page: quick points and the cover first, then the type-based blocks.
+  const front = splitFront(groupsOf(ranked));
+  const taken = new Set(front.used);
+  const pick = (groups: ReturnType<typeof groupsOf>, limit: number) => groups.filter((group) => !taken.has(group.key)).slice(0, limit).map((group) => { taken.add(group.key); return group; });
+  const updates = pick(groupsOf(latest), 5);
+  const deepReads = pick(groupsOf(deep), 3);
+  const biteGroups = pick(groupsOf(bites), 5);
+  const overview = <Overview now={now} data={{
+    ribbon: matches.ribbon, quick: front.quick, cover: front.cover, followups: front.followups,
+    updates, updateTab, deepReads, bites: biteGroups, transfers: groupsOf(transfers),
+    standings, highlights: matches.highlights,
+    viewer: { signedIn: viewer.signedIn, clubs: viewer.clubs ?? [], next: viewer.fixtures?.upcoming[0] ?? null },
+    briefReady: result.kind === "ready",
+  }} />;
+  // Crests for the morning brief match cards below the front.
+  const crests = await crestsByName(result.kind === "ready" ? result.view.sections.flatMap((section) => section.items.flatMap((entry) => entry.item.match ? [entry.item.match.home, entry.item.match.away] : [])) : []);
+  return <MorningHomepage result={result} now={now} crests={crests} front={overview} />;
 }

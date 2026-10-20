@@ -60,7 +60,7 @@ export type Spotlight = {
   home: { id: string; name: string; crestUrl: string | null; position: number | null; form: StandingRow["form"] };
   away: { id: string; name: string; crestUrl: string | null; position: number | null; form: StandingRow["form"] };
 };
-export type ArchiveClip = { videoId: string; title: string; channelName: string; publishedAt: string; matchSlug: string; home: string; away: string; kickoffAt: string };
+export type ArchiveClip = { videoId: string; title: string; channelName: string; publishedAt: string; matchSlug: string; leagueSlug: string; home: string; away: string; kickoffAt: string };
 export type TimelineSidebar = { leagueSlug: string; standings: StandingRow[]; standingsFetchedAt: string | null; spotlight: Spotlight | null; archive: ArchiveClip[] };
 
 /**
@@ -80,13 +80,18 @@ export async function readTimelineSidebar(tx: SqlExecutor, view: TimelineView, s
   const rank = (row: Row) => followed.has(row.homeId) || followed.has(row.awayId) ? -1 : (byClub.get(row.homeId)?.position ?? 40) + (byClub.get(row.awayId)?.position ?? 40);
   const best = upcoming.reduce<Row | null>((pick, row) => !pick || rank(row) < rank(pick) ? row : pick, null);
   const side = (id: string, name: string, crestUrl: string | null) => ({ id, name, crestUrl, position: byClub.get(id)?.position ?? null, form: byClub.get(id)?.form ?? [] });
-  const archive = await tx.query<ArchiveClip>(`SELECT DISTINCT ON (m."kickoffAt",m.id) v."externalId" AS "videoId",v.title,v."channelName",v."publishedAt"::text AS "publishedAt",m.slug AS "matchSlug",COALESCE(h."shortName",h.name) AS home,COALESCE(a."shortName",a.name) AS away,m."kickoffAt"::text AS "kickoffAt"
-    FROM "Video" v JOIN "Match" m ON m.id=v."matchId" JOIN "League" l ON l.id=m."leagueId" JOIN "Club" h ON h.id=m."homeClubId" JOIN "Club" a ON a.id=m."awayClubId"
-    WHERE l.slug=ANY($1::text[]) AND v.provider='YOUTUBE' AND v."validationStatus"='VALIDATED' AND v."lastCheckedAt"<=$2::timestamptz AND v."lastCheckedAt">$3::timestamptz
-    ORDER BY m."kickoffAt" DESC,m.id,v."selectedAsPrimary" DESC,v."publishedAt" DESC LIMIT 2`, [scope.leagueSlugs, now, new Date(now.getTime() - videoFreshMs)]);
+  const archive = await latestHighlights(tx, scope.leagueSlugs, now, 2);
   return {
     leagueSlug, standings: standings.rows, standingsFetchedAt: standings.fetchedAt,
     spotlight: best ? { slug: best.slug, kickoffAt: new Date(best.kickoffAt).toISOString(), round: best.round, leagueSlug, home: side(best.homeId, best.homeName, best.homeCrest), away: side(best.awayId, best.awayName, best.awayCrest) } : null,
     archive,
   };
+}
+
+/** The newest validated highlights in some competitions, one per match, newest match first (same freshness rule as the match page). */
+export async function latestHighlights(tx: SqlExecutor, leagueSlugs: string[], now: Date, limit: number): Promise<ArchiveClip[]> {
+  return tx.query<ArchiveClip>(`SELECT DISTINCT ON (m."kickoffAt",m.id) v."externalId" AS "videoId",v.title,v."channelName",v."publishedAt"::text AS "publishedAt",m.slug AS "matchSlug",l.slug AS "leagueSlug",COALESCE(h."shortName",h.name) AS home,COALESCE(a."shortName",a.name) AS away,m."kickoffAt"::text AS "kickoffAt"
+    FROM "Video" v JOIN "Match" m ON m.id=v."matchId" JOIN "League" l ON l.id=m."leagueId" JOIN "Club" h ON h.id=m."homeClubId" JOIN "Club" a ON a.id=m."awayClubId"
+    WHERE l.slug=ANY($1::text[]) AND v.provider='YOUTUBE' AND v."validationStatus"='VALIDATED' AND v."lastCheckedAt"<=$2::timestamptz AND v."lastCheckedAt">$3::timestamptz
+    ORDER BY m."kickoffAt" DESC,m.id,v."selectedAsPrimary" DESC,v."publishedAt" DESC LIMIT $4`, [leagueSlugs, now, new Date(now.getTime() - videoFreshMs), limit]);
 }
