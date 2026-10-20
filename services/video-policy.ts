@@ -1,8 +1,8 @@
 import { videoTypes, type VideoCandidate, type VideoMapping, type VideoMatch, type VideoSource } from "../types/video-provider";
 
 export function normalizedVideoText(value: string) { return value.normalize("NFD").replace(/\p{M}/gu, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
-/** A first/second-half or single-moment clip, never the match highlight. */
-const partialClip = /\bhiep (?:1|2|mot|hai)\b|diem nhan hiep|first half|second half|half time|\bht\b/;
+/** A first/second-half or single-moment clip ("ĐIỂM NHẤN HIỆP 1"), never the match highlight. A headline that merely mentions a half ("HIỆP 2 BÙNG NỔ") is not one. */
+const partialClip = /diem nhan hiep|highlights? hiep (?:1|2|mot|hai)|first half|second half highlights?|half time|\bht\b/;
 /**
  * Rights holders in Vietnam often title the match highlight as "HOME - AWAY | headline | COMPETITION"
  * without the word "highlight" (e.g. SCTV: "REAL MADRID - SEVILLA | ... | LALIGA EA SPORTS 26/27").

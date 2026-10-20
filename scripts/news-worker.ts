@@ -10,6 +10,9 @@ import { vietnameseSource } from "../providers/news/vietnamese-sources";
 import { publishFeedCards } from "../services/feed-cards";
 import { syncMatches } from "../services/match-sync";
 import { syncMatchDetails } from "../services/match-details";
+import { VideoFeedSync } from "../services/video-feed-sync";
+import { VideoStore } from "../services/video-store";
+import { YouTubeFeedReader } from "../providers/youtube/rss";
 import { syncNews } from "../services/news-sync";
 import { syncPlayerImages, wikimediaApi } from "../services/player-images";
 import { abortableSleep, runLoop } from "../services/worker-loop";
@@ -46,6 +49,9 @@ async function main() {
   const details = env.HIGHLIGHTLY_API_KEY ? createMatchDetailApi(db, env.HIGHLIGHTLY_API_KEY) : null;
   const photoApi = env.WIKIMEDIA_USER_AGENT ? wikimediaApi(env.WIKIMEDIA_USER_AGENT) : null;
   let photosPausedUntil = 0;
+  // Highlights from the reviewed channels' public feeds: keyless, so a 20-minute cadence costs nothing.
+  const videoFeeds = new VideoFeedSync(new YouTubeFeedReader(), new VideoStore(database), logger);
+  let videosDueAt = 0;
   logger.info({ matches: Boolean(match), details: Boolean(details), photos: Boolean(photoApi) }, "worker.started");
   try {
     await runLoop(async () => {
@@ -75,6 +81,10 @@ async function main() {
           const result = await syncMatchDetails(database, details);
           if (result.requests || result.stopped === "ERROR") logger.info({ ...result }, "worker.match_details");
         } catch { ok = false; }
+      }
+      if (Date.now() >= videosDueAt) {
+        videosDueAt = Date.now() + 20 * 60_000;
+        try { const videos = await videoFeeds.run(); if (videos.stored || videos.removed || videos.errors) logger.info({ ...videos }, "worker.videos"); } catch { /* Logged by the sync; retried next window. */ }
       }
       // Free-licence player photos: a small, time-boxed batch per pass; pauses for 30 minutes when Wikimedia pushes back.
       if (photoApi && Date.now() >= photosPausedUntil) {

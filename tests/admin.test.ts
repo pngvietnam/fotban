@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { initialVideoSources } from "../providers/youtube/sources";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PGlite } from "@electric-sql/pglite";
 import type { SyncDatabase } from "../lib/sync-database";
@@ -106,7 +107,7 @@ describe("admin authorization, editorial safety and immutable audit",()=>{
     const mapping=(await queries.list('videos',{type:'MAPPINGS'})).rows[0];
     const changed=mappingEditSchema.parse({...Object.fromEntries(Object.keys(mappingEditSchema.shape).map(k=>[k,mapping[k]])),validFrom:'2026-08-02T00:00:00Z',enabled:false});
     await service.mutate({...command('MAPPING_SAVE',mapping.id,changed),expectedUpdatedAt:mapping.updatedAt},briefNow);
-    expect(await store.registry()).toBe(0);expect((await database.query('SELECT id FROM "VideoSource"'))).toHaveLength(2);
+    expect(await store.registry()).toBe(0);expect((await database.query('SELECT id FROM "VideoSource"'))).toHaveLength(initialVideoSources.length);
     expect((await database.query('SELECT id FROM "VideoSourceCompetition"'))).toHaveLength(1);
     expect((await queries.list('videos',{type:'MAPPINGS'})).rows[0]).toMatchObject({enabled:false,validFrom:'2026-08-02T00:00:00.000Z'});
     expect((await queries.list('videos',{})).rows.find(r=>r.id===row.id)).toMatchObject({enabled:false,channelHandle:'@operator-renamed-test'});

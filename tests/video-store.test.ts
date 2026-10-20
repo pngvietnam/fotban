@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { initialVideoSources } from "../providers/youtube/sources";
 import type { PGlite } from "@electric-sql/pglite";
 import type { SyncDatabase } from "../lib/sync-database";
 import { transferDatabase } from "./fixtures/transfer-store";
@@ -78,7 +79,7 @@ describe("persisted video sync and public gates", () => {
     expect(await store.purgeExpired(later)).toBe(1); expect((await db.query('SELECT id FROM "Match"')).rows).toHaveLength(1);
   });
   it("registry insertion is repeatable and never re-enables operator-disabled sources", async () => {
-    expect(await store.registry()).toBe(2); expect(await store.registry()).toBe(0);
+    expect(await store.registry()).toBe(initialVideoSources.length); expect(await store.registry()).toBe(0);
     await db.exec('UPDATE "VideoSource" SET enabled=false'); await store.registry();
     expect((await db.query('SELECT id FROM "VideoSource" WHERE enabled')).rows).toHaveLength(0);
   });

@@ -1471,3 +1471,11 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - Sources are real and active (checked on their public RSS feeds): FPT Bóng Đá (`UC4LvrpNXujjbGOS4RDvr41g`) posts "HIGHLIGHTS: HOME - AWAY | … | NGOẠI HẠNG ANH 26/27" within hours; SCTV Thể Thao (`UCiWyQp2HgKX2-WQUq11V8FA`) posts "HOME - AWAY | … | LALIGA EA SPORTS 26/27". No Champions League source is registered.
 - Policy fixes: "26/27" seasons were read as a date and rejected 4 of 5 real highlights; SCTV titles without the word "highlight" were never chosen; half-time clips are now excluded; Champions League titles are recognised. Real titles are regression tests.
 - Open: the API search budget is 10 searches/day (about half a busy matchday). Proposed: discover videos from the two channels' public RSS feeds (no key, no quota) and keep the API only for optional metadata checks.
+
+## Keyless highlights from channel feeds
+
+- Owner decisions (2026-10-20): Champions League highlights come from TV360 Thể Thao (`@tv360vtt`, `UCbxWTKqVmD_AMeOIcKFhQ3Q`; TV360 announced UEFA club competition rights for 2024/25–2026/27); videos are discovered from the reviewed channels' public RSS feeds, no API key.
+- `services/video-feed-sync.ts` + `providers/youtube/rss.ts`: the worker reads the three feeds every 20 minutes, keeps only videos that pass the same highlight policy (both teams, competition, time window, reviewed source), and re-checks stored links daily through YouTube's public oEmbed endpoint (gone/private → unavailable). Manual run: `npm.cmd run video:sync -- feeds`.
+- Channel identity: IDs are pinned in `providers/youtube/sources.ts` and every run requires the feed to report the same ID and expected author.
+- Feed quirks handled: cache-control request headers get 404/500; the endpoint returns 404/5xx now and then (retried); `yt:channelId` omits the "UC" prefix.
+- First run: 3 feeds, 45 videos, 10 recent matches with a highlight. Matches older than what a feed still lists (about 15 uploads) cannot be backfilled without the API.

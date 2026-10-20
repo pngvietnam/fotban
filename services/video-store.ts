@@ -12,7 +12,7 @@ export class VideoStore {
   async registry() {
     let inserted = 0;
     for (const entry of initialVideoSources) {
-      const sources = await this.db.query<{ id: string }>(`INSERT INTO "VideoSource" (id,"registryKey","channelHandle",name,country,language,verified,enabled,priority,"sourceType","lastVerifiedAt","reviewReference",notes,"updatedAt") VALUES ($1::uuid,$5,$2,$3,'VN','vi',true,true,10,'RIGHTS_HOLDER','2026-10-17T00:00:00Z',$4,'Reviewed publisher identity; API channel-ID resolution still required; links only.',now()) ON CONFLICT DO NOTHING RETURNING id`, [randomUUID(), entry.handle, entry.name, entry.review, entry.key]);
+      const sources = await this.db.query<{ id: string }>(`INSERT INTO "VideoSource" (id,"registryKey","channelHandle",name,country,language,verified,enabled,priority,"sourceType","lastVerifiedAt","reviewReference",notes,"updatedAt") VALUES ($1::uuid,$5,$2,$3,'VN','vi',true,true,10,'RIGHTS_HOLDER',$6::timestamptz,$4,'Reviewed publisher identity; channel ID checked against its public feed on every run; links only.',now()) ON CONFLICT DO NOTHING RETURNING id`, [randomUUID(), entry.handle, entry.name, entry.review, entry.key, entry.reviewedAt]);
       inserted += sources.length;
       // Adopt an existing reviewed channel once without resetting operator metadata.
       await this.db.query('UPDATE "VideoSource" SET "registryKey"=$1 WHERE platform=\'YOUTUBE\' AND "channelHandle"=$2 AND "registryKey" IS NULL AND NOT EXISTS(SELECT 1 FROM "VideoSource" WHERE "registryKey"=$1)',[entry.key,entry.handle]);
@@ -29,8 +29,21 @@ export class VideoStore {
     return this.db.query<RegistryRow>(`SELECT to_jsonb(s) AS source,to_jsonb(c) AS mapping FROM "VideoSourceCompetition" c JOIN "VideoSource" s ON s.id=c."videoSourceId" WHERE c."competitionId"=$1::uuid AND c.season=$2 AND c.enabled AND s.enabled AND s.verified ORDER BY c.priority,s.priority,s.id LIMIT 10`, [match.leagueId, match.season]);
   }
   async matches(now: Date, matchId?: string): Promise<VideoMatch[]> {
-    const rows = await this.db.query<VideoMatch & { kickoffAt: Date }>(`SELECT m.id,m."leagueId",l.slug AS "leagueSlug",s.name AS season,m."kickoffAt",m.status,h.aliases || ARRAY[h.name,h."shortName"] AS home,a.aliases || ARRAY[a.name,a."shortName"] AS away FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Season" s ON s.id=m."seasonId" JOIN "Club" h ON h.id=m."homeClubId" JOIN "Club" a ON a.id=m."awayClubId" WHERE m.status='FINISHED' AND l.slug IN ('premier-league','la-liga') AND ${matchId ? 'm.id=$1::uuid' : 'm."kickoffAt">=$1::timestamptz-interval \'7 days\' AND m."kickoffAt"<$1::timestamptz'} ORDER BY m."kickoffAt" DESC,m.id LIMIT 3`, matchId ? [matchId] : [now]);
+    const rows = await this.db.query<VideoMatch & { kickoffAt: Date }>(`SELECT m.id,m."leagueId",l.slug AS "leagueSlug",s.name AS season,m."kickoffAt",m.status,h.aliases || ARRAY[h.name,h."shortName"] AS home,a.aliases || ARRAY[a.name,a."shortName"] AS away FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Season" s ON s.id=m."seasonId" JOIN "Club" h ON h.id=m."homeClubId" JOIN "Club" a ON a.id=m."awayClubId" WHERE m.status='FINISHED' AND l.slug IN ('premier-league','la-liga','champions-league') AND ${matchId ? 'm.id=$1::uuid' : 'm."kickoffAt">=$1::timestamptz-interval \'7 days\' AND m."kickoffAt"<$1::timestamptz'} ORDER BY m."kickoffAt" DESC,m.id LIMIT 3`, matchId ? [matchId] : [now]);
     return rows.map((row) => ({ ...row, kickoffAt: new Date(row.kickoffAt).toISOString(), home: row.home.filter(Boolean), away: row.away.filter(Boolean) }));
+  }
+  /** Finished matches recent enough to still be in a channel feed (the feed keeps about the last 15 uploads). */
+  async recentFinished(now: Date, days = 3, limit = 80): Promise<VideoMatch[]> {
+    const rows = await this.db.query<VideoMatch & { kickoffAt: Date }>(`SELECT m.id,m."leagueId",l.slug AS "leagueSlug",s.name AS season,m."kickoffAt",m.status,h.aliases || ARRAY[h.name,h."shortName"] AS home,a.aliases || ARRAY[a.name,a."shortName"] AS away
+      FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Season" s ON s.id=m."seasonId" JOIN "Club" h ON h.id=m."homeClubId" JOIN "Club" a ON a.id=m."awayClubId"
+      WHERE m.status='FINISHED' AND l.slug IN ('premier-league','la-liga','champions-league') AND m."kickoffAt">=$1::timestamptz-($2::int * interval '1 day') AND m."kickoffAt"<$1::timestamptz
+      ORDER BY m."kickoffAt" DESC,m.id LIMIT $3`, [now, days, limit]);
+    return rows.map((row) => ({ ...row, kickoffAt: new Date(row.kickoffAt).toISOString(), home: row.home.filter(Boolean), away: row.away.filter(Boolean) }));
+  }
+  /** Stored videos of recent matches last checked before `before`, for the keyless availability re-check. */
+  async dueForRecheck(now: Date, before: Date, limit = 40) {
+    return this.db.query<{ matchId: string; externalId: string; channelName: string }>(`SELECT v."matchId",v."externalId",v."channelName" FROM "Video" v JOIN "Match" m ON m.id=v."matchId"
+      WHERE v.provider='YOUTUBE' AND v."validationStatus"='VALIDATED' AND v."lastCheckedAt"<$2::timestamptz AND m."kickoffAt">=$1::timestamptz-interval '30 days' ORDER BY v."lastCheckedAt" LIMIT $3`, [now, before, limit]);
   }
   async stored(matchId: string): Promise<StoredVideo[]> {
     const rows = await this.db.query<{ id: string; row: Record<string, unknown>; source: VideoSource; mapping: VideoMapping }>(`SELECT v.id,to_jsonb(v) AS row,to_jsonb(s) AS source,to_jsonb(c) AS mapping FROM "Video" v JOIN "VideoSource" s ON s.id=v."videoSourceId" JOIN "VideoSourceCompetition" c ON c.id=v."sourceMappingId" WHERE v."matchId"=$1::uuid AND v.provider='YOUTUBE' ORDER BY v.id LIMIT 50`, [matchId]);

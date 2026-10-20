@@ -64,6 +64,7 @@ describe("titles used by Vietnamese rights holders (verified 2026-10-20 on their
   it("accepts SCTV-style 'HOME - AWAY | headline | COMPETITION' titles without the word highlight", () => {
     expect(classifyVideo("REAL MADRID - SEVILLA | BƯỚC CHẠY ĐÀ QUAN TRỌNG CHO EL CLASICO | LALIGA EA SPORTS 26/27")).toBe("HIGHLIGHT");
     expect(at("ARSENAL - CHELSEA | CHIẾN THẮNG NHẸ NHÀNG | NGOẠI HẠNG ANH 26/27")).toBe(true);
+    expect(at("ARSENAL - CHELSEA | HIỆP 2 BÙNG NỔ TẠI EMIRATES | NGOẠI HẠNG ANH 26/27")).toBe(true);
   });
   it("leaves out half-time clips, single moments and round-ups", () => {
     expect(at("ARSENAL - CHELSEA | THẾ TRẬN GIẰNG CO | ĐIỂM NHẤN HIỆP 1 | NGOẠI HẠNG ANH 26/27", "2026-10-16T19:30:00Z")).toBe(false);
