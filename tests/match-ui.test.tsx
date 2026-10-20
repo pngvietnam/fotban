@@ -1,5 +1,6 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { load } from "cheerio";
 import { describe, expect, it, vi } from "vitest";
 import type { PrismaClient } from "@prisma/client";
 import { MatchCard } from "../components/matches/match-card";
@@ -74,10 +75,15 @@ describe("Match UI", () => {
     expect(render(<MatchState kind="invalid-filter" />)).toContain("Bộ lọc chưa hợp lệ");
   });
   it("renders both league options, keyboard-friendly controls and canonical pagination/filter links", () => {
-    const html = render(<MatchFilters filters={{ ...filters, league: "la-liga" }} />);
-    expect(html).toContain("Premier League"); expect(html).toContain("La Liga"); expect(html).toContain('value="la-liga" selected=""');
-    expect(html).toContain('method="get"'); expect(html).toContain('type="date"');
-    expect(matchListHref({ ...filters, page: 2 }, { status: "live", page: 1 })).toContain("status=live&page=1");
+    const html = render(<MatchFilters filters={{ ...filters, league: "la-liga" }} counts={{ [filters.from]: 4 }} now={uiNow} />);
+    const $ = load(html);
+    expect($("nav[aria-label='Giải đấu'] a").map((_, node) => $(node).text()).get()).toEqual(["Tất cả giải", "Ngoại hạng Anh", "La Liga", "Champions League"]);
+    expect($("nav[aria-label='Giải đấu'] a[aria-current=page]").text()).toBe("La Liga");
+    expect($("nav[aria-label='Chọn ngày'] li")).toHaveLength(7);
+    expect($("nav[aria-label='Chọn ngày'] a[aria-current=date]").attr("aria-label")).toBe("Hôm nay 16/10: 4 trận");
+    expect(html).toContain('method="get"'); expect($("input[type=date][name=ngay]")).toHaveLength(1); expect($("input[type=hidden][name=league]").attr("value")).toBe("la-liga");
+    expect(matchListHref({ ...filters, page: 2 }, { status: "live", page: 1 })).toBe("/matches?ngay=2026-10-16&status=live");
+    expect(matchListHref(filters, { from: "2026-10-01", to: "2026-10-31", league: "la-liga" })).toBe("/matches?from=2026-10-01&to=2026-10-31&league=la-liga");
     const shell = render(<MatchShell><h1>Trận đấu</h1></MatchShell>);
     expect(shell).toContain('href="#match-content"'); expect(shell).toContain('aria-label="Điều hướng chính"');
   });
@@ -113,5 +119,29 @@ describe("Match UI", () => {
     expect(await loadMatchDetail("missing-match", read)).toEqual({ kind: "not-found" });
     expect(await loadMatchDetail("valid-match", async () => { throw new Error("private-key"); })).toEqual({ kind: "error" });
     expect(render(<MatchState kind="not-found" />)).toContain("Không tìm thấy trận đấu");
+  });
+});
+
+describe("day-by-day match calendar", () => {
+  it("defaults to today, reads ?ngay= as one day and keeps older ranges working", async () => {
+    const { dayStrip, isSingleDay, longDay, shiftDay } = await import("../lib/match-filters");
+    expect(defaultUiFilters(uiNow)).toMatchObject({ from: "2026-10-16", to: "2026-10-16", league: "all", status: "all", page: 1 });
+    const day = parseUiFilters({ ngay: "2026-10-21", league: "champions-league" }, uiNow);
+    expect(day.success && day.data).toMatchObject({ from: "2026-10-21", to: "2026-10-21", league: "champions-league" });
+    expect(parseUiFilters({ ngay: "2026-02-30" }, uiNow).success).toBe(false);
+    const range = parseUiFilters({ from: "2026-10-01", to: "2026-10-20" }, uiNow);
+    expect(range.success && !isSingleDay(range.data)).toBe(true);
+    expect(shiftDay("2026-10-30", 3)).toBe("2026-11-02");
+    expect(dayStrip("2026-10-16", uiNow).map((item) => `${item.label} ${item.date}`)).toEqual(["T3 13/10", "T4 14/10", "Hôm qua 15/10", "Hôm nay 16/10", "Ngày mai 17/10", "CN 18/10", "T2 19/10"]);
+    expect(longDay("2026-10-20")).toBe("Thứ Ba, 20/10/2026");
+  });
+  it("groups one day's matches by competition and points an empty day to the nearest match days", () => {
+    const pl = uiMatch({ id: "a", league: { slug: "premier-league", name: "Premier League" } });
+    const cl = uiMatch({ id: "b", league: { slug: "champions-league", name: "UEFA Champions League" } });
+    const $ = load(render(<MatchList filters={filters} now={uiNow} result={{ kind: "ready", data: { matches: [cl, pl], total: 2, page: 1, pageSize: 50 } }} />));
+    expect($("section h2").map((_, node) => $(node).text().replace(/\d+ trận$/, "").trim()).get()).toEqual(["Ngoại hạng Anh", "Champions League"]);
+    const empty = load(render(<MatchList filters={filters} now={uiNow} nearest={{ previous: "2026-10-12", next: "2026-10-18" }} result={{ kind: "ready", data: { matches: [], total: 0, page: 1, pageSize: 50 } }} />));
+    expect(empty("h2").text()).toBe("Không có trận đấu ngày Thứ Sáu, 16/10/2026");
+    expect(empty("a").map((_, node) => empty(node).attr("href")).get()).toEqual(["/matches?ngay=2026-10-12", "/matches?ngay=2026-10-18"]);
   });
 });

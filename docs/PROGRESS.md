@@ -1479,3 +1479,8 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - Channel identity: IDs are pinned in `providers/youtube/sources.ts` and every run requires the feed to report the same ID and expected author.
 - Feed quirks handled: cache-control request headers get 404/500; the endpoint returns 404/5xx now and then (retried); `yt:channelId` omits the "UC" prefix.
 - First run: 3 feeds, 45 videos, 10 recent matches with a highlight. Matches older than what a feed still lists (about 15 uploads) cannot be backfilled without the API.
+
+## Day-by-day match calendar
+
+- `/matches` now works one day at a time (default: today, Vietnam time), like a football app: competition chips (Tất cả giải / Ngoại hạng Anh / La Liga / Champions League), a seven-day strip with match counts per day (‹ › move a week), status chips and a "go to date" box. One day's matches are grouped by competition; an empty day links to the nearest earlier and later match days.
+- URLs: `?ngay=YYYY-MM-DD&league=…&status=…`, defaults omitted. Older `from`/`to` range links still work (max 32 days, grouped by date).
