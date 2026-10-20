@@ -37,7 +37,8 @@ describe("match detail tabs with provider data", () => {
     expect($("[aria-label='Kiểm soát bóng: 58% - 42%']")).toHaveLength(1);
     expect($("[aria-label='Tổng số cú sút: 14 - 7']")).toHaveLength(2); // summary and shots section
     expect($("[aria-label='Ném biên: 20 - —']")).toHaveLength(1);
-    expect($("h3").map((_, node) => $(node).text()).get()).toEqual(["Tổng quan", "Sút bóng", "Bóng chết", "Khác"]);
+    expect($("#match-stats").parent().find("h3").map((_, node) => $(node).text()).get()).toEqual(["Sút bóng", "Bóng chết"]);
+    expect($("#match-stats").parent().find("details summary").text()).toBe("Chỉ số khác (1)");
     expect(statLabel("brand_new_metric")).toBe("Brand new metric");
     expect(statValue("expected_goals", 1.234)).toBe("1.23");
   });

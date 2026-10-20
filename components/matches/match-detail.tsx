@@ -13,8 +13,8 @@ import type { MatchHub } from "../../services/match-hub";
 import { matchTabHref, type MatchTab } from "../../lib/match-tabs";
 import { MatchTabsView } from "./match-tabs";
 import { LineupsView } from "./match-lineups";
-import { PlayerStatsTable, ShotsView, type PlayerStatView } from "./match-stats-extra";
-import { EventsList, FormPanel, HeadToHeadPanel, MatchReviewCard, NextMatches, Scorers, StandingsPanel, StatsList, TopStats, Unavailable } from "./match-tab-views";
+import { StatsTab, type PlayerStatView, type PlayerTeamFilter } from "./match-stats-extra";
+import { EventsList, FormPanel, HeadToHeadPanel, MatchReviewCard, NextMatches, Scorers, StandingsPanel, TopStats, Unavailable } from "./match-tab-views";
 import type { MatchReview } from "../../lib/match-review";
 
 const weatherText: Record<string, string> = { "clear day": "Trời quang", "clear night": "Trời quang", "partly cloudy day": "Ít mây", "partly cloudy night": "Ít mây", cloudy: "Nhiều mây", rain: "Mưa", snow: "Tuyết", sleet: "Mưa tuyết", wind: "Gió mạnh", fog: "Sương mù" };
@@ -23,7 +23,7 @@ function formatWeather(info: MatchDetail["venueInfo"]) {
   if (!info || (!info.weather && info.temperatureC === null)) return null;
   return [info.weather ? weatherText[info.weather.toLowerCase()] ?? info.weather : null, info.temperatureC !== null ? `${Math.round(info.temperatureC)}°C` : null].filter(Boolean).join(" · ");
 }
-export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, news, review, statsView = "hang-dau" }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode; /** The lead publisher story about this match. */ review?: MatchReview | null; /** Player statistics table view on the Thống kê tab. */ statsView?: PlayerStatView }) {
+export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, news, review, statsView = "hang-dau", statsTeam = "all" }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode; /** The lead publisher story about this match. */ review?: MatchReview | null; /** Player statistics table view and team filter on the Thống kê tab. */ statsView?: PlayerStatView; statsTeam?: PlayerTeamFilter }) {
   const updated = formatUpdated(match.lastUpdatedAt);
   const venueName = match.venue || match.venueInfo?.name || null;
   const weather = formatWeather(match.venueInfo);
@@ -64,7 +64,7 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
     {tab === "su-kien" && <div className="mt-6"><EventsList match={match} /></div>}
     {tab === "doi-hinh" && <div className="mt-6"><LineupsView match={match} /></div>}
     {tab === "bxh" && <div className="mt-6">{hub ? <StandingsPanel match={match} hub={hub} /> : <Unavailable>Chưa có dữ liệu bảng xếp hạng.</Unavailable>}</div>}
-    {tab === "thong-ke" && <div className="mt-6 space-y-6"><StatsList match={match} /><ShotsView match={match} /><PlayerStatsTable match={match} view={statsView} /></div>}
+    {tab === "thong-ke" && <div className="mt-6"><StatsTab match={match} view={statsView} team={statsTeam} top={<TopStats match={match} title="Thống kê hàng đầu" />} /></div>}
     {tab === "doi-dau" && <div className="mt-6">{hub ? <HeadToHeadPanel match={match} hub={hub} /> : <Unavailable>Chưa có dữ liệu các lần gặp nhau của hai đội.</Unavailable>}</div>}
     <div aria-label="Theo dõi đội bóng và giải đấu" className="mt-6 flex flex-wrap gap-2">
       {match.homeClub?.id && <FollowLink type="CLUB" entityId={match.homeClub.id} name={teamName(match.homeClub, "home", true)} />}

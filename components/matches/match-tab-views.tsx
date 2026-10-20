@@ -93,22 +93,29 @@ const statText: Record<string, string> = {
   duels_won: "Tranh chấp thắng", shots_hit_woodwork: "Sút trúng xà/cột dọc",
   fouls: "Phạm lỗi", offsides: "Việt vị", yellow_cards: "Thẻ vàng", red_cards: "Thẻ đỏ", free_kicks: "Đá phạt", goal_kicks: "Phát bóng lên", throw_ins: "Ném biên",
 };
-/** FotMob-like sections; a metric may appear in the summary and again in its own section. Unlisted metrics go to "Khác". */
-const statGroups: { title: string; metrics: string[] }[] = [
-  { title: "Tổng quan", metrics: ["possession", "ball_possession", "expected_goals", "total_shots", "shots", "shots_on_target", "big_chances_created", "corners", "corner_kicks", "fouls"] },
-  { title: "Sút bóng", metrics: ["total_shots", "shots_on_target", "shots_off_target", "blocked_shots", "shots_hit_woodwork", "shots_within_penalty_area", "shots_outside_penalty_area", "shots_accuracy"] },
-  { title: "Chuyền bóng", metrics: ["total_passes", "successful_passes", "failed_passes", "key_passes", "expected_assists", "long_passes", "successful_long_passes", "crosses", "successful_crosses", "passes_into_final_third", "passes_opposition_half", "passes_own_half", "backward_passes"] },
+/**
+ * The statistics cards, FotMob-style. Only figures worth reading are shown; everything else the
+ * provider sends sits in a collapsed "Chỉ số khác". A metric may also appear in "Thống kê hàng đầu".
+ */
+const statCards: { title: string; metrics: string[] }[] = [
+  { title: "Sút bóng", metrics: ["total_shots", "shots", "shots_on_target", "shots_off_target", "blocked_shots", "shots_hit_woodwork", "shots_within_penalty_area", "shots_outside_penalty_area"] },
+  { title: "Chuyền bóng", metrics: ["total_passes", "successful_passes", "key_passes", "successful_long_passes", "successful_crosses", "passes_into_final_third", "expected_assists"] },
   { title: "Tranh bóng", metrics: ["duels_won", "successful_aerial_duels", "successful_dribbles"] },
-  { title: "Phòng ngự", metrics: ["tackles", "successful_tackles", "interceptions", "clearances", "goalkeeper_saves"] },
+  { title: "Phòng ngự", metrics: ["successful_tackles", "interceptions", "clearances", "goalkeeper_saves", "saves"] },
   { title: "Kỷ luật", metrics: ["fouls", "yellow_cards", "red_cards", "offsides"] },
-  { title: "Bóng chết", metrics: ["free_kicks", "goal_kicks", "throw_ins"] },
+  { title: "Bóng chết", metrics: ["corners", "corner_kicks", "free_kicks", "throw_ins", "goal_kicks"] },
 ];
+/** Fewer is better, so the larger side is not highlighted. */
+const lowerIsBetter = new Set(["fouls", "yellow_cards", "red_cards", "offsides"]);
 /** Shown inside another row as its percentage ("Không chiến thành công 21 (60%)"), not as rows of their own. */
 const denominators: Record<string, string> = {
   successful_passes: "total_passes", successful_long_passes: "long_passes", successful_crosses: "crosses", successful_dribbles: "dribbles",
   successful_aerial_duels: "aerial_duels", successful_tackles: "tackles", duels_won: "duels_total",
 };
-const hiddenMetrics = ["aerial_duels", "dribbles", "duels_total"];
+/** Only used as the base of a percentage. */
+const hiddenMetrics = ["aerial_duels", "dribbles", "duels_total", "long_passes", "crosses", "tackles"];
+/** Covered by "Thống kê hàng đầu", never repeated under "Chỉ số khác". */
+const summaryMetrics = ["possession", "ball_possession", "expected_goals", "big_chances_created"];
 /** Known metrics in Vietnamese; others keep the provider's English name. */
 export const statLabel = (metric: string) => statText[metric] ?? metric.replaceAll("_", " ").replace(/^./, (char) => char.toUpperCase());
 export function statValue(metric: string, value: number) {
@@ -148,38 +155,42 @@ export function statPairs(match: MatchDetail) {
 }
 function StatRow({ metric, pair, of }: { metric: string; pair: StatPair; of?: StatPair }) {
   const share = (value: number | null, whole: number | null | undefined) => value !== null && whole ? ` (${Math.round((value / whole) * 100)}%)` : "";
-  const shown = (value: number | null, side?: "home" | "away") => value === null ? "—" : `${statValue(metric, value)}${of && side ? share(value, of[side]) : ""}`;
-  const total = (pair.home ?? 0) + (pair.away ?? 0); const homeShare = total > 0 ? (pair.home ?? 0) / total : 0.5;
-  const leader = pair.home !== null && pair.away !== null && pair.home !== pair.away ? (pair.home > pair.away ? "home" : "away") : null;
-  return <li aria-label={`${statLabel(metric)}: ${shown(pair.home, "home")} - ${shown(pair.away, "away")}`}>
-    <div aria-hidden="true" className="flex items-baseline justify-between gap-3 text-sm">
-      <span className={`rounded-md px-1.5 tabular-nums ${leader === "home" ? "bg-slate-900 font-bold text-white" : "font-semibold"}`}>{shown(pair.home, "home")}</span>
-      <span className="text-center text-xs text-slate-600">{statLabel(metric)}</span>
-      <span className={`rounded-md px-1.5 tabular-nums ${leader === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold"}`}>{shown(pair.away, "away")}</span>
-    </div>
-    <div aria-hidden="true" className="mt-1.5 flex h-1.5 gap-1"><span className="rounded-full bg-slate-900" style={{ width: `${homeShare * 100}%` }} /><span className="flex-1 rounded-full bg-lime-500" /></div>
+  const shown = (value: number | null, side: "home" | "away") => value === null ? "—" : `${statValue(metric, value)}${of ? share(value, of[side]) : ""}`;
+  const leader = !lowerIsBetter.has(metric) && pair.home !== null && pair.away !== null && pair.home !== pair.away ? (pair.home > pair.away ? "home" : "away") : null;
+  return <li aria-label={`${statLabel(metric)}: ${shown(pair.home, "home")} - ${shown(pair.away, "away")}`} className="grid grid-cols-[minmax(4.5rem,auto)_1fr_minmax(4.5rem,auto)] items-center gap-2 py-1.5 text-sm">
+    <span aria-hidden="true" className={`justify-self-start whitespace-nowrap rounded-full px-2 py-0.5 tabular-nums ${leader === "home" ? "bg-slate-900 font-bold text-white" : "font-semibold text-slate-800"}`}>{shown(pair.home, "home")}</span>
+    <span aria-hidden="true" className="text-center text-xs leading-snug text-slate-600">{statLabel(metric)}</span>
+    <span aria-hidden="true" className={`justify-self-end whitespace-nowrap rounded-full px-2 py-0.5 tabular-nums ${leader === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold text-slate-800"}`}>{shown(pair.away, "away")}</span>
   </li>;
 }
-/** Home vs away bars per metric, grouped like FotMob's statistics tab. */
+/** Team statistics as a grid of small cards, then the rest collapsed. */
 export function StatsList({ match }: { match: MatchDetail }) {
   const pairs = statPairs(match);
-  if (!pairs.size) return <Unavailable>Chưa có dữ liệu thống kê (kiểm soát bóng, số cú sút, phạt góc…) cho trận này.</Unavailable>;
-  const listed = new Set([...statGroups.flatMap((group) => group.metrics), ...hiddenMetrics]);
-  const groups = [...statGroups, { title: "Khác", metrics: [...pairs.keys()].filter((metric) => !listed.has(metric)).sort() }]
-    .map((group) => ({ title: group.title, metrics: [...new Set(group.metrics)].filter((metric) => pairs.has(metric)) })).filter((group) => group.metrics.length);
-  return <section aria-labelledby="match-stats" className={panel}>
-    <h2 id="match-stats" className="mb-2 font-bold">Thống kê trận đấu</h2>
-    <div className="mb-1 flex justify-between gap-4 text-xs font-semibold text-slate-500"><span>{teamName(match.homeClub, "home", true)}</span><span className="text-right">{teamName(match.awayClub, "away", true)}</span></div>
-    {groups.map((group) => <div key={group.title} className="mt-5">
-      <h3 className="mb-3 text-center text-xs font-bold uppercase tracking-wide text-slate-500">{group.title}</h3>
-      <ul className="space-y-4">{group.metrics.map((metric) => <StatRow key={metric} metric={metric} pair={pairs.get(metric)!} of={denominators[metric] ? pairs.get(denominators[metric]) : undefined} />)}</ul>
-    </div>)}
+  if (!pairs.size) return null;
+  const row = (metric: string) => <StatRow key={metric} metric={metric} pair={pairs.get(metric)!} of={denominators[metric] ? pairs.get(denominators[metric]) : undefined} />;
+  const cards = statCards.map((card) => ({ title: card.title, metrics: card.metrics.filter((metric, index, list) => pairs.has(metric) && !(metric === "shots" && list.includes("total_shots") && pairs.has("total_shots")) && !(metric === "corner_kicks" && pairs.has("corners")) && !(metric === "saves" && pairs.has("goalkeeper_saves"))) }))
+    .filter((card) => card.metrics.length);
+  const listed = new Set([...statCards.flatMap((card) => card.metrics), ...hiddenMetrics, ...summaryMetrics]);
+  const others = [...pairs.keys()].filter((metric) => !listed.has(metric)).sort((a, b) => statLabel(a).localeCompare(statLabel(b), "vi"));
+  return <section aria-labelledby="match-stats" className="space-y-4">
+    <h2 id="match-stats" className="sr-only">Thống kê đội</h2>
+    <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {cards.map((card) => <div key={card.title} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+        <h3 className="mb-1 text-sm font-bold">{card.title}</h3>
+        <ul className="divide-y divide-slate-100">{card.metrics.map(row)}</ul>
+      </div>)}
+    </div>
+    {others.length > 0 && <details className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+      <summary className="cursor-pointer text-sm font-semibold text-slate-700">Chỉ số khác ({others.length})</summary>
+      <ul className="mt-2 grid gap-x-8 divide-y divide-slate-100 md:grid-cols-2 md:divide-y-0">{others.map(row)}</ul>
+    </details>}
   </section>;
 }
 
 /** FotMob's "Thống kê hàng đầu": a possession bar, then the figures fans look at first. */
 const topMetrics = ["expected_goals", "total_shots", "shots", "shots_on_target", "big_chances_created", "successful_passes", "corners", "corner_kicks", "fouls", "yellow_cards"];
-export function TopStats({ match, href }: { match: MatchDetail; href: string }) {
+/** href: link to the full statistics tab (left out on that tab itself). */
+export function TopStats({ match, href, title = "Thông số nổi bật" }: { match: MatchDetail; href?: string; title?: string }) {
   const pairs = statPairs(match);
   const possession = pairs.get("possession") ?? pairs.get("ball_possession");
   const metrics = topMetrics.filter((metric) => pairs.has(metric)).filter((metric, index, list) => !(metric === "shots" && list.includes("total_shots")) && !(metric === "corner_kicks" && list.includes("corners")));
@@ -190,7 +201,7 @@ export function TopStats({ match, href }: { match: MatchDetail; href: string }) 
   // "Chuyền chính xác 412 (86%)": accurate passes with their share of all passes, both from the provider.
   const passShare = (side: "home" | "away") => { const done = pairs.get("successful_passes")?.[side]; const total = passes?.[side]; return done != null && total ? ` (${Math.round((done / total) * 100)}%)` : ""; };
   return <section aria-labelledby="match-top-stats" className={panel}>
-    <h2 id="match-top-stats" className="mb-4 font-bold">Thông số nổi bật</h2>
+    <h2 id="match-top-stats" className="mb-4 font-bold">{title}</h2>
     {home !== null && away !== null && <div className="mb-5">
       <p className="mb-2 text-center text-xs font-semibold text-slate-600">Kiểm soát bóng</p>
       <div role="img" aria-label={`Kiểm soát bóng: ${Math.round(home)}% - ${Math.round(away)}%`} className="flex h-8 overflow-hidden rounded-full text-sm font-bold">
@@ -210,7 +221,7 @@ export function TopStats({ match, href }: { match: MatchDetail; href: string }) 
         <span aria-hidden="true" className={`rounded-full px-2.5 py-0.5 tabular-nums ${highlight === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold"}`}>{shown("away")}</span>
       </li>;
     })}</ul>
-    <Link href={href} className="mt-5 block text-center text-sm font-semibold underline-offset-4 hover:underline">Xem tất cả thống kê →</Link>
+    {href && <Link href={href} className="mt-5 block text-center text-sm font-semibold underline-offset-4 hover:underline">Xem tất cả thống kê →</Link>}
   </section>;
 }
 /** FotMob's "Match review": the leading Vietnamese publisher story about this match. */

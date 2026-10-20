@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import type { LineupPlayerView, MatchDetail, MatchTeam } from "../../types/match-ui";
 import { teamName } from "../../lib/match-presentation";
 import { playerPath } from "../../lib/player-presentation";
@@ -6,6 +7,7 @@ import { ratingTone } from "../../lib/match-lineup-marks";
 import { matchTabHref } from "../../lib/match-tabs";
 import { TeamBadge } from "../ui/team-badge";
 import { PlayerPhoto } from "../ui/player-photo";
+import { StatsList } from "./match-tab-views";
 
 const panel = "rounded-2xl border border-slate-200 bg-white p-5 sm:p-6";
 type Shot = NonNullable<MatchDetail["shots"]>[number];
@@ -66,7 +68,7 @@ function GoalFrame({ shots }: { shots: Shot[] }) {
   </div>;
 }
 function ShotList({ shots }: { shots: Shot[] }) {
-  return <ol className="mt-3 divide-y divide-slate-100 text-sm">{shots.map((shot, index) => {
+  return <ol className="mt-2 divide-y divide-slate-100 text-sm">{shots.map((shot, index) => {
     const name = shot.player?.name ?? shot.playerName ?? "Không rõ";
     const target = goalTargetText(shot.goalTarget, shot.outcome);
     return <li key={index} className="flex items-center gap-2 py-1.5">
@@ -77,22 +79,30 @@ function ShotList({ shots }: { shots: Shot[] }) {
     </li>;
   })}</ol>;
 }
-/** FotMob has a pitch shot map; the free source has no pitch coordinates, so shots are shown on the goal frame and listed. */
+/**
+ * FotMob has a pitch shot map; the free source has no pitch coordinates, so each team's shots are
+ * drawn on the goal frame with a one-line summary, and the full list is one click away.
+ */
 export function ShotsView({ match }: { match: MatchDetail }) {
   if (!match.shots?.length) return null;
   const sides = [[match.homeClub, "home"], [match.awayClub, "away"]] as const;
-  return <section aria-labelledby="match-shots" className={panel}>
+  return <section id="thong-ke-cu-sut" aria-labelledby="match-shots" className={`${panel} scroll-mt-4`}>
     <h2 id="match-shots" className="font-bold">Cú sút</h2>
-    <p className="mt-1 text-xs text-slate-500">Vị trí bóng đi về phía khung thành, nhìn từ người sút. Cú sút bị chặn chỉ có trong danh sách.</p>
-    <ul aria-label="Chú thích" className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">{["GOAL", "SAVED", "POST", "MISSED", "BLOCKED"].map((outcome) => <li key={outcome} className="flex items-center gap-1.5"><span aria-hidden="true" className={`h-2.5 w-2.5 rounded-full ring-2 ${outcomeDot[outcome]}`} />{outcomeText[outcome]}</li>)}</ul>
-    <div className="mt-5 grid gap-8 md:grid-cols-2">{sides.map(([team, side]) => {
+    <div className="mt-4 grid gap-6 sm:grid-cols-2">{sides.map(([team, side]) => {
       const shots = match.shots!.filter((shot) => shot.clubId === team?.id);
+      const count = (outcomes: string[]) => shots.filter((shot) => outcomes.includes(shot.outcome)).length;
       return <div key={side} className="min-w-0">
-        <h3 className="mb-3 flex items-center gap-2 text-sm font-bold"><TeamBadge name={teamName(team, side, true)} tla={team?.tla} crestUrl={team?.externalCrestUrl} />{team?.shortName?.trim() || teamName(team, side, true)}<span className="font-normal text-slate-500">· {shots.length} cú sút</span></h3>
+        <h3 className="mb-1 flex items-center gap-2 text-sm font-bold"><TeamBadge name={teamName(team, side, true)} tla={team?.tla} crestUrl={team?.externalCrestUrl} /><span className="truncate">{team?.shortName?.trim() || teamName(team, side, true)}</span></h3>
+        <p className="mb-3 text-xs text-slate-500"><strong className="text-slate-800">{shots.length}</strong> cú sút · <strong className="text-slate-800">{count(["GOAL"])}</strong> bàn</p>
         <GoalFrame shots={shots} />
-        {shots.length ? <ShotList shots={shots} /> : <p className="mt-3 text-sm text-slate-500">Không có cú sút.</p>}
+        {shots.length > 0 && <details className="mt-3 text-sm">
+          <summary className="cursor-pointer text-xs font-semibold text-slate-600">Danh sách {shots.length} cú sút</summary>
+          <ShotList shots={shots} />
+        </details>}
       </div>;
     })}</div>
+    <ul aria-label="Chú thích" className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-slate-100 pt-3 text-[11px] text-slate-500">{["GOAL", "SAVED", "POST", "MISSED", "BLOCKED"].map((outcome) => <li key={outcome} className="flex items-center gap-1.5"><span aria-hidden="true" className={`h-2.5 w-2.5 rounded-full ring-2 ${outcomeDot[outcome]}`} />{outcomeText[outcome]}</li>)}
+      <li className="basis-full">Vị trí bóng đi về phía khung thành, nhìn từ người sút; cú sút bị chặn chỉ có trong danh sách.</li></ul>
   </section>;
 }
 
@@ -102,38 +112,44 @@ export const playerStatViews = [
 ] as const;
 export type PlayerStatView = typeof playerStatViews[number]["key"];
 export const parsePlayerStatView = (value: string | string[] | undefined): PlayerStatView => typeof value === "string" && playerStatViews.some((view) => view.key === value) ? value as PlayerStatView : "hang-dau";
+/** Player table filter: both teams (default), home ("nha") or away ("khach"). */
+export type PlayerTeamFilter = "all" | "home" | "away";
+export const parsePlayerTeamFilter = (value: string | string[] | undefined): PlayerTeamFilter => value === "nha" ? "home" : value === "khach" ? "away" : "all";
 
 type Row = { player: LineupPlayerView; team: MatchTeam | null; side: "home" | "away" };
-type Column = { label: string; title?: string; value: (stats: Record<string, number>, row: Row) => string };
+/** raw: the number compared to mark the column's best value (absent: never marked). */
+type Column = { label: string; title?: string; value: (stats: Record<string, number>, row: Row) => string; raw?: (stats: Record<string, number>, row: Row) => number | null };
 const n = (stats: Record<string, number>, key: string) => stats[key] ?? null;
 const num = (value: number | null) => value === null ? "—" : Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, "");
 const ratio = (done: number | null, total: number | null) => done === null || total === null ? "—" : total ? `${done}/${total} (${Math.round((done / total) * 100)}%)` : `${done}/${total}`;
 const sum = (...values: (number | null)[]) => values.every((value) => value === null) ? null : values.reduce<number>((total, value) => total + (value ?? 0), 0);
+const count = (key: string) => (s: Record<string, number>) => n(s, key);
 const columns: Record<PlayerStatView, Column[]> = {
   "hang-dau": [
-    { label: "Phút", value: (_, row) => num(row.player.minutes ?? null) }, { label: "Bàn", value: (s) => num(n(s, "goalsScored")) }, { label: "Kiến tạo", value: (s) => num(n(s, "assists")) },
-    { label: "xG", value: (s) => num(n(s, "expectedGoals")) }, { label: "xA", value: (s) => num(n(s, "expectedAssists")) }, { label: "xG + xA", value: (s) => num(sum(n(s, "expectedGoals"), n(s, "expectedAssists"))) },
-    { label: "Tắc + cắt", title: "Tắc bóng + cắt bóng", value: (s) => num(sum(n(s, "tacklesTotal"), n(s, "interceptionsTotal"))) },
+    { label: "Phút", value: (_, row) => num(row.player.minutes ?? null) }, { label: "Bàn", value: (s) => num(n(s, "goalsScored")), raw: count("goalsScored") }, { label: "Kiến tạo", value: (s) => num(n(s, "assists")), raw: count("assists") },
+    { label: "xG", value: (s) => num(n(s, "expectedGoals")), raw: count("expectedGoals") }, { label: "xA", value: (s) => num(n(s, "expectedAssists")), raw: count("expectedAssists") },
+    { label: "xG + xA", value: (s) => num(sum(n(s, "expectedGoals"), n(s, "expectedAssists"))), raw: (s) => sum(n(s, "expectedGoals"), n(s, "expectedAssists")) },
+    { label: "Tắc + cắt", title: "Tắc bóng + cắt bóng", value: (s) => num(sum(n(s, "tacklesTotal"), n(s, "interceptionsTotal"))), raw: (s) => sum(n(s, "tacklesTotal"), n(s, "interceptionsTotal")) },
   ],
   "tan-cong": [
-    { label: "Bàn", value: (s) => num(n(s, "goalsScored")) }, { label: "Sút", value: (s) => num(n(s, "shotsTotal")) }, { label: "Trúng đích", value: (s) => num(n(s, "shotsOnTarget")) },
-    { label: "xG", value: (s) => num(n(s, "expectedGoals")) }, { label: "Rê bóng", title: "Rê bóng thành công / tổng", value: (s) => ratio(n(s, "dribblesSuccessful"), n(s, "dribblesTotal")) },
-    { label: "Bị phạm lỗi", value: (s) => num(n(s, "fouledByOthers")) }, { label: "Việt vị", value: (s) => num(n(s, "offsides")) },
+    { label: "Bàn", value: (s) => num(n(s, "goalsScored")), raw: count("goalsScored") }, { label: "Sút", value: (s) => num(n(s, "shotsTotal")), raw: count("shotsTotal") }, { label: "Trúng đích", value: (s) => num(n(s, "shotsOnTarget")), raw: count("shotsOnTarget") },
+    { label: "xG", value: (s) => num(n(s, "expectedGoals")), raw: count("expectedGoals") }, { label: "Rê bóng", title: "Rê bóng thành công / tổng", value: (s) => ratio(n(s, "dribblesSuccessful"), n(s, "dribblesTotal")), raw: count("dribblesSuccessful") },
+    { label: "Bị phạm lỗi", value: (s) => num(n(s, "fouledByOthers")), raw: count("fouledByOthers") }, { label: "Việt vị", value: (s) => num(n(s, "offsides")) },
   ],
   "chuyen-bong": [
-    { label: "Kiến tạo", value: (s) => num(n(s, "assists")) }, { label: "Chuyền chính xác", value: (s) => ratio(n(s, "passesSuccessful"), n(s, "passesTotal")) },
-    { label: "Chuyền then chốt", value: (s) => num(n(s, "passesKey")) }, { label: "xA", value: (s) => num(n(s, "expectedAssists")) },
+    { label: "Kiến tạo", value: (s) => num(n(s, "assists")), raw: count("assists") }, { label: "Chuyền chính xác", value: (s) => ratio(n(s, "passesSuccessful"), n(s, "passesTotal")), raw: count("passesSuccessful") },
+    { label: "Chuyền then chốt", value: (s) => num(n(s, "passesKey")), raw: count("passesKey") }, { label: "xA", value: (s) => num(n(s, "expectedAssists")), raw: count("expectedAssists") },
   ],
   "phong-ngu": [
-    { label: "Tắc bóng", value: (s) => num(n(s, "tacklesTotal")) }, { label: "Cắt bóng", value: (s) => num(n(s, "interceptionsTotal")) },
+    { label: "Tắc bóng", value: (s) => num(n(s, "tacklesTotal")), raw: count("tacklesTotal") }, { label: "Cắt bóng", value: (s) => num(n(s, "interceptionsTotal")), raw: count("interceptionsTotal") },
     { label: "Phạm lỗi", value: (s) => num(n(s, "fouledOthers")) }, { label: "Thẻ vàng", value: (s) => num(n(s, "cardsYellow")) }, { label: "Thẻ đỏ", value: (s) => num(n(s, "cardsRed")) },
   ],
   "tranh-bong": [
-    { label: "Tranh chấp thắng", value: (s) => ratio(n(s, "duelsWon"), n(s, "duelsTotal")) }, { label: "Tranh chấp thua", value: (s) => num(n(s, "duelsLost")) },
-    { label: "Rê bóng", title: "Rê bóng thành công / tổng", value: (s) => ratio(n(s, "dribblesSuccessful"), n(s, "dribblesTotal")) },
+    { label: "Tranh chấp thắng", value: (s) => ratio(n(s, "duelsWon"), n(s, "duelsTotal")), raw: count("duelsWon") }, { label: "Tranh chấp thua", value: (s) => num(n(s, "duelsLost")) },
+    { label: "Rê bóng", title: "Rê bóng thành công / tổng", value: (s) => ratio(n(s, "dribblesSuccessful"), n(s, "dribblesTotal")), raw: count("dribblesSuccessful") },
   ],
   "thu-thanh": [
-    { label: "Phút", value: (_, row) => num(row.player.minutes ?? null) }, { label: "Cứu thua", value: (s) => num(n(s, "goalsSaved")) }, { label: "Bị thủng lưới", value: (s) => num(n(s, "goalsConceded")) },
+    { label: "Phút", value: (_, row) => num(row.player.minutes ?? null) }, { label: "Cứu thua", value: (s) => num(n(s, "goalsSaved")), raw: count("goalsSaved") }, { label: "Bị thủng lưới", value: (s) => num(n(s, "goalsConceded")) },
     { label: "Chuyền chính xác", value: (s) => ratio(n(s, "passesSuccessful"), n(s, "passesTotal")) },
   ],
 };
@@ -147,43 +163,85 @@ export function displayName(player: Pick<LineupPlayerView, "name" | "fullName">)
   const given = player.fullName.split(/\s+/).find((word) => word.toLocaleLowerCase("vi").startsWith(short[1].toLocaleLowerCase("vi")));
   return given ? `${given} ${short[2]}` : player.name;
 }
-/** FotMob's player statistics table: everyone who played, best rating first, with a view per area of the game. */
-export function PlayerStatsTable({ match, view }: { match: MatchDetail; view: PlayerStatView }) {
-  const rows: Row[] = ([[match.homeClub, "home"], [match.awayClub, "away"]] as const).flatMap(([team, side]) =>
-    (match.lineups?.find((lineup) => lineup.clubId === team?.id)?.players ?? [])
+/** FotMob's player statistics table: everyone who played, best rating first, a view per area of the game, filterable by team. */
+export function PlayerStatsTable({ match, view, team = "all" }: { match: MatchDetail; view: PlayerStatView; team?: PlayerTeamFilter }) {
+  if (!match.lineups?.some((lineup) => lineup.players.some((player) => player.rating != null || player.minutes != null))) return null;
+  const rows: Row[] = ([[match.homeClub, "home"], [match.awayClub, "away"]] as const).filter(([, side]) => team === "all" || team === side).flatMap(([club, side]) =>
+    (match.lineups?.find((lineup) => lineup.clubId === club?.id)?.players ?? [])
       .filter((player) => (player.minutes ?? 0) > 0 || player.rating != null)
       .filter((player) => view !== "thu-thanh" || player.position === "Goalkeeper")
-      .map((player) => ({ player, team, side })));
-  if (!match.lineups?.some((lineup) => lineup.players.some((player) => player.rating != null || player.minutes != null))) return null;
+      .map((player) => ({ player, team: club, side })));
   rows.sort((a, b) => (b.player.rating ?? -1) - (a.player.rating ?? -1) || (b.player.minutes ?? 0) - (a.player.minutes ?? 0) || a.player.name.localeCompare(b.player.name));
-  const href = (key: PlayerStatView) => `${matchTabHref(match.slug, "thong-ke")}${key === "hang-dau" ? "" : `&bang=${key}`}#thong-ke-cau-thu`;
+  const best = columns[view].map((column) => { if (!column.raw) return null; const values = rows.map((row) => column.raw!(row.player.stats ?? {}, row) ?? 0); const max = Math.max(0, ...values); return max > 0 ? max : null; });
+  const topRating = Math.max(-1, ...rows.map((row) => row.player.rating ?? -1));
+  const href = (next: { view?: PlayerStatView; team?: PlayerTeamFilter }) => {
+    const v = next.view ?? view; const t = next.team ?? team;
+    return `${matchTabHref(match.slug, "thong-ke")}${v === "hang-dau" ? "" : `&bang=${v}`}${t === "all" ? "" : `&doi=${t === "home" ? "nha" : "khach"}`}#thong-ke-cau-thu`;
+  };
+  const chip = (active: boolean) => `shrink-0 rounded-full border px-3 py-1 text-sm font-semibold ${active ? "border-slate-950 bg-slate-950 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-slate-600"}`;
+  const teamLabel = (club: MatchTeam | null, side: "home" | "away") => club?.shortName?.trim() || teamName(club, side, true);
   return <section id="thong-ke-cau-thu" aria-labelledby="player-stats" className={`${panel} scroll-mt-4`}>
-    <h2 id="player-stats" className="font-bold">Thống kê cầu thủ</h2>
-    <nav aria-label="Nhóm chỉ số cầu thủ" className="-mx-1 mt-3 flex gap-2 overflow-x-auto pb-1">{playerStatViews.map((item) => <Link key={item.key} href={href(item.key)} aria-current={item.key === view ? "page" : undefined}
-      className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-semibold ${item.key === view ? "border-slate-950 bg-slate-950 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-slate-600"}`}>{item.label}</Link>)}</nav>
-    <div className="mt-4 overflow-x-auto">
-      <table className="w-full min-w-[640px] text-sm">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <h2 id="player-stats" className="font-bold">Thống kê cầu thủ</h2>
+      <nav aria-label="Lọc theo đội" className="flex flex-wrap gap-1.5">{(["all", "home", "away"] as const).map((key) => <Link key={key} href={href({ team: key })} aria-current={key === team ? "page" : undefined} className={chip(key === team)}>
+        {key === "all" ? "Cả hai đội" : <span className="flex items-center gap-1.5"><TeamBadge name={teamName(key === "home" ? match.homeClub : match.awayClub, key, true)} tla={(key === "home" ? match.homeClub : match.awayClub)?.tla} crestUrl={(key === "home" ? match.homeClub : match.awayClub)?.externalCrestUrl} />{teamLabel(key === "home" ? match.homeClub : match.awayClub, key)}</span>}</Link>)}</nav>
+    </div>
+    <nav aria-label="Nhóm chỉ số cầu thủ" className="-mx-1 mt-3 flex gap-1.5 overflow-x-auto px-1 pb-1">{playerStatViews.map((item) => <Link key={item.key} href={href({ view: item.key })} aria-current={item.key === view ? "page" : undefined} className={chip(item.key === view)}>{item.label}</Link>)}</nav>
+    <div className="mt-3 overflow-x-auto">
+      <table className="w-full min-w-[600px] text-sm">
         <caption className="sr-only">Thống kê cầu thủ: {playerStatViews.find((item) => item.key === view)!.label}</caption>
-        <thead className="text-[11px] text-slate-500"><tr>
+        <thead className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500"><tr>
           <th scope="col" className="sticky left-0 z-10 bg-white py-2 pr-3 text-left font-semibold">Cầu thủ</th>
           <th scope="col" className="px-2 py-2 text-center font-semibold">Điểm</th>
-          {columns[view].map((column) => <th key={column.label} scope="col" title={column.title} className="px-2 py-2 text-center font-semibold">{column.label}</th>)}
+          {columns[view].map((column) => <th key={column.label} scope="col" title={column.title} className="whitespace-nowrap px-2 py-2 text-right font-semibold">{column.label}</th>)}
         </tr></thead>
         <tbody>{rows.map((row) => {
           const stats = row.player.stats ?? {};
           const name = displayName(row.player);
-          return <tr key={`${row.side}-${row.player.name}-${row.player.number}`} className="border-t border-slate-100">
-            <th scope="row" className="sticky left-0 z-10 bg-white py-2 pr-3 text-left font-medium">
-              <span className="flex min-w-[11rem] items-center gap-2"><PlayerPhoto photoUrl={row.player.photoUrl} round />
-                <span className="min-w-0"><span className="block truncate">{row.player.playerId ? <Link href={playerPath(row.player.playerId)} className="hover:underline">{name}</Link> : name}</span>
-                  <span className="flex items-center gap-1 text-[11px] font-normal text-slate-500"><TeamBadge name={teamName(row.team, row.side, true)} tla={row.team?.tla} crestUrl={row.team?.externalCrestUrl} />{row.team?.shortName?.trim() || teamName(row.team, row.side, true)}</span></span></span>
+          return <tr key={`${row.side}-${row.player.name}-${row.player.number}`} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+            <th scope="row" className="sticky left-0 z-10 bg-white py-1.5 pr-3 text-left font-medium">
+              <span className="flex min-w-[10.5rem] items-center gap-2">
+                <PlayerPhoto photoUrl={row.player.photoUrl} round />
+                <span className="min-w-0 flex-1 truncate">{row.player.playerId ? <Link href={playerPath(row.player.playerId)} className="hover:underline">{name}</Link> : name}</span>
+                <span title={teamLabel(row.team, row.side)} className="shrink-0"><TeamBadge name={teamName(row.team, row.side, true)} tla={row.team?.tla} crestUrl={row.team?.externalCrestUrl} /></span>
+              </span>
             </th>
-            <td className="px-2 text-center">{row.player.rating != null ? <span className={`rounded-md px-1.5 py-0.5 text-xs font-bold tabular-nums ${ratingTone(row.player.rating)}`}>{row.player.rating.toFixed(1)}</span> : "—"}</td>
-            {columns[view].map((column) => <td key={column.label} className="px-2 text-center tabular-nums">{column.value(stats, row)}</td>)}
+            <td className="px-2 text-center">{row.player.rating != null ? <span className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-xs font-bold tabular-nums ${ratingTone(row.player.rating)}`}>{row.player.rating.toFixed(1)}{row.player.rating === topRating && <span aria-label="cao nhất trận">★</span>}</span> : "—"}</td>
+            {columns[view].map((column, index) => {
+              const top = best[index] !== null && column.raw!(stats, row) === best[index];
+              return <td key={column.label} className={`whitespace-nowrap px-2 text-right tabular-nums ${top ? "font-bold text-slate-950" : "text-slate-700"}`}>{top ? <span className="rounded bg-lime-100 px-1">{column.value(stats, row)}</span> : column.value(stats, row)}</td>;
+            })}
           </tr>;
         })}</tbody>
       </table>
     </div>
-    <p className="mt-3 text-[11px] text-slate-500">Điểm và chỉ số cầu thủ theo Highlightly. Cầu thủ không ra sân không được liệt kê.</p>
+    <p className="mt-3 text-[11px] text-slate-500">Điểm và chỉ số cầu thủ theo Highlightly; cầu thủ không ra sân không được liệt kê. Ô tô xanh: cao nhất ở cột đó.</p>
   </section>;
+}
+
+/** Colour key for the two teams and quick links to each part of the statistics tab. */
+function StatsHeader({ match, hasShots, hasPlayers }: { match: MatchDetail; hasShots: boolean; hasPlayers: boolean }) {
+  const side = (club: MatchTeam | null, key: "home" | "away", swatch: string) => <span className={`flex min-w-0 items-center gap-2 ${key === "away" ? "flex-row-reverse" : ""}`}>
+    <span aria-hidden="true" className={`h-3 w-3 shrink-0 rounded-full ${swatch}`} /><TeamBadge name={teamName(club, key, true)} tla={club?.tla} crestUrl={club?.externalCrestUrl} />
+    <span className="truncate text-sm font-bold">{club?.shortName?.trim() || teamName(club, key, true)}</span></span>;
+  const links = [["#thong-ke-tong-quan", "Tổng quan"], ...(hasShots ? [["#thong-ke-cu-sut", "Cú sút"]] : []), ["#thong-ke-doi", "Chỉ số đội"], ...(hasPlayers ? [["#thong-ke-cau-thu", "Cầu thủ"]] : [])];
+  return <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+    <div className="flex items-center justify-between gap-3">{side(match.homeClub, "home", "bg-slate-900")}<span className="text-xs text-slate-400">vs</span>{side(match.awayClub, "away", "bg-lime-500")}</div>
+    <nav aria-label="Phần của tab thống kê" className="mt-3 flex gap-1.5 overflow-x-auto border-t border-slate-100 pt-3">{links.map(([href, label]) => <a key={href} href={href} className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200">{label}</a>)}</nav>
+  </div>;
+}
+/**
+ * The statistics tab, read top-down: team key and quick links; the headline figures beside the
+ * shots; the team figures in small cards; the player table.
+ */
+export function StatsTab({ match, view, team, top }: { match: MatchDetail; view: PlayerStatView; team: PlayerTeamFilter; top: ReactNode }) {
+  const hasShots = Boolean(match.shots?.length);
+  const hasPlayers = Boolean(match.lineups?.some((lineup) => lineup.players.some((player) => player.rating != null || player.minutes != null)));
+  if (!match.stats.length && !hasShots && !hasPlayers) return <p role="status" className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-12 text-center text-sm leading-7 text-slate-600">Chưa có dữ liệu thống kê (kiểm soát bóng, số cú sút, phạt góc…) cho trận này.</p>;
+  return <div className="space-y-4">
+    <StatsHeader match={match} hasShots={hasShots} hasPlayers={hasPlayers} />
+    <div id="thong-ke-tong-quan" className={`grid scroll-mt-4 items-start gap-4 ${hasShots ? "lg:grid-cols-2" : ""}`}>{top}<ShotsView match={match} /></div>
+    <div id="thong-ke-doi" className="scroll-mt-4"><StatsList match={match} /></div>
+    <PlayerStatsTable match={match} view={view} team={team} />
+  </div>;
 }

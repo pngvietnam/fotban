@@ -50,7 +50,7 @@ describe("statistics tab extras", () => {
   it("draws each team's shots on the goal frame and lists them with outcome and target", () => {
     const $ = render();
     const section = $("#match-shots").parent();
-    expect(section.text()).toContain("Real Madrid· 3 cú sút");
+    expect(section.text()).toContain("3 cú sút · 1 bàn");
     const rows = section.find("ol li").map((_, node) => $(node).text()).get();
     expect(rows[0]).toContain("37′"); expect(rows[0]).toContain("Bàn thắng · Góc thấp giữa");
     expect(rows[2]).toContain("Ra ngoài · Vọt xà");
@@ -58,14 +58,24 @@ describe("statistics tab extras", () => {
   });
   it("lists players who played, best rating first, with a view per area", () => {
     let $ = render();
-    const names = $("#player-stats").parent().find("tbody th").map((_, node) => $(node).find("span.truncate").first().text()).get();
+    const names = $("#thong-ke-cau-thu").find("tbody th").map((_, node) => $(node).find("span.truncate").first().text()).get();
     expect(names).toEqual(["Kylian Mbappé", "Thibaut Courtois", "Youssouf Fofana"]);
-    expect($("#player-stats").parent().find("tbody tr").first().text()).toContain("1.8");
+    expect($("#thong-ke-cau-thu").find("tbody tr").first().text()).toContain("1.8");
     $ = render("tranh-bong");
-    expect($("#player-stats").parent().find("tbody tr").first().text()).toContain("6/10 (60%)");
-    expect($("#player-stats").parent().find("a[aria-current=page]").text()).toBe("Tranh bóng");
+    expect($("#thong-ke-cau-thu").find("tbody tr").first().text()).toContain("6/10 (60%)");
+    expect($("nav[aria-label='Nhóm chỉ số cầu thủ'] a[aria-current=page]").text()).toBe("Tranh bóng");
+    expect($("nav[aria-label='Lọc theo đội'] a[aria-current=page]").text()).toBe("Cả hai đội");
     $ = render("thu-thanh");
-    expect($("#player-stats").parent().find("tbody tr")).toHaveLength(1);
-    expect($("#player-stats").parent().find("a[href$='bang=thu-thanh#thong-ke-cau-thu']")).toHaveLength(1);
+    expect($("#thong-ke-cau-thu").find("tbody tr")).toHaveLength(1);
+    expect($("nav[aria-label='Nhóm chỉ số cầu thủ'] a[href$='bang=thu-thanh#thong-ke-cau-thu']")).toHaveLength(1);
+    // Team chips keep the current view.
+    expect($("nav[aria-label='Lọc theo đội'] a").map((_, node) => $(node).attr("href")).get()).toEqual(["/match/fixture-alpha-beta?tab=thong-ke&bang=thu-thanh#thong-ke-cau-thu", "/match/fixture-alpha-beta?tab=thong-ke&bang=thu-thanh&doi=nha#thong-ke-cau-thu", "/match/fixture-alpha-beta?tab=thong-ke&bang=thu-thanh&doi=khach#thong-ke-cau-thu"]);
+  });
+});
+
+describe("player table team filter", () => {
+  it("keeps only one team's players and links keep the view", async () => {
+    const { parsePlayerTeamFilter } = await import("../components/matches/match-stats-extra");
+    expect(parsePlayerTeamFilter("nha")).toBe("home"); expect(parsePlayerTeamFilter("khach")).toBe("away"); expect(parsePlayerTeamFilter(undefined)).toBe("all");
   });
 });

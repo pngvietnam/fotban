@@ -1449,3 +1449,9 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - Venue, capacity and weather from the same response fill "Sân vận động", "Sức chứa", "Thời tiết".
 - Not available from free sources: pitch shot map, xGOT and xG split, first/second-half split, physical data, attack zones.
 - Older matches: `npm.cmd run matches:details -- --refetch` schedules a re-read; the worker spreads it over the daily allowance.
+
+## Statistics tab layout
+
+- Read top-down: team colour key with quick links (Tổng quan, Cú sút, Chỉ số đội, Cầu thủ); "Thống kê hàng đầu" beside the shots card; team figures as six small cards (Sút bóng, Chuyền bóng, Tranh bóng, Phòng ngự, Kỷ luật, Bóng chết) without bars, leading side highlighted (not for fouls/cards/offsides); low-value figures in a collapsed "Chỉ số khác".
+- Shots: one-line summary per team, goal frame, list collapsed.
+- Player table: compact rows, crest beside the name, best value per column highlighted, ★ on the top rating, team filter (`&doi=nha|khach`).
