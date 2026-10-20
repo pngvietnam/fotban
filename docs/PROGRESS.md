@@ -1428,3 +1428,9 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 - Source: Highlightly free Basic plan (see MATCH_PROVIDER.md). Additive migration `20261019190000_match_details` (MatchLineup, MatchDetailSync, ProviderQuota, MatchEvent player names).
 - Match page: Sự kiện is a home-left/away-right timeline, scorers appear under the score, Đội hình draws each formation on a pitch with the bench, Thống kê shows home/away bars, Dữ kiện shows the referee and credits the provider.
 - Live since 2026-10-20: first pass mapped 19 matches (lineups, events, statistics) with 46 of 90 daily requests; field meanings verified (see MATCH_PROVIDER.md). Statistics are grouped like FotMob; the facts tab shows the summary group.
+
+## Lineups like FotMob
+
+- Đội hình tab: both teams on one pitch (home left / away right on wide screens, home top / away bottom on phones), lines ordered from each team's left to right as the provider sends them; player rating chips (Highlightly box score, 0-10, ★ for the match's best), goals, own goals, cards and substitution minutes; team bar with formation and average rating; both benches with minute on, cards and ratings.
+- Box score: one extra request per finished match (`MatchDetailSync.boxScoreFetchedAt`, migration `20261020090000_match_box_scores`), merged into the stored lineup (rating, minutes, full name, per-player figures). No coach or captain data is available.
+- Fix: the provider is inconsistent about which substitution name came on; substitutions are now replayed against who is on the pitch (starters, then each change), with short/full name matching. Verified: 172 of 175 oriented, 0 wrong, 3 left as sent (names not in the lineup).

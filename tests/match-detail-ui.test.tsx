@@ -41,19 +41,36 @@ describe("match detail tabs with provider data", () => {
     expect(statLabel("brand_new_metric")).toBe("Brand new metric");
     expect(statValue("expected_goals", 1.234)).toBe("1.23");
   });
-  it("draws the starting eleven by formation rows and lists the bench", () => {
-    const lineups: MatchDetail["lineups"] = [{ clubId: home.id, formation: "4-3-3", players: [
-      { name: "Alpha Keeper", number: 1, position: "Goalkeeper", starter: true, row: 0, slot: 0, playerId: null },
-      { name: "Alpha Striker", number: 9, position: "Forward", starter: true, row: 1, slot: 0, playerId: "33333333-3333-4333-8333-333333333333", photoUrl: null },
-      { name: "Alpha Sub", number: 18, position: "Midfielder", starter: false, row: null, slot: null, playerId: null },
-    ] }];
-    const $ = render(detail({ lineups }), "doi-hinh");
-    const team = $("section[aria-label^='Đội hình Fixture Alpha']");
-    expect(team.text()).toContain("4-3-3");
-    // Forwards first (top of the pitch), goalkeeper last.
-    expect(team.find("ol > li").first().text()).toContain("Striker");
-    expect(team.find("ol > li").last().text()).toContain("Keeper");
-    expect(team.text()).toContain("Dự bị"); expect(team.text()).toContain("Tiền vệ");
+  it("puts both teams on one pitch with ratings, match icons and the bench", () => {
+    const striker = "33333333-3333-4333-8333-333333333333";
+    const lineups: MatchDetail["lineups"] = [
+      { clubId: home.id, formation: "4-3-3", players: [
+        { name: "A. Keeper", number: 1, position: "Goalkeeper", starter: true, row: 0, slot: 0, playerId: null, rating: 6.4 },
+        { name: "A. Striker", fullName: "Alpha Striker", number: 9, position: "Forward", starter: true, row: 1, slot: 0, playerId: striker, rating: 8.7 },
+        { name: "A. Sub", fullName: "Alpha Sub", number: 18, position: "Midfielder", starter: false, row: null, slot: null, playerId: null, rating: 6.1 },
+        { name: "A. Unused", number: 30, position: "Goalkeeper", starter: false, row: null, slot: null, playerId: null },
+      ] },
+      { clubId: away.id, formation: "4-4-2", players: [{ name: "B. Keeper", number: 1, position: "Goalkeeper", starter: true, row: 0, slot: 0, playerId: null, rating: 5.6 }] },
+    ];
+    const events: MatchDetail["events"] = [
+      { type: "GOAL", minute: 12, addedMinute: null, detail: null, playerName: "A. Striker", relatedPlayerName: null, club: { id: home.id, name: home.name }, player: { id: striker, name: "Alpha Striker" }, relatedPlayer: null },
+      { type: "YELLOW_CARD", minute: 30, addedMinute: null, detail: null, playerName: "Alpha Striker", relatedPlayerName: null, club: { id: home.id, name: home.name }, player: null, relatedPlayer: null },
+      { type: "SUBSTITUTION", minute: 70, addedMinute: null, detail: null, playerName: "Alpha Sub", relatedPlayerName: "Alpha Striker", club: { id: home.id, name: home.name }, player: null, relatedPlayer: null },
+    ];
+    const $ = render(detail({ lineups, events }), "doi-hinh");
+    const pitch = $("section[aria-label='Đội hình ra sân']");
+    expect(pitch.text()).toContain("4-3-3"); expect(pitch.text()).toContain("4-4-2");
+    // Home half: goalkeeper line first, then the forwards; the away half follows.
+    const players = pitch.find("li[aria-label]").map((_, node) => $(node).attr("aria-label")).get();
+    expect(players[0]).toBe("A. Keeper, số 1, điểm 6.4");
+    expect(players[1]).toBe("A. Striker, số 9, điểm 8.7, cao nhất trận, 1 bàn, thẻ vàng phút 30, rời sân phút 70");
+    expect(players[2]).toBe("B. Keeper, số 1, điểm 5.6");
+    expect(pitch.find(`a[href='/player/player-${striker}']`)).toHaveLength(1);
+    // Team rating: average of rated players (6.4, 8.7, 6.1).
+    expect(pitch.text()).toContain("7.1");
+    const bench = $("#lineup-bench").parent().find("li[aria-label]").map((_, node) => $(node).attr("aria-label")).get();
+    expect(bench).toEqual(["A. Sub, số 18, điểm 6.1, vào sân phút 70", "A. Unused, số 30"]);
+    expect($("#lineup-bench").parent().text()).toContain("Tiền vệ");
   });
   it("says plainly when a tab has no data yet", () => {
     expect(render(detail(), "su-kien")("[role=status]").text()).toContain("Chưa có dữ liệu diễn biến");

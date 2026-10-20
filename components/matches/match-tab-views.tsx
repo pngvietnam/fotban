@@ -1,12 +1,11 @@
 import Link from "next/link";
-import type { LineupPlayerView, MatchDetail } from "../../types/match-ui";
+import type { MatchDetail } from "../../types/match-ui";
 import type { MatchHub } from "../../services/match-hub";
 import type { FixtureRow } from "../../types/league-hub";
 import { resultLabel, resultText } from "../../lib/league-presentation";
 import { teamName } from "../../lib/match-presentation";
 import { playerPath } from "../../lib/player-presentation";
 import { FixtureItem, StandingsTable } from "../league/league-hub";
-import { PlayerPhoto } from "../ui/player-photo";
 
 const eventLabels: Record<string, string> = { GOAL: "Bàn thắng", OWN_GOAL: "Phản lưới", PENALTY: "Phạt đền", YELLOW_CARD: "Thẻ vàng", RED_CARD: "Thẻ đỏ", SUBSTITUTION: "Thay người", OTHER: "Sự kiện" };
 const panel = "rounded-2xl border border-slate-200 bg-white p-5 sm:p-6";
@@ -159,48 +158,6 @@ export function StatsList({ match, summaryHref }: { match: MatchDetail; summaryH
     </div>)}
     {summaryHref && <Link href={summaryHref} className="mt-5 block text-center text-sm font-semibold underline-offset-4 hover:underline">Xem tất cả thống kê →</Link>}
   </section>;
-}
-
-const positionText: Record<string, string> = { Goalkeeper: "Thủ môn", Defender: "Hậu vệ", Midfielder: "Tiền vệ", Forward: "Tiền đạo" };
-const shortName = (name: string) => { const words = name.trim().split(/\s+/); return words.length > 1 ? words.slice(1).join(" ") : name; };
-function PitchPlayer({ player }: { player: LineupPlayerView }) {
-  const content = <>
-    <span className="relative"><PlayerPhoto photoUrl={player.photoUrl} size="md" />{player.number !== null && <span className="absolute -bottom-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full bg-white px-1 text-[10px] font-bold text-slate-900 shadow">{player.number}</span>}</span>
-    <span className="mt-1 line-clamp-1 max-w-[5.5rem] break-words text-center text-[11px] font-semibold text-white">{shortName(player.name)}</span>
-  </>;
-  return <li className="flex min-w-0 flex-1 flex-col items-center">{player.playerId
-    ? <Link href={playerPath(player.playerId)} aria-label={player.name} className="flex flex-col items-center">{content}</Link>
-    : <span aria-label={player.name} className="flex flex-col items-center">{content}</span>}</li>;
-}
-function TeamLineup({ name, lineup }: { name: string; lineup: NonNullable<MatchDetail["lineups"]>[number] }) {
-  const starters = lineup.players.filter((player) => player.starter);
-  // Forwards at the top, goalkeeper at the bottom.
-  const rows = [...new Set(starters.map((player) => player.row ?? 0))].sort((a, b) => b - a)
-    .map((row) => starters.filter((player) => (player.row ?? 0) === row).sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0)));
-  const bench = lineup.players.filter((player) => !player.starter);
-  return <section aria-label={`Đội hình ${name}`} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4">
-    <h3 className="mb-3 flex items-baseline justify-between gap-2 font-bold"><span className="min-w-0 break-words">{name}</span>{lineup.formation && <span className="shrink-0 text-sm text-slate-500">{lineup.formation}</span>}</h3>
-    {starters.length > 0 && <div className="rounded-xl bg-gradient-to-b from-emerald-700 to-emerald-800 px-2 py-4">
-      <ol className="flex flex-col gap-4">{rows.map((row, index) => <li key={index}><ul className="flex justify-around gap-1">{row.map((player) => <PitchPlayer key={`${player.name}-${player.number}`} player={player} />)}</ul></li>)}</ol>
-    </div>}
-    {bench.length > 0 && <>
-      <h4 className="mb-1 mt-4 text-xs font-bold uppercase tracking-wide text-slate-500">Dự bị</h4>
-      <ul className="divide-y divide-slate-100 text-sm">{bench.map((player) => <li key={`${player.name}-${player.number}`} className="flex items-center gap-3 py-2">
-        <span className="w-6 text-right text-xs font-bold tabular-nums text-slate-500">{player.number ?? ""}</span><PlayerPhoto photoUrl={player.photoUrl} />
-        <span className="min-w-0 flex-1 break-words">{player.playerId ? <Link href={playerPath(player.playerId)} className="font-medium hover:underline">{player.name}</Link> : <span className="font-medium">{player.name}</span>}</span>
-        {player.position && <span className="shrink-0 text-xs text-slate-500">{positionText[player.position] ?? player.position}</span>}
-      </li>)}</ul>
-    </>}
-  </section>;
-}
-export function LineupsView({ match }: { match: MatchDetail }) {
-  const home = match.lineups?.find((lineup) => lineup.clubId === match.homeClub?.id);
-  const away = match.lineups?.find((lineup) => lineup.clubId === match.awayClub?.id);
-  if (!home && !away) return <Unavailable>Chưa có đội hình. Đội hình thường được công bố khoảng một giờ trước giờ bóng lăn.</Unavailable>;
-  return <div className="grid gap-4 md:grid-cols-2">
-    {home && <TeamLineup name={teamName(match.homeClub, "home", true)} lineup={home} />}
-    {away && <TeamLineup name={teamName(match.awayClub, "away", true)} lineup={away} />}
-  </div>;
 }
 
 /** Result of a fixture from one club's point of view (by name, since fixture rows carry names). */

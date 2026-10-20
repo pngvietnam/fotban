@@ -3,7 +3,7 @@ import { z } from "zod";
 import { dataSources } from "../lib/data-sources";
 import { dateBounds, matchTimeZone } from "../lib/match-presentation";
 
-type StoredLineupPlayer = { name: string; number: number | null; position: string | null; starter: boolean; row: number | null; slot: number | null; playerId: string | null };
+type StoredLineupPlayer = { name: string; fullName: string | null; number: number | null; position: string | null; starter: boolean; row: number | null; slot: number | null; playerId: string | null; rating: number | null; minutes: number | null; stats: Record<string, number> };
 /** Defensive read of the stored lineup JSON: malformed entries are dropped, never shown half-formed. */
 function lineupPlayers(value: unknown): StoredLineupPlayer[] {
   if (!Array.isArray(value)) return [];
@@ -12,7 +12,10 @@ function lineupPlayers(value: unknown): StoredLineupPlayer[] {
     const player = item as Record<string, unknown>;
     if (typeof player.name !== "string" || !player.name.trim()) return [];
     const int = (field: unknown) => typeof field === "number" && Number.isInteger(field) ? field : null;
-    return [{ name: player.name, number: int(player.number), position: typeof player.position === "string" ? player.position : null, starter: player.starter === true, row: int(player.row), slot: int(player.slot), playerId: typeof player.playerId === "string" ? player.playerId : null }];
+    const rating = typeof player.rating === "number" && player.rating >= 0 && player.rating <= 10 ? player.rating : null;
+    const stats = player.stats && typeof player.stats === "object" ? Object.fromEntries(Object.entries(player.stats as Record<string, unknown>).filter((entry): entry is [string, number] => typeof entry[1] === "number" && Number.isFinite(entry[1]))) : {};
+    return [{ name: player.name, fullName: typeof player.fullName === "string" && player.fullName.trim() ? player.fullName : null, number: int(player.number), position: typeof player.position === "string" ? player.position : null,
+      starter: player.starter === true, row: int(player.row), slot: int(player.slot), playerId: typeof player.playerId === "string" ? player.playerId : null, rating, minutes: int(player.minutes), stats }];
   });
 }
 

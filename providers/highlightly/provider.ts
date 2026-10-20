@@ -1,6 +1,6 @@
 import { ProviderError } from "../errors";
 import { HIGHLIGHTLY } from "./config";
-import { normalizeDetail, normalizeLeagues, normalizeLineups, normalizeMatches, type HighlightlyDetail, type HighlightlyLeague, type HighlightlyLineups, type HighlightlyMatch } from "./normalization";
+import { normalizeBoxScore, normalizeDetail, normalizeLeagues, normalizeLineups, normalizeMatches, type HighlightlyBoxScore, type HighlightlyDetail, type HighlightlyLeague, type HighlightlyLineups, type HighlightlyMatch } from "./normalization";
 
 /** What the match-detail sync needs from a detail provider; tests pass a fake. */
 export type MatchDetailApi = {
@@ -9,6 +9,8 @@ export type MatchDetailApi = {
   match(id: string): Promise<HighlightlyDetail>;
   /** null when the provider has no lineups for the match yet. */
   lineups(id: string): Promise<HighlightlyLineups | null>;
+  /** Per-player ratings, minutes and figures of a finished match. */
+  boxScore(id: string): Promise<HighlightlyBoxScore>;
 };
 type Options = {
   fetch?: typeof fetch;
@@ -57,6 +59,11 @@ export class HighlightlyProvider implements MatchDetailApi {
     if (!/^\d{1,20}$/.test(id)) throw new ProviderError("UNSUPPORTED");
     const body = await this.request(`/matches/${id}`);
     return this.parse(() => normalizeDetail(body));
+  }
+  async boxScore(id: string) {
+    if (!/^\d{1,20}$/.test(id)) throw new ProviderError("UNSUPPORTED");
+    const body = await this.request(`/box-score/${id}`);
+    return this.parse(() => normalizeBoxScore(body));
   }
   async lineups(id: string) {
     if (!/^\d{1,20}$/.test(id)) throw new ProviderError("UNSUPPORTED");

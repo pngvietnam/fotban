@@ -3,11 +3,11 @@ import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { SyncDatabase } from "../lib/sync-database";
-import { matchSquadPlayer, pairMatches, teamNameScore } from "../lib/match-detail-matching";
-import { cleanName, metricKey, normalizeDetail, normalizeLineups, normalizeMatches, parseEventTime } from "../providers/highlightly/normalization";
+import { matchSquadPlayer, pairMatches, sameName, teamNameScore } from "../lib/match-detail-matching";
+import { cleanName, metricKey, normalizeBoxScore, normalizeDetail, normalizeLineups, normalizeMatches, parseEventTime } from "../providers/highlightly/normalization";
 import { HighlightlyProvider, type MatchDetailApi } from "../providers/highlightly/provider";
 import { ProviderError } from "../providers/errors";
-import { orientSubstitution, reserveQuota, syncMatchDetails } from "../services/match-details";
+import { orientSubstitutions, reserveQuota, syncMatchDetails } from "../services/match-details";
 
 const detailBody = (overrides: Record<string, unknown> = {}) => ({
   id: 9001, homeTeam: { id: 10, name: "Arsenal" }, awayTeam: { id: 20, name: "Chelsea" }, referee: { name: "Michael Oliver" },
@@ -23,6 +23,10 @@ const detailBody = (overrides: Record<string, unknown> = {}) => ({
   ],
   ...overrides,
 });
+const boxBody = () => [
+  { team: { id: 10, name: "Arsenal" }, players: [{ id: 7, name: "Bukayo Saka", fullName: "Bukayo Ayoyinka Temidayo Saka", shirtNumber: 7, matchRating: 8.4, minutesPlayed: 90, isCaptain: false, statistics: { goalsScored: 1, assists: 0, shotsAccuracy: "50.00 %", expectedGoals: 0.62 } }] },
+  { team: { id: 20, name: "Chelsea" }, players: [{ id: 10, name: "Cole Palmer", fullName: "Cole Jermaine Palmer", shirtNumber: 10, matchRating: "6.1", minutesPlayed: 61, statistics: {} }] },
+];
 const lineupBody = () => ({
   homeTeam: { id: 10, name: "Arsenal", formation: "4-3-3", initialLineup: [[{ name: "David Raya", number: 22, position: "Goalkeeper" }], [{ name: "Bukayo Saka", number: 7, position: "Forward" }]], substitutes: [{ id: 5, name: "Kai Havertz", number: 29, position: "Forward" }] },
   awayTeam: { id: 20, name: "Chelsea", formation: "4-2-3-1", initialLineup: [[{ name: "Robert Sánchez", number: 1, position: "Goalkeeper" }], [{ name: "Cole Palmer", number: 10, position: "Midfielder" }]], substitutes: [{ name: "Nicolas Jackson", number: 15, position: "Forward" }] },
@@ -60,7 +64,7 @@ describe("Highlightly normalization", () => {
     expect(lineups.home.players).toEqual([
       { name: "David Raya", number: 22, position: "Goalkeeper", starter: true, row: 0, slot: 0 },
       { name: "Bukayo Saka", number: 7, position: "Forward", starter: true, row: 1, slot: 0 },
-      { name: "Kai Havertz", number: 29, position: "Forward", starter: false, row: null, slot: null },
+      { name: "Kai Havertz", number: 29, position: "Forward", starter: false, row: null, slot: null, externalId: "5" },
     ]);
   });
   it("keeps only matches with a valid kickoff", () => {
@@ -94,11 +98,26 @@ describe("matching provider names to FotBan clubs and players", () => {
     expect(matchSquadPlayer(squad, "Gabriel")).toBeNull();
     expect(matchSquadPlayer(squad, "X. Saka")).toBeNull();
   });
-  it("turns a substitution around when the named player was the starter", () => {
-    const event = { teamId: "20", minute: 61, addedMinute: null, type: "SUBSTITUTION" as const, detail: null, player: "Cole Palmer", related: "Nicolas Jackson" };
-    expect(orientSubstitution(event, new Set(["Cole Palmer"]))).toMatchObject({ player: "Nicolas Jackson", related: "Cole Palmer" });
-    expect(orientSubstitution(event, new Set(["Robert Sánchez"]))).toMatchObject({ player: "Cole Palmer" });
-    expect(orientSubstitution({ ...event, player: "C. Palmer", related: "N. Jackson" }, new Set(["Cole Palmer"]))).toMatchObject({ player: "N. Jackson", related: "C. Palmer" });
+  it("recognises the same person across short, full and longer spellings", () => {
+    expect(sameName("A. Maitland-Niles", "Ainsley Maitland-Niles")).toBe(true);
+    expect(sameName("Pedro Neto", "Pedro Lomba Neto")).toBe(true);
+    expect(sameName("M. Caicedo", "Moises Caicedo")).toBe(true);
+    expect(sameName("J. Garner", "Harrison Armstrong")).toBe(false);
+    expect(sameName("Gabriel", "Gabriel Martinelli")).toBe(false);
+  });
+  it("orients substitutions by who is on the pitch, whichever way the provider wrote them", () => {
+    const lineup = [
+      { name: "A. Maitland-Niles", starter: true }, { name: "J. Pedro", fullName: "João Pedro Junqueira de Jesus", starter: true },
+      { name: "T. George", fullName: "Tyrique George", starter: false }, { name: "D. Welbeck", starter: false }, { name: "M. Penders", starter: false },
+    ];
+    const sub = (minute: number, player: string, related: string) => ({ type: "SUBSTITUTION", minute, player, related });
+    const oriented = orientSubstitutions([sub(55, "Ainsley Maitland-Niles", "Tyrique George"), sub(80, "Danny Welbeck", "João Pedro"), sub(88, "Tyrique George", "Mike Penders")], () => "club", new Map([["club", lineup]]));
+    expect(oriented.map((event) => [event.player, event.related])).toEqual([
+      ["Tyrique George", "Ainsley Maitland-Niles"], // the starter was named first: he went off
+      ["Danny Welbeck", "João Pedro"], // already the right way round
+      ["Mike Penders", "Tyrique George"], // George came on at 55, so here he is the one leaving
+    ]);
+    expect(orientSubstitutions([sub(10, "Unknown A", "Unknown B")], () => "club", new Map([["club", lineup]]))[0]).toMatchObject({ player: "Unknown A" });
   });
 });
 
@@ -155,6 +174,7 @@ describe("syncMatchDetails (SQL)", () => {
       matches: async (query) => { calls.push(`matches:${query.leagueId}:${query.date}`); return [{ id: "9001", kickoffAt: new Date("2026-10-18T15:30:00Z"), home: { id: "10", name: "Arsenal" }, away: { id: "20", name: "Chelsea" } }]; },
       match: async (id) => { calls.push(`match:${id}`); return normalizeDetail(detailBody()); },
       lineups: async (id) => { calls.push(`lineups:${id}`); return normalizeLineups(lineupBody()); },
+      boxScore: async (id) => { calls.push(`box:${id}`); return normalizeBoxScore(boxBody()); },
       ...overrides,
     };
     return { api, calls };
@@ -162,8 +182,8 @@ describe("syncMatchDetails (SQL)", () => {
 
   it("maps the finished match, stores lineups then events and statistics, and is idle afterwards", async () => {
     const { api, calls } = fakeApi();
-    expect(await syncMatchDetails(database, api, now)).toEqual({ mapped: 1, lineups: 1, details: 1, requests: 4, stopped: "DONE" });
-    expect(calls).toEqual(["leagues:Premier League", "matches:33:2026-10-18", "lineups:9001", "match:9001"]);
+    expect(await syncMatchDetails(database, api, now)).toEqual({ mapped: 1, lineups: 1, details: 1, boxScores: 1, requests: 5, stopped: "DONE" });
+    expect(calls).toEqual(["leagues:Premier League", "matches:33:2026-10-18", "lineups:9001", "match:9001", "box:9001"]);
     const events = await database.query<{ type: string; clubId: string; playerId: string | null; playerName: string; relatedPlayerId: string | null; minute: number; addedMinute: number | null }>(`SELECT type,"clubId","playerId","playerName","relatedPlayerId",minute,"addedMinute" FROM "MatchEvent" WHERE "matchId"=$1::uuid ORDER BY "externalId"::int`, [ids.match]);
     expect(events.map((event) => [event.type, event.clubId, event.playerId, event.minute, event.addedMinute])).toEqual([
       ["GOAL", ids.arsenal, ids.saka, 23, null], ["YELLOW_CARD", ids.chelsea, ids.palmer, 45, 2], ["SUBSTITUTION", ids.chelsea, ids.jackson, 61, null], ["OTHER", ids.arsenal, ids.saka, 70, null],
@@ -174,10 +194,13 @@ describe("syncMatchDetails (SQL)", () => {
     const [lineup] = await database.query<{ formation: string; players: { name: string; playerId: string | null; starter: boolean }[] }>(`SELECT formation,players FROM "MatchLineup" WHERE "clubId"=$1::uuid`, [ids.arsenal]);
     expect(lineup.formation).toBe("4-3-3");
     expect(lineup.players.find((player) => player.name === "Bukayo Saka")?.playerId).toBe(ids.saka);
+    expect(lineup.players.find((player) => player.name === "Bukayo Saka")).toMatchObject({ rating: 8.4, minutes: 90, fullName: "Bukayo Ayoyinka Temidayo Saka", stats: { goalsScored: 1, expectedGoals: 0.62 } });
+    const [chelsea] = await database.query<{ players: { name: string; rating: number | null }[] }>(`SELECT players FROM "MatchLineup" WHERE "clubId"=$1::uuid`, [ids.chelsea]);
+    expect(chelsea.players.find((player) => player.name === "Cole Palmer")?.rating).toBe(6.1);
     const [sync] = await database.query<{ referee: string; detailFetchedAt: Date | null; lineupsFetchedAt: Date | null }>(`SELECT referee,"detailFetchedAt","lineupsFetchedAt" FROM "MatchDetailSync" WHERE "matchId"=$1::uuid`, [ids.match]);
     expect(sync.referee).toBe("Michael Oliver"); expect(sync.detailFetchedAt).not.toBeNull(); expect(sync.lineupsFetchedAt).not.toBeNull();
     const again = fakeApi();
-    expect(await syncMatchDetails(database, again.api, new Date(now.getTime() + 3600_000))).toEqual({ mapped: 0, lineups: 0, details: 0, requests: 0, stopped: "DONE" });
+    expect(await syncMatchDetails(database, again.api, new Date(now.getTime() + 3600_000))).toEqual({ mapped: 0, lineups: 0, details: 0, boxScores: 0, requests: 0, stopped: "DONE" });
     expect(again.calls).toEqual([]);
   });
   it("keeps a match due when goals are missing upstream, and stops at the daily allowance", async () => {

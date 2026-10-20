@@ -12,7 +12,8 @@ import type { ReactNode } from "react";
 import type { MatchHub } from "../../services/match-hub";
 import { matchTabHref, type MatchTab } from "../../lib/match-tabs";
 import { MatchTabsView } from "./match-tabs";
-import { EventsList, FormPanel, HeadToHeadPanel, LineupsView, NextMatches, Scorers, StandingsPanel, StatsList, Unavailable } from "./match-tab-views";
+import { LineupsView } from "./match-lineups";
+import { EventsList, FormPanel, HeadToHeadPanel, NextMatches, Scorers, StandingsPanel, StatsList, Unavailable } from "./match-tab-views";
 
 export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, news }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode }) {
   const updated = formatUpdated(match.lastUpdatedAt);

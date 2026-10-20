@@ -13,7 +13,11 @@ export type MatchSummary = {
   homeClub: MatchTeam | null; awayClub: MatchTeam | null;
   attribution?: { text: string; url: string } | null;
 };
-export type LineupPlayerView = { name: string; number: number | null; position: string | null; starter: boolean; row: number | null; slot: number | null; playerId: string | null; photoUrl?: string | null };
+export type LineupPlayerView = {
+  name: string; fullName?: string | null; number: number | null; position: string | null; starter: boolean; row: number | null; slot: number | null; playerId: string | null; photoUrl?: string | null;
+  /** Provider match rating (0-10), minutes played and per-player figures, from the box score. */
+  rating?: number | null; minutes?: number | null; stats?: Record<string, number>;
+};
 export type MatchDetail = MatchSummary & {
   events: { type: string; minute: number | null; addedMinute: number | null; detail: string | null;
     playerName?: string | null; relatedPlayerName?: string | null;

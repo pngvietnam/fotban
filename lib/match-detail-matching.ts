@@ -69,3 +69,20 @@ export function matchSquadPlayer(squad: SquadPlayer[], name: string | null) {
   });
   return nested.length === 1 ? nested[0].id : null;
 }
+
+const nameWords = (value: string) => foldName(value).split(/[^a-z0-9]+/).filter(Boolean);
+/**
+ * Whether two provider spellings name the same person, in either direction: equal names,
+ * "A. Maitland-Niles" vs "Ainsley Maitland-Niles" (initial + same surname), or one name contained
+ * in the other with at least two words ("Pedro Neto" in "Pedro Lomba Neto").
+ */
+export function sameName(a: string, b: string) {
+  const left = nameWords(a); const right = nameWords(b);
+  if (!left.length || !right.length) return false;
+  if (left.join(" ") === right.join(" ")) return true;
+  const initialForm = (short: string[], full: string[]) => short.length >= 2 && full.length >= 2 && short[0].length === 1 && full[0][0] === short[0]
+    && full.slice(-(short.length - 1)).join(" ") === short.slice(1).join(" ");
+  if ((/^\s*\p{L}\.\s*/u.test(a) && initialForm(left, right)) || (/^\s*\p{L}\.\s*/u.test(b) && initialForm(right, left))) return true;
+  const [shorter, longer] = left.length <= right.length ? [left, new Set(right)] : [right, new Set(left)];
+  return shorter.length >= 2 && shorter.every((word) => longer.has(word));
+}

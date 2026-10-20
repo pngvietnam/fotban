@@ -1,8 +1,8 @@
 import type { SqlExecutor, SyncDatabase } from "../lib/sync-database";
-import { matchSquadPlayer, pairMatches, type SquadPlayer } from "../lib/match-detail-matching";
+import { matchSquadPlayer, pairMatches, sameName, type SquadPlayer } from "../lib/match-detail-matching";
 import { HIGHLIGHTLY, highlightlyLeagues } from "../providers/highlightly/config";
 import type { MatchDetailApi } from "../providers/highlightly/provider";
-import { cleanName, type DetailEvent, type HighlightlyDetail, type HighlightlyLineups, type LineupPlayer } from "../providers/highlightly/normalization";
+import { cleanName, type HighlightlyBoxScore, type HighlightlyDetail, type HighlightlyLineups, type LineupPlayer } from "../providers/highlightly/normalization";
 import { ProviderError, safeProviderError } from "../providers/errors";
 import { isLeagueSlug } from "./league-hub";
 
@@ -16,7 +16,7 @@ const mapRetryMs = 2 * 3600_000;
 const maxAttempts = 4;
 const lookbackMs = 3 * 86400_000;
 
-export type DetailSyncResult = { mapped: number; lineups: number; details: number; requests: number; stopped: "DONE" | "QUOTA" | "ERROR"; error?: string };
+export type DetailSyncResult = { mapped: number; lineups: number; details: number; boxScores: number; requests: number; stopped: "DONE" | "QUOTA" | "ERROR"; error?: string };
 
 /** Atomically spends one request of today's (UTC) allowance; false when it is used up. */
 export async function reserveQuota(db: SqlExecutor, now: Date, budget: number = HIGHLIGHTLY.dailyBudget) {
@@ -33,21 +33,24 @@ type Due = {
   matchId: string; leagueId: string; leagueSlug: string; kickoffAt: string; status: string; homeScore: number | null; awayScore: number | null;
   homeClubId: string; awayClubId: string; homeNames: (string | null)[]; awayNames: (string | null)[];
   externalId: string | null; homeTeamExternalId: string | null; awayTeamExternalId: string | null; mapAttemptAt: string | null;
-  lineupsFetchedAt: string | null; lineupAttempts: number | null; detailFetchedAt: string | null; detailAttempts: number | null; syncUpdatedAt: string | null;
+  lineupsFetchedAt: string | null; lineupAttempts: number | null; detailFetchedAt: string | null; detailAttempts: number | null; boxScoreFetchedAt: string | null; boxScoreAttempts: number | null; syncUpdatedAt: string | null;
 };
 async function dueMatches(db: SqlExecutor, now: Date) {
   return db.query<Due>(`SELECT m.id AS "matchId",m."leagueId",l.slug AS "leagueSlug",m."kickoffAt",m.status,m."homeScore",m."awayScore",m."homeClubId",m."awayClubId",
       ARRAY[hc.name,hc."shortName"]||hc.aliases AS "homeNames",ARRAY[ac.name,ac."shortName"]||ac.aliases AS "awayNames",
-      d."externalId",d."homeTeamExternalId",d."awayTeamExternalId",d."mapAttemptAt",d."lineupsFetchedAt",d."lineupAttempts",d."detailFetchedAt",d."detailAttempts",d."updatedAt" AS "syncUpdatedAt"
+      d."externalId",d."homeTeamExternalId",d."awayTeamExternalId",d."mapAttemptAt",d."lineupsFetchedAt",d."lineupAttempts",d."detailFetchedAt",d."detailAttempts",d."boxScoreFetchedAt",d."boxScoreAttempts",d."updatedAt" AS "syncUpdatedAt"
     FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Club" hc ON hc.id=m."homeClubId" JOIN "Club" ac ON ac.id=m."awayClubId"
     LEFT JOIN "MatchDetailSync" d ON d."matchId"=m.id AND d.provider=$1
     WHERE l.slug IN ('premier-league','la-liga','champions-league') AND m.status NOT IN ('CANCELLED','POSTPONED')
       AND m."kickoffAt" BETWEEN $2::timestamptz AND $3::timestamptz
-      AND (d."detailFetchedAt" IS NULL OR d."lineupsFetchedAt" IS NULL)
+      AND (d."detailFetchedAt" IS NULL OR d."lineupsFetchedAt" IS NULL OR d."boxScoreFetchedAt" IS NULL)
     ORDER BY m."kickoffAt",m.id`, [provider, new Date(now.getTime() - lookbackMs), new Date(now.getTime() + lineupLeadMs)]);
 }
 const since = (value: string | null, now: Date) => value ? now.getTime() - Date.parse(value) : Infinity;
 const wantsDetail = (row: Due, now: Date) => row.status === "FINISHED" && !row.detailFetchedAt && (row.detailAttempts ?? 0) < maxAttempts && ((row.detailAttempts ?? 0) === 0 || since(row.syncUpdatedAt, now) >= detailRetryMs);
+/** Ratings and per-player figures, once events are in (so the match is complete upstream). */
+const wantsBoxScore = (row: Due, now: Date) => row.status === "FINISHED" && Boolean(row.detailFetchedAt) && !row.boxScoreFetchedAt && (row.boxScoreAttempts ?? 0) < maxAttempts
+  && ((row.boxScoreAttempts ?? 0) === 0 || since(row.syncUpdatedAt, now) >= detailRetryMs);
 const wantsLineups = (row: Due, now: Date) => !row.lineupsFetchedAt && (row.lineupAttempts ?? 0) < maxAttempts && Date.parse(row.kickoffAt) - now.getTime() <= lineupLeadMs
   && ((row.lineupAttempts ?? 0) === 0 || since(row.syncUpdatedAt, now) >= lineupRetryMs);
 
@@ -60,7 +63,7 @@ async function upsertSync(db: SqlExecutor, matchId: string, fields: Record<strin
   await db.query(`INSERT INTO "MatchDetailSync" ("matchId",provider,${columns},"updatedAt") VALUES ($1::uuid,$2,${values},$3::timestamptz)
     ON CONFLICT ("matchId",provider) DO UPDATE SET ${updates},"updatedAt"=$3::timestamptz`, [matchId, provider, now, ...names.map((name) => fields[name])]);
 }
-async function bumpAttempt(db: SqlExecutor, matchId: string, column: "lineupAttempts" | "detailAttempts", error: string | null, now: Date) {
+async function bumpAttempt(db: SqlExecutor, matchId: string, column: "lineupAttempts" | "detailAttempts" | "boxScoreAttempts", error: string | null, now: Date) {
   await db.query(`INSERT INTO "MatchDetailSync" ("matchId",provider,"${column}","lastError","updatedAt") VALUES ($1::uuid,$2,1,$3,$4::timestamptz)
     ON CONFLICT ("matchId",provider) DO UPDATE SET "${column}"="MatchDetailSync"."${column}"+1,"lastError"=$3,"updatedAt"=$4::timestamptz`, [matchId, provider, error, now]);
 }
@@ -87,24 +90,39 @@ async function squad(db: SqlExecutor, clubId: string, at: Date): Promise<SquadPl
 }
 /** The provider lists an own goal under the team that benefited, so its scorer belongs to the other squad. */
 const scorerClub = (type: string, clubId: string | null, homeClubId: string, awayClubId: string) => type === "OWN_GOAL" && clubId ? (clubId === homeClubId ? awayClubId : homeClubId) : clubId;
-/** Starters stored for the match, by provider team ID, used to tell who came on in a substitution. */
-async function storedStarters(db: SqlExecutor, matchId: string) {
+/** Stored lineups of the match by club. */
+async function storedLineups(db: SqlExecutor, matchId: string) {
   const rows = await db.query<{ clubId: string; players: LineupPlayer[] }>(`SELECT "clubId",players FROM "MatchLineup" WHERE "matchId"=$1::uuid AND provider=$2`, [matchId, provider]);
-  return new Map(rows.map((row) => [row.clubId, new Set(row.players.filter((player) => player.starter).map((player) => player.name))]));
+  return new Map(rows.map((row) => [row.clubId, row.players]));
 }
+type Orientable = { type: string; player: string | null; related: string | null };
 /**
- * The provider names the player and the "substituted" one. When the stored starting eleven shows
- * that the named player started and the other did not, the named player is the one who went off.
+ * The provider is not consistent about which name in a substitution came on: sometimes `player`
+ * is the incoming player, sometimes the outgoing one. Events are replayed in time order against
+ * who is on the pitch (the starting eleven, updated by each substitution), and stored as
+ * player = came on, related = went off. Unknown names leave the event as sent.
  */
-export function orientSubstitution(event: DetailEvent, starters: Set<string> | undefined): DetailEvent {
-  if (event.type !== "SUBSTITUTION" || !starters || !event.player || !event.related) return event;
-  // Provider names may be shortened ("C. Palmer") while lineups carry full names.
-  const list = [...starters].map((name) => ({ id: name, name }));
-  const started = (name: string) => starters.has(name) || matchSquadPlayer(list, name) !== null;
-  return started(event.player) && !started(event.related) ? { ...event, player: event.related, related: event.player } : event;
+export function orientSubstitutions<T extends Orientable>(events: T[], clubOf: (event: T) => string | null, lineups: Map<string, Pick<LineupPlayer, "name" | "fullName" | "starter">[]>): T[] {
+  const onPitch = new Map([...lineups].map(([clubId, players]) => [clubId, new Set(players.flatMap((player, index) => player.starter ? [index] : []))]));
+  const indexOf = (players: Pick<LineupPlayer, "name" | "fullName">[], name: string | null) => {
+    if (!name) return -1;
+    const hits = players.flatMap((player, index) => sameName(player.name, name) || (player.fullName && sameName(player.fullName, name)) ? [index] : []);
+    return hits.length === 1 ? hits[0] : -1;
+  };
+  return events.map((event) => {
+    const clubId = clubOf(event); const players = clubId ? lineups.get(clubId) : undefined; const pitch = clubId ? onPitch.get(clubId) : undefined;
+    if (event.type !== "SUBSTITUTION" || !players || !pitch) return event;
+    const named = indexOf(players, event.player); const other = indexOf(players, event.related);
+    const swap = (named >= 0 && pitch.has(named) && !(other >= 0 && pitch.has(other))) || (named < 0 && other >= 0 && !pitch.has(other));
+    const oriented = swap ? { ...event, player: event.related, related: event.player } : event;
+    const cameOn = swap ? other : named; const wentOff = swap ? named : other;
+    if (wentOff >= 0) pitch.delete(wentOff);
+    if (cameOn >= 0) pitch.add(cameOn);
+    return oriented;
+  });
 }
 
-async function storeDetail(db: SyncDatabase, row: Due, detail: HighlightlyDetail, now: Date) {
+async function storeDetail(db: SyncDatabase, row: Due, detail: HighlightlyDetail, now: Date): Promise<boolean> {
   const clubFor = (teamId: string | null) => teamId === detail.homeTeamId ? row.homeClubId : teamId === detail.awayTeamId ? row.awayClubId : null;
   const kickoff = new Date(row.kickoffAt);
   const goals = detail.events.filter((event) => ["GOAL", "PENALTY", "OWN_GOAL"].includes(event.type)).length;
@@ -112,11 +130,10 @@ async function storeDetail(db: SyncDatabase, row: Due, detail: HighlightlyDetail
   const complete = goals > 0 || !((row.homeScore ?? 0) + (row.awayScore ?? 0) > 0);
   await db.transaction(async (tx) => {
     const squads = new Map([[row.homeClubId, await squad(tx, row.homeClubId, kickoff)], [row.awayClubId, await squad(tx, row.awayClubId, kickoff)]]);
-    const starters = await storedStarters(tx, row.matchId);
+    const oriented = orientSubstitutions(detail.events, (event) => clubFor(event.teamId), await storedLineups(tx, row.matchId));
     await tx.query(`DELETE FROM "MatchEvent" WHERE "matchId"=$1::uuid AND provider=$2`, [row.matchId, provider]);
-    for (const [index, raw] of detail.events.entries()) {
-      const clubId = clubFor(raw.teamId);
-      const event = orientSubstitution(raw, clubId ? starters.get(clubId) : undefined);
+    for (const [index, event] of oriented.entries()) {
+      const clubId = clubFor(event.teamId);
       const owner = scorerClub(event.type, clubId, row.homeClubId, row.awayClubId);
       const players = owner ? squads.get(owner) ?? [] : [];
       await tx.query(`INSERT INTO "MatchEvent" (id,"matchId",provider,"externalId","clubId","playerId","relatedPlayerId",type,minute,"addedMinute",detail,"playerName","relatedPlayerName","updatedAt")
@@ -132,6 +149,33 @@ async function storeDetail(db: SyncDatabase, row: Due, detail: HighlightlyDetail
     if (!complete) await bumpAttempt(tx, row.matchId, "detailAttempts", "INCOMPLETE", now);
     else await tx.query(`UPDATE "MatchDetailSync" SET "detailAttempts"="detailAttempts"+1 WHERE "matchId"=$1::uuid AND provider=$2`, [row.matchId, provider]);
   });
+  return complete;
+}
+/** Links a lineup entry to the squad, preferring the provider's full name ("Pedro Lomba Neto") over the short one ("Pedro Neto"). */
+const linkPlayer = (players: SquadPlayer[], player: { name: string; fullName?: string | null }) => (player.fullName ? matchSquadPlayer(players, player.fullName) : null) ?? matchSquadPlayer(players, player.name);
+/**
+ * Merges ratings, minutes and per-player figures into the stored lineups (by provider player ID,
+ * then name, then full name). A club without a stored lineup is left as it is.
+ */
+async function storeBoxScore(db: SyncDatabase, row: Due, box: HighlightlyBoxScore, now: Date) {
+  const kickoff = new Date(row.kickoffAt);
+  await db.transaction(async (tx) => {
+    for (const [teamId, clubId] of [[row.homeTeamExternalId, row.homeClubId], [row.awayTeamExternalId, row.awayClubId]] as const) {
+      const team = box.find((entry) => entry.teamId === teamId);
+      const [lineup] = await tx.query<{ id: string; players: LineupPlayer[] }>(`SELECT id,players FROM "MatchLineup" WHERE "matchId"=$1::uuid AND "clubId"=$2::uuid AND provider=$3`, [row.matchId, clubId, provider]);
+      if (!team || !lineup) continue;
+      const squadPlayers = await squad(tx, clubId, kickoff);
+      const merged = lineup.players.map((player) => {
+        const found = team.players.find((entry) => (player.externalId && entry.externalId === player.externalId) || entry.name === player.name || (entry.fullName && entry.fullName === player.name));
+        if (!found) return player;
+        const next = { ...player, fullName: found.fullName, rating: found.rating, minutes: found.minutes, stats: found.stats, externalId: player.externalId ?? found.externalId };
+        return { ...next, playerId: linkPlayer(squadPlayers, next) };
+      });
+      await tx.query(`UPDATE "MatchLineup" SET players=$2::jsonb,"updatedAt"=now() WHERE id=$1::uuid`, [lineup.id, JSON.stringify(merged)]);
+    }
+    await upsertSync(tx, row.matchId, { boxScoreFetchedAt: now, lastError: null }, now);
+    await tx.query(`UPDATE "MatchDetailSync" SET "boxScoreAttempts"="boxScoreAttempts"+1 WHERE "matchId"=$1::uuid AND provider=$2`, [row.matchId, provider]);
+  });
 }
 async function storeLineups(db: SyncDatabase, row: Due, lineups: HighlightlyLineups, now: Date) {
   const kickoff = new Date(row.kickoffAt);
@@ -139,7 +183,7 @@ async function storeLineups(db: SyncDatabase, row: Due, lineups: HighlightlyLine
     for (const [side, clubId] of [["home", row.homeClubId], ["away", row.awayClubId]] as const) {
       const team = lineups[side];
       const players = await squad(tx, clubId, kickoff);
-      const withIds = team.players.map((player) => ({ ...player, playerId: matchSquadPlayer(players, player.name) }));
+      const withIds = team.players.map((player) => ({ ...player, playerId: linkPlayer(players, player) }));
       await tx.query(`INSERT INTO "MatchLineup" (id,"matchId","clubId",provider,formation,players,"fetchedAt","updatedAt") VALUES (gen_random_uuid(),$1::uuid,$2::uuid,$3,$4,$5::jsonb,$6::timestamptz,now())
         ON CONFLICT ("matchId","clubId",provider) DO UPDATE SET formation=EXCLUDED.formation,players=EXCLUDED.players,"fetchedAt"=EXCLUDED."fetchedAt","updatedAt"=now()`,
         [row.matchId, clubId, provider, team.formation, JSON.stringify(withIds), now]);
@@ -159,11 +203,13 @@ export async function relinkMatchDetails(db: SyncDatabase) {
     await db.transaction(async (tx) => {
       const kickoff = new Date(match.kickoffAt);
       const squads = new Map([[match.homeClubId, await squad(tx, match.homeClubId, kickoff)], [match.awayClubId, await squad(tx, match.awayClubId, kickoff)]]);
-      const events = await tx.query<{ id: string; type: string; clubId: string | null; playerId: string | null; relatedPlayerId: string | null; playerName: string | null; relatedPlayerName: string | null }>(`SELECT id,type::text,"clubId","playerId","relatedPlayerId","playerName","relatedPlayerName" FROM "MatchEvent" WHERE "matchId"=$1::uuid AND provider=$2`, [match.id, provider]);
-      for (const event of events) {
+      const stored = await tx.query<{ id: string; type: string; clubId: string | null; playerId: string | null; relatedPlayerId: string | null; playerName: string | null; relatedPlayerName: string | null }>(`SELECT id,type::text,"clubId","playerId","relatedPlayerId","playerName","relatedPlayerName" FROM "MatchEvent" WHERE "matchId"=$1::uuid AND provider=$2 ORDER BY minute NULLS LAST,"addedMinute" NULLS FIRST,("externalId")::int`, [match.id, provider]);
+      const cleaned = stored.map((event) => ({ ...event, player: event.playerName && cleanName(event.playerName), related: event.relatedPlayerName && cleanName(event.relatedPlayerName) }));
+      const oriented = orientSubstitutions(cleaned, (event) => event.clubId, await storedLineups(tx, match.id));
+      for (const event of oriented) {
         const owner = scorerClub(event.type, event.clubId, match.homeClubId, match.awayClubId);
         const players = owner ? squads.get(owner) ?? [] : [];
-        const playerName = event.playerName && cleanName(event.playerName); const relatedPlayerName = event.relatedPlayerName && cleanName(event.relatedPlayerName);
+        const playerName = event.player; const relatedPlayerName = event.related;
         const playerId = matchSquadPlayer(players, playerName); const relatedPlayerId = matchSquadPlayer(players, relatedPlayerName);
         if (playerId === event.playerId && relatedPlayerId === event.relatedPlayerId && playerName === event.playerName && relatedPlayerName === event.relatedPlayerName) continue;
         await tx.query(`UPDATE "MatchEvent" SET "playerId"=$2::uuid,"relatedPlayerId"=$3::uuid,"playerName"=$4,"relatedPlayerName"=$5,"updatedAt"=now() WHERE id=$1::uuid`, [event.id, playerId, relatedPlayerId, playerName, relatedPlayerName]); changed++;
@@ -171,7 +217,7 @@ export async function relinkMatchDetails(db: SyncDatabase) {
       const lineups = await tx.query<{ id: string; clubId: string; players: LineupPlayer[] }>(`SELECT id,"clubId",players FROM "MatchLineup" WHERE "matchId"=$1::uuid AND provider=$2`, [match.id, provider]);
       for (const lineup of lineups) {
         const players = squads.get(lineup.clubId) ?? [];
-        const relinked = lineup.players.map((player) => { const name = cleanName(player.name); return { ...player, name, playerId: matchSquadPlayer(players, name) }; });
+        const relinked = lineup.players.map((player) => { const name = cleanName(player.name); return { ...player, name, playerId: linkPlayer(players, { name, fullName: player.fullName }) }; });
         const delta = relinked.filter((player, index) => player.playerId !== (lineup.players[index].playerId ?? null) || player.name !== lineup.players[index].name).length;
         if (!delta) continue;
         await tx.query(`UPDATE "MatchLineup" SET players=$2::jsonb,"updatedAt"=now() WHERE id=$1::uuid`, [lineup.id, JSON.stringify(relinked)]); changed += delta;
@@ -187,10 +233,10 @@ export async function relinkMatchDetails(db: SyncDatabase) {
  * as soon as today's allowance is spent. Cheap when nothing is due (database reads only).
  */
 export async function syncMatchDetails(db: SyncDatabase, api: MatchDetailApi, now = new Date()): Promise<DetailSyncResult> {
-  const result: DetailSyncResult = { mapped: 0, lineups: 0, details: 0, requests: 0, stopped: "DONE" };
+  const result: DetailSyncResult = { mapped: 0, lineups: 0, details: 0, boxScores: 0, requests: 0, stopped: "DONE" };
   const spend = async () => { if (!(await reserveQuota(db, now))) throw new ProviderError("RATE_LIMITED"); result.requests++; };
   try {
-    let due = (await dueMatches(db, now)).filter((row) => wantsDetail(row, now) || wantsLineups(row, now));
+    let due = (await dueMatches(db, now)).filter((row) => wantsDetail(row, now) || wantsLineups(row, now) || wantsBoxScore(row, now));
     // 1. Map unmapped due matches, one list request per competition and UTC day.
     const groups = new Map<string, Due[]>();
     for (const row of due.filter((item) => !item.externalId && since(item.mapAttemptAt, now) >= mapRetryMs)) {
@@ -213,8 +259,8 @@ export async function syncMatchDetails(db: SyncDatabase, api: MatchDetailApi, no
     due = (await dueMatches(db, now)).filter((row) => row.externalId);
     // 2. Finished matches first (newest first), lineups before events so substitutions can be oriented;
     //    then lineups of the soonest kickoffs.
-    const finished = due.filter((item) => wantsDetail(item, now)).sort((a, b) => Date.parse(b.kickoffAt) - Date.parse(a.kickoffAt));
-    const upcoming = due.filter((item) => !wantsDetail(item, now) && wantsLineups(item, now)).sort((a, b) => Date.parse(a.kickoffAt) - Date.parse(b.kickoffAt));
+    const finished = due.filter((item) => wantsDetail(item, now) || wantsBoxScore(item, now)).sort((a, b) => Date.parse(b.kickoffAt) - Date.parse(a.kickoffAt));
+    const upcoming = due.filter((item) => !finished.includes(item) && wantsLineups(item, now)).sort((a, b) => Date.parse(a.kickoffAt) - Date.parse(b.kickoffAt));
     for (const row of [...finished, ...upcoming]) {
       if (wantsLineups(row, now)) {
         await spend();
@@ -223,10 +269,16 @@ export async function syncMatchDetails(db: SyncDatabase, api: MatchDetailApi, no
           if (lineups) { await storeLineups(db, row, lineups, now); result.lineups++; } else await bumpAttempt(db, row.matchId, "lineupAttempts", "NOT_PUBLISHED", now);
         } catch (error) { const safe = safeProviderError(error); if (safe.code === "RATE_LIMITED") throw safe; await bumpAttempt(db, row.matchId, "lineupAttempts", safe.code, now); }
       }
+      let current = row;
       if (wantsDetail(row, now)) {
         await spend();
-        try { await storeDetail(db, row, await api.match(row.externalId!), now); result.details++; }
+        try { if (await storeDetail(db, row, await api.match(row.externalId!), now)) current = { ...row, detailFetchedAt: now.toISOString() }; result.details++; }
         catch (error) { const safe = safeProviderError(error); if (safe.code === "RATE_LIMITED") throw safe; await bumpAttempt(db, row.matchId, "detailAttempts", safe.code, now); }
+      }
+      if (wantsBoxScore(current, now)) {
+        await spend();
+        try { await storeBoxScore(db, current, await api.boxScore(row.externalId!), now); result.boxScores++; }
+        catch (error) { const safe = safeProviderError(error); if (safe.code === "RATE_LIMITED") throw safe; await bumpAttempt(db, row.matchId, "boxScoreAttempts", safe.code, now); }
       }
     }
   } catch (error) {

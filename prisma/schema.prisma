@@ -1215,7 +1215,7 @@ model AdminAuditLog {
 }
 
 /// Starting eleven and bench of one club for one match, from a detail provider.
-/// players: [{ name, number, position, starter, row, slot, playerId }] (row/slot only for starters).
+/// players: [{ name, fullName, externalId, number, position, starter, row, slot, playerId, rating, minutes, stats }] (row/slot only for starters).
 model MatchLineup {
   id        String   @id @default(uuid()) @db.Uuid
   matchId   String   @db.Uuid
@@ -1246,6 +1246,8 @@ model MatchDetailSync {
   lineupAttempts     Int       @default(0)
   detailFetchedAt    DateTime? @db.Timestamptz(3)
   detailAttempts     Int       @default(0)
+  boxScoreFetchedAt  DateTime? @db.Timestamptz(3)
+  boxScoreAttempts   Int       @default(0)
   lastError          String?
   createdAt          DateTime  @default(now()) @db.Timestamptz(3)
   updatedAt          DateTime  @updatedAt @db.Timestamptz(3)
