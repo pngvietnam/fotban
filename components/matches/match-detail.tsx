@@ -47,12 +47,12 @@ export function MatchDetailView({ match, now, highlight, tab = "du-kien", hub, n
     <MatchTabsView slug={match.slug} active={tab} />
     {tab === "du-kien" && <div className="mt-6 space-y-6">
       {review && <MatchReviewCard review={review} now={now} />}
+      {match.status === "FINISHED" && <MatchHighlight highlight={highlight} />}
       <TopStats match={match} href={matchTabHref(match.slug, "thong-ke")} />
       {match.events.length > 0 && <EventsList match={match} />}
       {hub && <FormPanel match={match} hub={hub} />}
       {hub && <NextMatches match={match} hub={hub} />}
       {news}
-      {match.status === "FINISHED" && <MatchHighlight highlight={highlight} />}
       <section aria-labelledby="match-info" className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
         <h2 id="match-info" className="text-base font-bold">Thông tin trận đấu</h2>
         <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2 lg:grid-cols-3">

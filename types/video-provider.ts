@@ -19,7 +19,8 @@ export interface VideoProvider {
   searchMatchHighlights(match: VideoMatch, source: VideoSource): Promise<string[]>;
   getVideos(ids: string[]): Promise<{ videos: VideoCandidate[]; missingIds: string[] }>;
 }
-export type VerifiedHighlight = { url: string; title: string; channelName: string; videoType: typeof videoTypes[number]; publishedAt: string; checkedAt: string; language: string | null; vietnamAvailability: string };
+/** videoId/embedAllowed/thumbnailUrl let the page play it in YouTube's own embedded player when the owner allows it. */
+export type VerifiedHighlight = { url: string; videoId?: string; embedAllowed?: boolean | null; thumbnailUrl?: string; title: string; channelName: string; videoType: typeof videoTypes[number]; publishedAt: string; checkedAt: string; language: string | null; vietnamAvailability: string };
 export class VideoProviderError extends Error {
   constructor(readonly code: "NOT_CONFIGURED" | "QUOTA" | "UNAUTHORIZED" | "TIMEOUT" | "NETWORK" | "UPSTREAM" | "MALFORMED") { super(code); this.name = "VideoProviderError"; }
 }

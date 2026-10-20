@@ -10,6 +10,7 @@ const fullChannelId = (value: string) => /^[A-Za-z0-9_-]{22}$/.test(value) ? `UC
 const list = (value: unknown) => Array.isArray(value) ? value : value === undefined || value === null ? [] : [value];
 
 export type ChannelFeed = { channelId: string; author: string; videos: VideoCandidate[] };
+export type EmbedStatus = "EMBEDDABLE" | "NOT_EMBEDDABLE" | "GONE";
 type Options = { fetch?: typeof fetch; timeoutMs?: number; sleep?: (ms: number) => Promise<void>; attempts?: number };
 
 /**
@@ -60,15 +61,17 @@ export class YouTubeFeedReader {
     return { channelId, author, videos };
   }
   /**
-   * Whether a stored video is still public on its channel, through YouTube's public oEmbed endpoint:
-   * 200 with the channel's name means available; 401/403/404 means private, removed or not embeddable here.
+   * What YouTube's public oEmbed endpoint says about a video: 200 from the expected channel means
+   * public and embeddable; 401/403 means the owner turned embedding off (or made it private), so
+   * it is shown as a link only; 404, or another channel, means it is gone.
    */
-  async stillPublic(videoId: string, author: string) {
+  async embedStatus(videoId: string, author: string): Promise<EmbedStatus> {
     if (!videoPattern.test(videoId)) throw new VideoProviderError("MALFORMED");
     const response = await this.get(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`);
-    if ([401, 403, 404].includes(response.status)) return false;
+    if (response.status === 401 || response.status === 403) return "NOT_EMBEDDABLE";
+    if (response.status === 404) return "GONE";
     if (!response.ok) throw new VideoProviderError(response.status >= 500 ? "UPSTREAM" : "MALFORMED");
     const body = await response.json().catch(() => null) as { author_name?: unknown } | null;
-    return typeof body?.author_name === "string" && body.author_name.trim() === author.trim();
+    return typeof body?.author_name === "string" && body.author_name.trim() === author.trim() ? "EMBEDDABLE" : "GONE";
   }
 }

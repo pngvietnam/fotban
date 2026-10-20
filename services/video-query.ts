@@ -7,5 +7,5 @@ export async function readVerifiedHighlight(store: VideoStore, matchId: string, 
   const match = (await store.matches(now, matchId))[0]; if (!match) return null;
   const stored = (await store.stored(matchId)).filter((row) => row.validationStatus === "VALIDATED" && Date.parse(row.lastCheckedAt) <= now.getTime() && now.getTime() - Date.parse(row.lastCheckedAt) < videoFreshMs);
   const chosen = primaryVideo(stored, match, now); if (!chosen) return null;
-  return { url: `https://www.youtube.com/watch?v=${chosen.video.externalId}`, title: chosen.video.title, channelName: chosen.video.channelName, videoType: classifyVideo(chosen.video.title), publishedAt: chosen.video.publishedAt, checkedAt: chosen.lastCheckedAt, language: chosen.video.language, vietnamAvailability: chosen.video.vietnamAvailability };
+  return { url: `https://www.youtube.com/watch?v=${chosen.video.externalId}`, videoId: chosen.video.externalId, embedAllowed: chosen.video.embedAllowed, thumbnailUrl: `https://i.ytimg.com/vi/${chosen.video.externalId}/hqdefault.jpg`, title: chosen.video.title, channelName: chosen.video.channelName, videoType: classifyVideo(chosen.video.title), publishedAt: chosen.video.publishedAt, checkedAt: chosen.lastCheckedAt, language: chosen.video.language, vietnamAvailability: chosen.video.vietnamAvailability };
 }

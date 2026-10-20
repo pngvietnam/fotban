@@ -36,11 +36,12 @@ describe("YouTubeFeedReader", () => {
     await expect(new YouTubeFeedReader({ fetch: (async () => respond(404)) as unknown as typeof fetch, sleep: async () => {} }).feed(fpt)).rejects.toMatchObject({ code: "UNAUTHORIZED" });
     await expect(new YouTubeFeedReader({ fetch: (async () => respond(200, feedXml("UCiWyQp2HgKX2-WQUq11V8FA"))) as unknown as typeof fetch }).feed(fpt)).rejects.toMatchObject({ code: "MALFORMED" });
   });
-  it("checks a stored video through oEmbed: public on the same channel, or gone", async () => {
+  it("reads oEmbed as embeddable, embedding turned off (still on YouTube), or gone", async () => {
     const reader = (status: number, author = "FPT Bóng Đá") => new YouTubeFeedReader({ fetch: (async () => new Response(JSON.stringify({ author_name: author }), { status })) as unknown as typeof fetch });
-    expect(await reader(200).stillPublic("2cDvQymAgaE", "FPT Bóng Đá")).toBe(true);
-    expect(await reader(200, "Someone Else").stillPublic("2cDvQymAgaE", "FPT Bóng Đá")).toBe(false);
-    expect(await reader(404).stillPublic("2cDvQymAgaE", "FPT Bóng Đá")).toBe(false);
+    expect(await reader(200).embedStatus("2cDvQymAgaE", "FPT Bóng Đá")).toBe("EMBEDDABLE");
+    expect(await reader(401).embedStatus("2cDvQymAgaE", "FPT Bóng Đá")).toBe("NOT_EMBEDDABLE");
+    expect(await reader(200, "Someone Else").embedStatus("2cDvQymAgaE", "FPT Bóng Đá")).toBe("GONE");
+    expect(await reader(404).embedStatus("2cDvQymAgaE", "FPT Bóng Đá")).toBe("GONE");
   });
 });
 
@@ -64,9 +65,9 @@ describe("VideoFeedSync (SQL)", () => {
     await database.query(`INSERT INTO "Match" (id,slug,provider,"externalId","leagueId","seasonId","homeClubId","awayClubId","kickoffAt",status,"homeScore","awayScore","updatedAt") VALUES ($1::uuid,'m1','FOOTBALL_DATA','1',$2::uuid,$3::uuid,$4::uuid,$5::uuid,'2026-10-19T19:00:00Z','FINISHED',3,1,now())`, [ids.match, ids.pl, ids.season, ids.spurs, ids.coventry]);
   });
   afterAll(async () => { await db.close(); });
-  const reader = (feeds: Record<string, ChannelFeed | Error>, stillPublic = true) => ({
+  const reader = (feeds: Record<string, ChannelFeed | Error>, embed: "EMBEDDABLE" | "NOT_EMBEDDABLE" | "GONE" = "EMBEDDABLE") => ({
     feed: async (channelId: string) => { const feed = feeds[channelId]; if (!feed || feed instanceof Error) throw feed ?? new Error("no feed"); return feed; },
-    stillPublic: async () => stillPublic,
+    embedStatus: async () => embed,
   });
   const realFeed = async () => new YouTubeFeedReader({ fetch: (async () => respond(200, feedXml())) as unknown as typeof fetch }).feed(fpt);
 
@@ -76,8 +77,8 @@ describe("VideoFeedSync (SQL)", () => {
     const sources = await database.query<{ name: string; channelId: string | null }>(`SELECT name,"channelId" FROM "VideoSource" ORDER BY name`);
     expect(sources.map((source) => source.name)).toEqual(["FPT Bóng Đá", "SCTV Thể Thao Official", "TV360 Thể Thao"]);
     expect(sources.find((source) => source.name === "FPT Bóng Đá")?.channelId).toBe(fpt);
-    const videos = await database.query<{ externalId: string; selectedAsPrimary: boolean; videoType: string }>(`SELECT "externalId","selectedAsPrimary","videoType" FROM "Video"`);
-    expect(videos).toEqual([{ externalId: "2cDvQymAgaE", selectedAsPrimary: true, videoType: "HIGHLIGHT" }]);
+    const videos = await database.query<{ externalId: string; selectedAsPrimary: boolean; videoType: string; embedAllowed: boolean }>(`SELECT "externalId","selectedAsPrimary","videoType","embedAllowed" FROM "Video"`);
+    expect(videos).toEqual([{ externalId: "2cDvQymAgaE", selectedAsPrimary: true, videoType: "HIGHLIGHT", embedAllowed: true }]);
   });
   it("skips a feed whose author is not the reviewed channel", async () => {
     const feed = { ...(await realFeed()), author: "Kênh Lạ" };
@@ -85,10 +86,14 @@ describe("VideoFeedSync (SQL)", () => {
     expect(report).toMatchObject({ feeds: 0, stored: 0 });
     expect(await database.query(`SELECT id FROM "Video"`)).toHaveLength(0);
   });
+  it("keeps a highlight whose owner turned embedding off as a link only", async () => {
+    await new VideoFeedSync(reader({ [fpt]: await realFeed() }, "NOT_EMBEDDABLE"), new VideoStore(database)).run(now);
+    expect((await database.query<{ embedAllowed: boolean; selectedAsPrimary: boolean }>(`SELECT "embedAllowed","selectedAsPrimary" FROM "Video"`))[0]).toEqual({ embedAllowed: false, selectedAsPrimary: true });
+  });
   it("re-checks stored links daily and drops one that is no longer public", async () => {
     await new VideoFeedSync(reader({ [fpt]: await realFeed() }), new VideoStore(database)).run(now);
     const later = new Date(now.getTime() + 26 * 3600_000);
-    const report = await new VideoFeedSync(reader({}, false), new VideoStore(database)).run(later);
+    const report = await new VideoFeedSync(reader({}, "GONE"), new VideoStore(database)).run(later);
     expect(report.removed).toBe(1);
     expect((await database.query<{ selectedAsPrimary: boolean; validationStatus: string }>(`SELECT "selectedAsPrimary","validationStatus" FROM "Video"`))[0]).toEqual({ selectedAsPrimary: false, validationStatus: "UNAVAILABLE" });
   });

@@ -16,7 +16,7 @@ const recheckAfterMs = 24 * 3600_000;
  * Costs no API quota, so the worker can run it often and catch every upload.
  */
 export class VideoFeedSync {
-  constructor(private reader: Pick<YouTubeFeedReader, "feed" | "stillPublic">, private store: VideoStore, private log?: Log) {}
+  constructor(private reader: Pick<YouTubeFeedReader, "feed" | "embedStatus">, private store: VideoStore, private log?: Log) {}
   async run(now = new Date()): Promise<FeedSyncReport> {
     const db = this.store.db; const owner = randomUUID();
     const report: FeedSyncReport = { sources: 0, feeds: 0, feedVideos: 0, matches: 0, stored: 0, primary: 0, rechecked: 0, removed: 0, errors: 0, skipped: "" };
@@ -49,25 +49,33 @@ export class VideoFeedSync {
         // One match failing to store must not stop the others; it is counted and retried next run.
         try {
           const mappings = (await this.store.mappings(match)).filter(({ source, mapping }) => feeds.has(source.id) && sourceAllowed({ ...source, channelId: feeds.get(source.id)!.source.channelId }, mapping, match, now));
+          const known = new Map((await this.store.stored(match.id)).map((row) => [row.video.externalId, row.video.embedAllowed]));
           for (const { source, mapping } of mappings) {
             const feed = feeds.get(source.id)!;
             for (const video of feed.videos) {
               if (!validateVideo(video, feed.source, mapping, match, now).valid) continue;
-              await this.store.persist(match, feed.source, mapping, video, now); report.stored++;
+              // Whether the owner allows playing it on other sites: asked once, then re-checked daily below.
+              let embedAllowed = known.get(video.externalId) ?? null;
+              if (embedAllowed === null) {
+                const status = await this.reader.embedStatus(video.externalId, video.channelName).catch(() => null);
+                if (status === "GONE") continue;
+                embedAllowed = status === null ? null : status === "EMBEDDABLE";
+              }
+              await this.store.persist(match, feed.source, mapping, { ...video, embedAllowed }, now); report.stored++;
             }
           }
           if (await this.store.select(match, now)) report.primary++;
         } catch { report.errors++; code = "MATCH_STORE_ERROR"; }
       }
-      // 3. Once a day, confirm stored links are still public on their channel (keyless oEmbed).
+      // 3. Once a day, confirm stored links are still on their channel and whether they may be embedded (keyless oEmbed).
       for (const row of await this.store.dueForRecheck(now, new Date(now.getTime() - recheckAfterMs))) {
         try {
           const stored = (await this.store.stored(row.matchId)).find((item) => item.video.externalId === row.externalId);
           if (!stored) continue;
-          if (await this.reader.stillPublic(row.externalId, row.channelName)) {
-            const [match] = await this.store.matches(now, row.matchId);
-            if (match) { await this.store.persist(match, stored.source, stored.mapping, stored.video, now); report.rechecked++; await this.store.select(match, now); }
-          } else { await this.store.missing([row.externalId], now); report.removed++; }
+          const status = await this.reader.embedStatus(row.externalId, row.channelName);
+          if (status === "GONE") { await this.store.missing([row.externalId], now); report.removed++; continue; }
+          const [match] = await this.store.matches(now, row.matchId);
+          if (match) { await this.store.persist(match, stored.source, stored.mapping, { ...stored.video, embedAllowed: status === "EMBEDDABLE" }, now); report.rechecked++; await this.store.select(match, now); }
         } catch (error) { report.errors++; code = error instanceof VideoProviderError ? error.code : "RECHECK_ERROR"; }
       }
       return report;

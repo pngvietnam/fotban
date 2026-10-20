@@ -1484,3 +1484,9 @@ Only after those runtime checks pass can this setup resolve the last Milestone 1
 
 - `/matches` now works one day at a time (default: today, Vietnam time), like a football app: competition chips (Tất cả giải / Ngoại hạng Anh / La Liga / Champions League), a seven-day strip with match counts per day (‹ › move a week), status chips and a "go to date" box. One day's matches are grouped by competition; an empty day links to the nearest earlier and later match days.
 - URLs: `?ngay=YYYY-MM-DD&league=…&status=…`, defaults omitted. Older `from`/`to` range links still work (max 32 days, grouped by date).
+
+## Playable highlights
+
+- The match highlight plays on the page in YouTube's own embedded player (privacy-enhanced `youtube-nocookie.com`, loaded only when the viewer presses play; YouTube's thumbnail is the play button). Nothing is downloaded or stored; the "Xem trên YouTube" link stays.
+- Embeddability comes from YouTube's public oEmbed endpoint (200 = embeddable, 401/403 = owner turned embedding off → link only, 404 = gone), checked when a highlight is first stored and re-checked daily. All 10 current highlights are embeddable.
+- The highlight block moved up on Dữ kiện, right under the match review.

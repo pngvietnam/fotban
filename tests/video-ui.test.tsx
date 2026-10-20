@@ -24,3 +24,23 @@ describe("Match highlight link UI", () => {
     const scheduled = renderToStaticMarkup(<MatchDetailView match={uiDetail({ status: "SCHEDULED" })} now={new Date()} />); expect(scheduled).not.toContain("Highlight trên YouTube");
   });
 });
+
+describe("embedded highlight player", () => {
+  it("shows YouTube's thumbnail as a play button and loads no player until the viewer presses play", async () => {
+    const { HighlightPlayer } = await import("../components/matches/highlight-player");
+    const $ = load(renderToStaticMarkup(<HighlightPlayer videoId="2cDvQymAgaE" title="HIGHLIGHTS: TOTTENHAM - COVENTRY" url="https://www.youtube.com/watch?v=2cDvQymAgaE" embedAllowed thumbnailUrl="https://i.ytimg.com/vi/2cDvQymAgaE/hqdefault.jpg" />));
+    expect($("button").attr("aria-label")).toBe("Phát video: HIGHLIGHTS: TOTTENHAM - COVENTRY");
+    expect($("img").attr("src")).toBe("https://i.ytimg.com/vi/2cDvQymAgaE/hqdefault.jpg");
+    expect($("iframe")).toHaveLength(0);
+  });
+  it("opens YouTube instead when the owner turned embedding off, and refuses a malformed video ID", async () => {
+    const { HighlightPlayer } = await import("../components/matches/highlight-player");
+    const $ = load(renderToStaticMarkup(<HighlightPlayer videoId="2cDvQymAgaE" title="T" url="https://www.youtube.com/watch?v=2cDvQymAgaE" embedAllowed={false} />));
+    expect($("button")).toHaveLength(0); expect($("a").attr("href")).toBe("https://www.youtube.com/watch?v=2cDvQymAgaE"); expect($("a").attr("target")).toBe("_blank");
+    expect(renderToStaticMarkup(<HighlightPlayer videoId="bad id<script>" title="T" url="https://www.youtube.com/watch?v=x" embedAllowed />)).toBe("");
+  });
+  it("puts the player in the match highlight block when the video ID is known", () => {
+    const html = renderToStaticMarkup(<MatchHighlight highlight={{ ...highlight(), videoId: "fixture0001", embedAllowed: true, thumbnailUrl: "https://i.ytimg.com/vi/fixture0001/hqdefault.jpg" }} />);
+    expect(html).toContain("Phát video:"); expect(html).toContain("trình phát của YouTube"); expect(html).not.toContain("<iframe");
+  });
+});
