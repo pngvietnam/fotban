@@ -6,6 +6,7 @@ import type { LeagueQuery } from "../lib/league-presentation";
 import type { ClubRow, FixtureRow, LeagueInfo, LeagueSlug, StandingsData } from "../types/league-hub";
 import { leagueClubSeason, leagueClubs, leagueFixtures, leagueInfo, leagueMatchDays, leagueRoundFixtures, leagueRounds, leagueStandings, type LeagueRounds } from "./league-hub";
 import { readLeagueLeaders, type LeagueLeaders } from "./league-leaders";
+import { clubKey } from "../lib/league-memories";
 import { playerBoards, teamOfTheWeek, type PlayerBoards } from "./league-player-stats";
 
 /**
@@ -17,6 +18,8 @@ export type LeagueData = {
   days?: { days: string[]; day: string | null; fixtures: FixtureRow[] }; club?: { clubId: string | null; fixtures: FixtureRow[] };
   standings?: StandingsData; clubs?: ClubRow[];
   team?: Awaited<ReturnType<typeof teamOfTheWeek>>; boards?: PlayerBoards;
+  /** Crests of the clubs Fotban stores, by loose club key (for the honours of other eras). */
+  crests?: Record<string, string>;
 };
 export type LeagueResult = { kind: "ready"; data: LeagueData } | { kind: "not-found" } | { kind: "error" };
 
@@ -44,6 +47,10 @@ export async function readLeague(slug: LeagueSlug, query: LeagueQuery, now = new
       if (query.tab === "tong-quan" && data.round?.fixtures.length) {
         const times = data.round.fixtures.map((fixture) => Date.parse(fixture.kickoffAt));
         data.team = await teamOfTheWeek(tx, slug, new Date(Math.min(...times) - 3600_000), new Date(Math.max(...times) + 6 * 3600_000));
+      }
+      if (query.tab === "mua-giai") {
+        const clubs = await tx.query<{ name: string; shortName: string | null; crest: string }>(`SELECT name,"shortName","externalCrestUrl" AS crest FROM "Club" WHERE "externalCrestUrl" IS NOT NULL`);
+        data.crests = Object.fromEntries(clubs.flatMap((club) => [[clubKey(club.name), club.crest], ...(club.shortName ? [[clubKey(club.shortName), club.crest]] : [])]));
       }
       if (query.tab === "thong-ke") data.boards = await playerBoards(tx, slug);
       if (fixturesBy === "ngay") {

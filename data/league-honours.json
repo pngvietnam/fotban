@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-21T08:33:56.304Z",
+ "generatedAt": "2026-10-21T09:20:08.050Z",
  "sources": {
   "premier-league": "https://en.wikipedia.org/wiki/List_of_English_football_champions",
   "la-liga": "https://en.wikipedia.org/wiki/List_of_Spanish_football_champions",
@@ -11,157 +11,500 @@
    {
     "season": "2025–26",
     "champion": "Arsenal",
-    "runnerUp": "Manchester City"
+    "runnerUp": "Manchester City",
+    "points": 85,
+    "runnerUpPoints": 78,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Erling Haaland",
+      "club": "Manchester City",
+      "goals": 27
+     }
+    ]
    },
    {
     "season": "2024–25",
     "champion": "Liverpool",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 84,
+    "runnerUpPoints": 74,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Mohamed Salah",
+      "club": "Liverpool",
+      "goals": 29
+     }
+    ]
    },
    {
     "season": "2023–24",
     "champion": "Manchester City",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 91,
+    "runnerUpPoints": 89,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Erling Haaland",
+      "club": "Manchester City",
+      "goals": 27
+     }
+    ]
    },
    {
     "season": "2022–23",
     "champion": "Manchester City",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 89,
+    "runnerUpPoints": 84,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Erling Haaland",
+      "club": "Manchester City",
+      "goals": 36
+     }
+    ]
    },
    {
     "season": "2021–22",
     "champion": "Manchester City",
-    "runnerUp": "Liverpool"
+    "runnerUp": "Liverpool",
+    "points": 93,
+    "runnerUpPoints": 92,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Mohamed Salah",
+      "club": "Liverpool",
+      "goals": 23
+     },
+     {
+      "name": "Son Heung-min",
+      "club": "Tottenham Hotspur",
+      "goals": 23
+     }
+    ]
    },
    {
     "season": "2020–21",
     "champion": "Manchester City",
-    "runnerUp": "Manchester United"
+    "runnerUp": "Manchester United",
+    "points": 86,
+    "runnerUpPoints": 74,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Harry Kane",
+      "club": "Tottenham Hotspur",
+      "goals": 23
+     }
+    ]
    },
    {
     "season": "2019–20",
     "champion": "Liverpool",
-    "runnerUp": "Manchester City"
+    "runnerUp": "Manchester City",
+    "points": 99,
+    "runnerUpPoints": 81,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Jamie Vardy",
+      "club": "Leicester City",
+      "goals": 23
+     }
+    ]
    },
    {
     "season": "2018–19",
     "champion": "Manchester City",
-    "runnerUp": "Liverpool"
+    "runnerUp": "Liverpool",
+    "points": 98,
+    "runnerUpPoints": 97,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Pierre-Emerick Aubameyang",
+      "club": "Arsenal",
+      "goals": 22
+     },
+     {
+      "name": "Sadio Mané",
+      "club": "Liverpool",
+      "goals": 22
+     },
+     {
+      "name": "Mohamed Salah",
+      "club": "Liverpool",
+      "goals": 22
+     }
+    ]
    },
    {
     "season": "2017–18",
     "champion": "Manchester City",
-    "runnerUp": "Manchester United"
+    "runnerUp": "Manchester United",
+    "points": 100,
+    "runnerUpPoints": 81,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Mohamed Salah",
+      "club": "Liverpool",
+      "goals": 32
+     }
+    ]
    },
    {
     "season": "2016–17",
     "champion": "Chelsea",
-    "runnerUp": "Tottenham Hotspur"
+    "runnerUp": "Tottenham Hotspur",
+    "points": 93,
+    "runnerUpPoints": 86,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Harry Kane",
+      "club": "Tottenham Hotspur",
+      "goals": 29
+     }
+    ]
    },
    {
     "season": "2015–16",
     "champion": "Leicester City",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 81,
+    "runnerUpPoints": 71,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Harry Kane",
+      "club": "Tottenham Hotspur",
+      "goals": 25
+     }
+    ]
    },
    {
     "season": "2014–15",
     "champion": "Chelsea",
-    "runnerUp": "Manchester City"
+    "runnerUp": "Manchester City",
+    "points": 87,
+    "runnerUpPoints": 79,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Sergio Agüero",
+      "club": "Manchester City",
+      "goals": 26
+     }
+    ]
    },
    {
     "season": "2013–14",
     "champion": "Manchester City",
-    "runnerUp": "Liverpool"
+    "runnerUp": "Liverpool",
+    "points": 86,
+    "runnerUpPoints": 84,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Luis Suárez",
+      "club": "Liverpool",
+      "goals": 31
+     }
+    ]
    },
    {
     "season": "2012–13",
     "champion": "Manchester United",
-    "runnerUp": "Manchester City"
+    "runnerUp": "Manchester City",
+    "points": 89,
+    "runnerUpPoints": 78,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Robin van Persie",
+      "club": "Manchester United",
+      "goals": 26
+     }
+    ]
    },
    {
     "season": "2011–12",
     "champion": "Manchester City",
-    "runnerUp": "Manchester United"
+    "runnerUp": "Manchester United",
+    "points": 89,
+    "runnerUpPoints": 89,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Robin van Persie",
+      "club": "Arsenal",
+      "goals": 30
+     }
+    ]
    },
    {
     "season": "2010–11",
     "champion": "Manchester United",
-    "runnerUp": "Chelsea"
+    "runnerUp": "Chelsea",
+    "points": 80,
+    "runnerUpPoints": 71,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Dimitar Berbatov",
+      "club": "Manchester United",
+      "goals": 20
+     },
+     {
+      "name": "Carlos Tevez",
+      "club": "Manchester City",
+      "goals": 20
+     }
+    ]
    },
    {
     "season": "2009–10",
     "champion": "Chelsea",
-    "runnerUp": "Manchester United"
+    "runnerUp": "Manchester United",
+    "points": 86,
+    "runnerUpPoints": 85,
+    "played": 38
    },
    {
     "season": "2008–09",
     "champion": "Manchester United",
-    "runnerUp": "Liverpool"
+    "runnerUp": "Liverpool",
+    "points": 90,
+    "runnerUpPoints": 86,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Nicolas Anelka",
+      "club": "Chelsea",
+      "goals": 19
+     }
+    ]
    },
    {
     "season": "2007–08",
     "champion": "Manchester United",
-    "runnerUp": "Chelsea"
+    "runnerUp": "Chelsea",
+    "points": 87,
+    "runnerUpPoints": 85,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Manchester United",
+      "goals": 31
+     }
+    ]
    },
    {
     "season": "2006–07",
     "champion": "Manchester United",
-    "runnerUp": "Chelsea"
+    "runnerUp": "Chelsea",
+    "points": 89,
+    "runnerUpPoints": 83,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Didier Drogba",
+      "club": "Chelsea",
+      "goals": 20
+     }
+    ]
    },
    {
     "season": "2005–06",
     "champion": "Chelsea",
-    "runnerUp": "Manchester United"
+    "runnerUp": "Manchester United",
+    "points": 91,
+    "runnerUpPoints": 83,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Thierry Henry",
+      "club": "Arsenal",
+      "goals": 27
+     }
+    ]
    },
    {
     "season": "2004–05",
     "champion": "Chelsea",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 95,
+    "runnerUpPoints": 83,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Thierry Henry",
+      "club": "Arsenal",
+      "goals": 25
+     }
+    ]
    },
    {
     "season": "2003–04",
     "champion": "Arsenal",
-    "runnerUp": "Chelsea"
+    "runnerUp": "Chelsea",
+    "points": 90,
+    "runnerUpPoints": 79,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Thierry Henry",
+      "club": "Arsenal",
+      "goals": 30
+     }
+    ]
    },
    {
     "season": "2002–03",
     "champion": "Manchester United",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 83,
+    "runnerUpPoints": 78,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Ruud van Nistelrooy",
+      "club": "Manchester United",
+      "goals": 25
+     }
+    ]
    },
    {
     "season": "2001–02",
     "champion": "Arsenal",
-    "runnerUp": "Liverpool"
+    "runnerUp": "Liverpool",
+    "points": 87,
+    "runnerUpPoints": 80,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Thierry Henry",
+      "club": "Arsenal",
+      "goals": 24
+     }
+    ]
    },
    {
     "season": "2000–01",
     "champion": "Manchester United",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 80,
+    "runnerUpPoints": 70,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Jimmy Floyd Hasselbaink",
+      "club": "Chelsea",
+      "goals": 23
+     }
+    ]
    },
    {
     "season": "1999–00",
     "champion": "Manchester United",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 91,
+    "runnerUpPoints": 73,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Kevin Phillips",
+      "club": "Sunderland",
+      "goals": 30
+     }
+    ]
    },
    {
     "season": "1998–99",
     "champion": "Manchester United",
-    "runnerUp": "Arsenal"
+    "runnerUp": "Arsenal",
+    "points": 79,
+    "runnerUpPoints": 78,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Jimmy Floyd Hasselbaink",
+      "club": "Leeds United",
+      "goals": 18
+     },
+     {
+      "name": "Michael Owen",
+      "club": "Liverpool",
+      "goals": 18
+     },
+     {
+      "name": "Dwight Yorke",
+      "club": "Manchester United",
+      "goals": 18
+     }
+    ]
    },
    {
     "season": "1997–98",
     "champion": "Arsenal",
-    "runnerUp": "Manchester United"
+    "runnerUp": "Manchester United",
+    "points": 78,
+    "runnerUpPoints": 77,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Dion Dublin",
+      "club": "Coventry City",
+      "goals": 18
+     },
+     {
+      "name": "Michael Owen",
+      "club": "Liverpool",
+      "goals": 18
+     },
+     {
+      "name": "Chris Sutton",
+      "club": "Blackburn Rovers",
+      "goals": 18
+     }
+    ]
    },
    {
     "season": "1996–97",
     "champion": "Manchester United",
-    "runnerUp": "Newcastle United"
+    "runnerUp": "Newcastle United",
+    "points": 75,
+    "runnerUpPoints": 68,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Alan Shearer",
+      "club": "Newcastle United",
+      "goals": 25
+     }
+    ]
    },
    {
     "season": "1995–96",
     "champion": "Manchester United",
-    "runnerUp": "Newcastle United"
+    "runnerUp": "Newcastle United",
+    "points": 82,
+    "runnerUpPoints": 78,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Alan Shearer",
+      "club": "Blackburn Rovers",
+      "goals": 31
+     }
+    ]
    },
    {
     "season": "1994–95",
@@ -183,157 +526,383 @@
    {
     "season": "2025–26",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 94,
+    "runnerUpPoints": 86,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Kylian Mbappé",
+      "club": "Real Madrid",
+      "goals": 25
+     }
+    ]
    },
    {
     "season": "2024–25",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 88,
+    "runnerUpPoints": 84,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Kylian Mbappé",
+      "club": "Real Madrid",
+      "goals": 31
+     }
+    ]
    },
    {
     "season": "2023–24",
     "champion": "Real Madrid",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 95,
+    "runnerUpPoints": 85,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Artem Dovbyk",
+      "club": "Girona",
+      "goals": 24
+     }
+    ]
    },
    {
     "season": "2022–23",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 88,
+    "runnerUpPoints": 78,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Robert Lewandowski",
+      "club": "Barcelona",
+      "goals": 23
+     }
+    ]
    },
    {
     "season": "2021–22",
     "champion": "Real Madrid",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 86,
+    "runnerUpPoints": 73,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Karim Benzema",
+      "club": "Real Madrid",
+      "goals": 27
+     }
+    ]
    },
    {
     "season": "2020–21",
     "champion": "Atlético Madrid",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 86,
+    "runnerUpPoints": 84,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 30
+     }
+    ]
    },
    {
     "season": "2019–20",
     "champion": "Real Madrid",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 87,
+    "runnerUpPoints": 82,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 25
+     }
+    ]
    },
    {
     "season": "2018–19",
     "champion": "Barcelona",
-    "runnerUp": "Atlético Madrid"
+    "runnerUp": "Atlético Madrid",
+    "points": 87,
+    "runnerUpPoints": 76,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 36
+     }
+    ]
    },
    {
     "season": "2017–18",
     "champion": "Barcelona",
-    "runnerUp": "Atlético Madrid"
+    "runnerUp": "Atlético Madrid",
+    "points": 93,
+    "runnerUpPoints": 79,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 34
+     }
+    ]
    },
    {
     "season": "2016–17",
     "champion": "Real Madrid",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 93,
+    "runnerUpPoints": 90,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 37
+     }
+    ]
    },
    {
     "season": "2015–16",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 91,
+    "runnerUpPoints": 90,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Luis Suárez",
+      "club": "Barcelona",
+      "goals": 40
+     }
+    ]
    },
    {
     "season": "2014–15",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 94,
+    "runnerUpPoints": 92,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 48
+     }
+    ]
    },
    {
     "season": "2013–14",
     "champion": "Atlético Madrid",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 90,
+    "runnerUpPoints": 87,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 31
+     }
+    ]
    },
    {
     "season": "2012–13",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 100,
+    "runnerUpPoints": 85,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 46
+     }
+    ]
    },
    {
     "season": "2011–12",
     "champion": "Real Madrid",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 100,
+    "runnerUpPoints": 91,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 50
+     }
+    ]
    },
    {
     "season": "2010–11",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 96,
+    "runnerUpPoints": 92,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 40
+     }
+    ]
    },
    {
     "season": "2009–10",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 99,
+    "runnerUpPoints": 96,
+    "played": 38
    },
    {
     "season": "2008–09",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 87,
+    "runnerUpPoints": 78,
+    "played": 38
    },
    {
     "season": "2007–08",
     "champion": "Real Madrid",
-    "runnerUp": "Villarreal"
+    "runnerUp": "Villarreal",
+    "points": 85,
+    "runnerUpPoints": 77,
+    "played": 38
    },
    {
     "season": "2006–07",
     "champion": "Real Madrid",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 76,
+    "runnerUpPoints": 76,
+    "played": 38
    },
    {
     "season": "2005–06",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 82,
+    "runnerUpPoints": 70,
+    "played": 38
    },
    {
     "season": "2004–05",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 84,
+    "runnerUpPoints": 80,
+    "played": 38
    },
    {
     "season": "2003–04",
     "champion": "Valencia",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 77,
+    "runnerUpPoints": 72,
+    "played": 38
    },
    {
     "season": "2002–03",
     "champion": "Real Madrid",
-    "runnerUp": "Real Sociedad"
+    "runnerUp": "Real Sociedad",
+    "points": 78,
+    "runnerUpPoints": 76,
+    "played": 38
    },
    {
     "season": "2001–02",
     "champion": "Valencia",
-    "runnerUp": "Deportivo La Coruña"
+    "runnerUp": "Deportivo La Coruña",
+    "points": 75,
+    "runnerUpPoints": 68,
+    "played": 38
    },
    {
     "season": "2000–01",
     "champion": "Real Madrid",
-    "runnerUp": "Deportivo La Coruña"
+    "runnerUp": "Deportivo La Coruña",
+    "points": 80,
+    "runnerUpPoints": 73,
+    "played": 38
    },
    {
     "season": "1999–00",
     "champion": "Deportivo La Coruña",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 69,
+    "runnerUpPoints": 64,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Salva",
+      "club": "Racing Santander",
+      "goals": 27
+     }
+    ]
    },
    {
     "season": "1998–99",
     "champion": "Barcelona",
-    "runnerUp": "Real Madrid"
+    "runnerUp": "Real Madrid",
+    "points": 79,
+    "runnerUpPoints": 68,
+    "played": 38
    },
    {
     "season": "1997–98",
     "champion": "Barcelona",
-    "runnerUp": "Athletic Bilbao"
+    "runnerUp": "Athletic Bilbao",
+    "points": 74,
+    "runnerUpPoints": 65,
+    "played": 38
    },
    {
     "season": "1996–97",
     "champion": "Real Madrid",
-    "runnerUp": "Barcelona"
+    "runnerUp": "Barcelona",
+    "points": 92,
+    "runnerUpPoints": 90,
+    "played": 42,
+    "topScorers": [
+     {
+      "name": "Ronaldo",
+      "club": "Barcelona",
+      "goals": 34
+     }
+    ]
    },
    {
     "season": "1995–96",
     "champion": "Atlético Madrid",
-    "runnerUp": "Valencia"
+    "runnerUp": "Valencia",
+    "points": 87,
+    "runnerUpPoints": 83,
+    "played": 42,
+    "topScorers": [
+     {
+      "name": "Juan Antonio Pizzi",
+      "club": "Tenerife",
+      "goals": 31
+     }
+    ]
    },
    {
     "season": "1994–95",
@@ -660,132 +1229,412 @@
    {
     "season": "2025–26",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Lens"
+    "runnerUp": "Lens",
+    "points": 76,
+    "runnerUpPoints": 70,
+    "played": 34,
+    "topScorers": [
+     {
+      "name": "Esteban Lepaul",
+      "club": "Angers/Rennes",
+      "goals": 21
+     }
+    ]
    },
    {
     "season": "2024–25",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Marseille"
+    "runnerUp": "Marseille",
+    "points": 84,
+    "runnerUpPoints": 65,
+    "played": 34,
+    "topScorers": [
+     {
+      "name": "Ousmane Dembélé",
+      "club": "Paris Saint-Germain",
+      "goals": 21
+     },
+     {
+      "name": "Mason Greenwood",
+      "club": "Marseille",
+      "goals": 21
+     }
+    ]
    },
    {
     "season": "2023–24",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Monaco"
+    "runnerUp": "Monaco",
+    "points": 76,
+    "runnerUpPoints": 67,
+    "played": 34,
+    "topScorers": [
+     {
+      "name": "Kylian Mbappé",
+      "club": "Paris Saint-Germain",
+      "goals": 27
+     }
+    ]
    },
    {
     "season": "2022–23",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Lens"
+    "runnerUp": "Lens",
+    "points": 85,
+    "runnerUpPoints": 84,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Kylian Mbappé",
+      "club": "Paris Saint-Germain",
+      "goals": 29
+     }
+    ]
    },
    {
     "season": "2021–22",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Marseille"
+    "runnerUp": "Marseille",
+    "points": 86,
+    "runnerUpPoints": 71,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Kylian Mbappé",
+      "club": "Paris Saint-Germain",
+      "goals": 28
+     }
+    ]
    },
    {
     "season": "2020–21",
     "champion": "Lille",
-    "runnerUp": "Paris Saint-Germain"
+    "runnerUp": "Paris Saint-Germain",
+    "points": 83,
+    "runnerUpPoints": 82,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Kylian Mbappé",
+      "club": "Paris Saint-Germain",
+      "goals": 27
+     }
+    ]
    },
    {
     "season": "2019–20",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Marseille"
+    "runnerUp": "Marseille",
+    "points": 68,
+    "runnerUpPoints": 56,
+    "played": 27,
+    "topScorers": [
+     {
+      "name": "Wissam Ben Yedder",
+      "club": "Monaco",
+      "goals": 18
+     },
+     {
+      "name": "Kylian Mbappé",
+      "club": "Paris Saint-Germain",
+      "goals": 18
+     }
+    ]
    },
    {
     "season": "2018–19",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Lille"
+    "runnerUp": "Lille",
+    "points": 91,
+    "runnerUpPoints": 75,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Kylian Mbappé",
+      "club": "Paris Saint-Germain",
+      "goals": 33
+     }
+    ]
    },
    {
     "season": "2017–18",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Monaco"
+    "runnerUp": "Monaco",
+    "points": 93,
+    "runnerUpPoints": 80,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Edinson Cavani",
+      "club": "Paris Saint-Germain",
+      "goals": 28
+     }
+    ]
    },
    {
     "season": "2016–17",
     "champion": "Monaco",
-    "runnerUp": "Paris Saint-Germain"
+    "runnerUp": "Paris Saint-Germain",
+    "points": 95,
+    "runnerUpPoints": 87,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Edinson Cavani",
+      "club": "Paris Saint-Germain",
+      "goals": 35
+     }
+    ]
    },
    {
     "season": "2015–16",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Lyon"
+    "runnerUp": "Lyon",
+    "points": 96,
+    "runnerUpPoints": 65,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Zlatan Ibrahimović",
+      "club": "Paris Saint-Germain",
+      "goals": 38
+     }
+    ]
    },
    {
     "season": "2014–15",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Lyon"
+    "runnerUp": "Lyon",
+    "points": 83,
+    "runnerUpPoints": 75,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Alexandre Lacazette",
+      "club": "Lyon",
+      "goals": 27
+     }
+    ]
    },
    {
     "season": "2013–14",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Monaco"
+    "runnerUp": "Monaco",
+    "points": 89,
+    "runnerUpPoints": 80,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Zlatan Ibrahimović",
+      "club": "Paris Saint-Germain",
+      "goals": 26
+     }
+    ]
    },
    {
     "season": "2012–13",
     "champion": "Paris Saint-Germain",
-    "runnerUp": "Marseille"
+    "runnerUp": "Marseille",
+    "points": 83,
+    "runnerUpPoints": 71,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Zlatan Ibrahimović",
+      "club": "Paris Saint-Germain",
+      "goals": 30
+     }
+    ]
    },
    {
     "season": "2011–12",
     "champion": "Montpellier",
-    "runnerUp": "Paris Saint-Germain"
+    "runnerUp": "Paris Saint-Germain",
+    "points": 82,
+    "runnerUpPoints": 79,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Olivier Giroud",
+      "club": "Montpellier",
+      "goals": 21
+     },
+     {
+      "name": "Nenê",
+      "club": "Paris Saint-Germain",
+      "goals": 21
+     }
+    ]
    },
    {
     "season": "2010–11",
     "champion": "Lille",
-    "runnerUp": "Marseille"
+    "runnerUp": "Marseille",
+    "points": 76,
+    "runnerUpPoints": 68,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Moussa Sow",
+      "club": "Lille",
+      "goals": 25
+     }
+    ]
    },
    {
     "season": "2009–10",
     "champion": "Marseille",
-    "runnerUp": "Lyon"
+    "runnerUp": "Lyon",
+    "points": 78,
+    "runnerUpPoints": 72,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Mamadou Niang",
+      "club": "Marseille",
+      "goals": 18
+     }
+    ]
    },
    {
     "season": "2008–09",
     "champion": "Bordeaux",
-    "runnerUp": "Marseille"
+    "runnerUp": "Marseille",
+    "points": 80,
+    "runnerUpPoints": 77,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "André-Pierre Gignac",
+      "club": "Toulouse",
+      "goals": 24
+     }
+    ]
    },
    {
     "season": "2007–08",
     "champion": "Lyon",
-    "runnerUp": "Bordeaux"
+    "runnerUp": "Bordeaux",
+    "points": 79,
+    "runnerUpPoints": 75,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Karim Benzema",
+      "club": "Lyon",
+      "goals": 20
+     }
+    ]
    },
    {
     "season": "2006–07",
     "champion": "Lyon",
-    "runnerUp": "Marseille"
+    "runnerUp": "Marseille",
+    "points": 81,
+    "runnerUpPoints": 64,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Pauleta",
+      "club": "Paris Saint-Germain",
+      "goals": 15
+     }
+    ]
    },
    {
     "season": "2005–06",
     "champion": "Lyon",
-    "runnerUp": "Bordeaux"
+    "runnerUp": "Bordeaux",
+    "points": 84,
+    "runnerUpPoints": 69,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Pauleta",
+      "club": "Paris Saint-Germain",
+      "goals": 21
+     }
+    ]
    },
    {
     "season": "2004–05",
     "champion": "Lyon",
-    "runnerUp": "Lille"
+    "runnerUp": "Lille",
+    "points": 79,
+    "runnerUpPoints": 67,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Alexander Frei",
+      "club": "Rennes",
+      "goals": 20
+     }
+    ]
    },
    {
     "season": "2003–04",
     "champion": "Lyon",
-    "runnerUp": "Paris Saint-Germain"
+    "runnerUp": "Paris Saint-Germain",
+    "points": 79,
+    "runnerUpPoints": 76,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Djibril Cissé",
+      "club": "Auxerre",
+      "goals": 26
+     }
+    ]
    },
    {
     "season": "2002–03",
     "champion": "Lyon",
-    "runnerUp": "Monaco"
+    "runnerUp": "Monaco",
+    "points": 68,
+    "runnerUpPoints": 67,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Shabani Nonda",
+      "club": "Monaco",
+      "goals": 26
+     }
+    ]
    },
    {
     "season": "2001–02",
     "champion": "Lyon",
-    "runnerUp": "Lens"
+    "runnerUp": "Lens",
+    "points": 66,
+    "runnerUpPoints": 64,
+    "played": 34,
+    "topScorers": [
+     {
+      "name": "Djibril Cissé",
+      "club": "Auxerre",
+      "goals": 22
+     },
+     {
+      "name": "Pauleta",
+      "club": "Bordeaux",
+      "goals": 22
+     }
+    ]
    },
    {
     "season": "2000–01",
     "champion": "Nantes",
-    "runnerUp": "Lyon"
+    "runnerUp": "Lyon",
+    "points": 68,
+    "runnerUpPoints": 64,
+    "played": 34,
+    "topScorers": [
+     {
+      "name": "Sonny Anderson",
+      "club": "Lyon",
+      "goals": 22
+     }
+    ]
    },
    {
     "season": "1999–00",
@@ -795,22 +1644,62 @@
    {
     "season": "1998–99",
     "champion": "Bordeaux",
-    "runnerUp": "Marseille"
+    "runnerUp": "Marseille",
+    "points": 72,
+    "runnerUpPoints": 71,
+    "played": 34,
+    "topScorers": [
+     {
+      "name": "Sylvain Wiltord",
+      "club": "Bordeaux",
+      "goals": 22
+     }
+    ]
    },
    {
     "season": "1997–98",
     "champion": "Lens",
-    "runnerUp": "Metz"
+    "runnerUp": "Metz",
+    "points": 68,
+    "runnerUpPoints": 68,
+    "played": 34,
+    "topScorers": [
+     {
+      "name": "Stéphane Guivarc'h",
+      "club": "Auxerre",
+      "goals": 21
+     }
+    ]
    },
    {
     "season": "1996–97",
     "champion": "Monaco",
-    "runnerUp": "Paris Saint-Germain"
+    "runnerUp": "Paris Saint-Germain",
+    "points": 79,
+    "runnerUpPoints": 67,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Stéphane Guivarc'h",
+      "club": "Rennes",
+      "goals": 22
+     }
+    ]
    },
    {
     "season": "1995–96",
     "champion": "Auxerre",
-    "runnerUp": "Paris Saint-Germain"
+    "runnerUp": "Paris Saint-Germain",
+    "points": 72,
+    "runnerUpPoints": 68,
+    "played": 38,
+    "topScorers": [
+     {
+      "name": "Sonny Anderson",
+      "club": "Monaco",
+      "goals": 21
+     }
+    ]
    },
    {
     "season": "1994–95",
@@ -1098,139 +1987,320 @@
     "season": "2025–26",
     "champion": "Paris Saint-Germain",
     "runnerUp": "Arsenal",
-    "score": "1–1 (luân lưu)"
+    "score": "1–1 (luân lưu)",
+    "topScorers": [
+     {
+      "name": "Kylian Mbappé",
+      "club": "Real Madrid",
+      "goals": 15
+     }
+    ]
    },
    {
     "season": "2024–25",
     "champion": "Paris Saint-Germain",
     "runnerUp": "Inter Milan",
-    "score": "5–0"
+    "score": "5–0",
+    "topScorers": [
+     {
+      "name": "Serhou Guirassy",
+      "club": "Borussia Dortmund",
+      "goals": 13
+     },
+     {
+      "name": "Raphinha",
+      "club": "Barcelona",
+      "goals": 13
+     }
+    ]
    },
    {
     "season": "2023–24",
     "champion": "Real Madrid",
     "runnerUp": "Borussia Dortmund",
-    "score": "2–0"
+    "score": "2–0",
+    "topScorers": [
+     {
+      "name": "Harry Kane",
+      "club": "Bayern Munich",
+      "goals": 8
+     },
+     {
+      "name": "Kylian Mbappé",
+      "club": "Paris Saint-Germain",
+      "goals": 8
+     }
+    ]
    },
    {
     "season": "2022–23",
     "champion": "Manchester City",
     "runnerUp": "Inter Milan",
-    "score": "1–0"
+    "score": "1–0",
+    "topScorers": [
+     {
+      "name": "Erling Haaland",
+      "club": "Manchester City",
+      "goals": 12
+     }
+    ]
    },
    {
     "season": "2021–22",
     "champion": "Real Madrid",
     "runnerUp": "Liverpool",
-    "score": "1–0"
+    "score": "1–0",
+    "topScorers": [
+     {
+      "name": "Karim Benzema",
+      "club": "Real Madrid",
+      "goals": 15
+     }
+    ]
    },
    {
     "season": "2020–21",
     "champion": "Chelsea",
     "runnerUp": "Manchester City",
-    "score": "1–0"
+    "score": "1–0",
+    "topScorers": [
+     {
+      "name": "Erling Haaland",
+      "club": "Borussia Dortmund",
+      "goals": 10
+     }
+    ]
    },
    {
     "season": "2019–20",
     "champion": "Bayern Munich",
     "runnerUp": "Paris Saint-Germain",
-    "score": "1–0"
+    "score": "1–0",
+    "topScorers": [
+     {
+      "name": "Robert Lewandowski",
+      "club": "Bayern Munich",
+      "goals": 15
+     }
+    ]
    },
    {
     "season": "2018–19",
     "champion": "Liverpool",
     "runnerUp": "Tottenham Hotspur",
-    "score": "2–0"
+    "score": "2–0",
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 12
+     }
+    ]
    },
    {
     "season": "2017–18",
     "champion": "Real Madrid",
     "runnerUp": "Liverpool",
-    "score": "3–1"
+    "score": "3–1",
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 15
+     }
+    ]
    },
    {
     "season": "2016–17",
     "champion": "Real Madrid",
     "runnerUp": "Juventus",
-    "score": "4–1"
+    "score": "4–1",
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 12
+     }
+    ]
    },
    {
     "season": "2015–16",
     "champion": "Real Madrid",
     "runnerUp": "Atlético Madrid",
-    "score": "1–1 (luân lưu)"
+    "score": "1–1 (luân lưu)",
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 16
+     }
+    ]
    },
    {
     "season": "2014–15",
     "champion": "Barcelona",
     "runnerUp": "Juventus",
-    "score": "3–1"
+    "score": "3–1",
+    "topScorers": [
+     {
+      "name": "Neymar",
+      "club": "Barcelona",
+      "goals": 10
+     },
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 10
+     },
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 10
+     }
+    ]
    },
    {
     "season": "2013–14",
     "champion": "Real Madrid",
     "runnerUp": "Atlético Madrid",
-    "score": "4–1"
+    "score": "4–1",
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 17
+     }
+    ]
    },
    {
     "season": "2012–13",
     "champion": "Bayern Munich",
     "runnerUp": "Borussia Dortmund",
-    "score": "2–1"
+    "score": "2–1",
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Real Madrid",
+      "goals": 12
+     }
+    ]
    },
    {
     "season": "2011–12",
     "champion": "Chelsea",
     "runnerUp": "Bayern Munich",
-    "score": "1–1 (luân lưu)"
+    "score": "1–1 (luân lưu)",
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 14
+     }
+    ]
    },
    {
     "season": "2010–11",
     "champion": "Barcelona",
     "runnerUp": "Manchester United",
-    "score": "3–1"
+    "score": "3–1",
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 12
+     }
+    ]
    },
    {
     "season": "2009–10",
     "champion": "Inter Milan",
     "runnerUp": "Bayern Munich",
-    "score": "2–0"
+    "score": "2–0",
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 8
+     }
+    ]
    },
    {
     "season": "2008–09",
     "champion": "Barcelona",
     "runnerUp": "Manchester United",
-    "score": "2–0"
+    "score": "2–0",
+    "topScorers": [
+     {
+      "name": "Lionel Messi",
+      "club": "Barcelona",
+      "goals": 9
+     }
+    ]
    },
    {
     "season": "2007–08",
     "champion": "Manchester United",
     "runnerUp": "Chelsea",
-    "score": "1–1 (luân lưu)"
+    "score": "1–1 (luân lưu)",
+    "topScorers": [
+     {
+      "name": "Cristiano Ronaldo",
+      "club": "Manchester United",
+      "goals": 8
+     }
+    ]
    },
    {
     "season": "2006–07",
     "champion": "Milan",
     "runnerUp": "Liverpool",
-    "score": "2–1"
+    "score": "2–1",
+    "topScorers": [
+     {
+      "name": "Kaká",
+      "club": "Milan",
+      "goals": 10
+     }
+    ]
    },
    {
     "season": "2005–06",
     "champion": "Barcelona",
     "runnerUp": "Arsenal",
-    "score": "2–1"
+    "score": "2–1",
+    "topScorers": [
+     {
+      "name": "Andriy Shevchenko",
+      "club": "Milan",
+      "goals": 9
+     }
+    ]
    },
    {
     "season": "2004–05",
     "champion": "Liverpool",
     "runnerUp": "Milan",
-    "score": "3–3 (luân lưu)"
+    "score": "3–3 (luân lưu)",
+    "topScorers": [
+     {
+      "name": "Ruud van Nistelrooy",
+      "club": "Manchester United",
+      "goals": 8
+     }
+    ]
    },
    {
     "season": "2003–04",
     "champion": "Porto",
     "runnerUp": "Monaco",
-    "score": "3–0"
+    "score": "3–0",
+    "topScorers": [
+     {
+      "name": "Fernando Morientes",
+      "club": "Monaco",
+      "goals": 9
+     }
+    ]
    },
    {
     "season": "2002–03",

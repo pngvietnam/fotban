@@ -184,25 +184,6 @@ export function ScorersTable({ leaders }: { leaders: LeagueLeaders | null }) {
   </section>;
 }
 
-/** The "Mùa giải" tab: the most recent champions and runners-up, then the clubs with the most titles. */
-export function SeasonsTab({ slug, honours, tallies, source, finals }: { slug: LeagueSlug; honours: { season: string; champion: string; runnerUp: string | null; score?: string | null }[]; tallies: { club: string; titles: number; runnerUps: number }[]; source: string | null; finals: boolean }) {
-  if (!honours.length) return <section className="dp-panel"><h2>Mùa giải</h2><p className="dp-muted">Chưa có dữ liệu các mùa giải trước.</p></section>;
-  return <div className="lg-seasons">
-    <section className="dp-panel lg-card" aria-labelledby="lg-hon">
-      <div className="lg-card-head"><h2 id="lg-hon">Nhà vô địch các mùa</h2><span>{honours.length} mùa</span></div>
-      <div className="lg-scroll"><table className="lg-table lg-hon-table"><caption className="sr-only">Đội vô địch và á quân từng mùa giải</caption>
-        <thead><tr><th scope="col">Mùa</th><th scope="col">Vô địch</th><th scope="col">Á quân</th>{finals && <th scope="col">Chung kết</th>}</tr></thead>
-        <tbody>{honours.map((item) => <tr key={item.season}><th scope="row">{item.season}</th><td><b>{item.champion}</b></td><td>{item.runnerUp ?? "–"}</td>{finals && <td>{item.score ?? "–"}</td>}</tr>)}</tbody>
-      </table></div>
-    </section>
-    <section className="dp-panel lg-card" aria-labelledby="lg-tally">
-      <div className="lg-card-head"><h2 id="lg-tally">Thành tích các CLB</h2><span>Số lần vô địch · á quân</span></div>
-      <ol className="lg-tally">{tallies.slice(0, 12).map((item, index) => <li key={item.club}><span className="lg-rank">{index + 1}</span><b>{item.club}</b><span className="lg-tally-num"><b>{item.titles}</b><small>vô địch</small></span><span className="lg-tally-num"><b>{item.runnerUps}</b><small>á quân</small></span></li>)}</ol>
-    </section>
-    <p className="dp-note lg-source">Tổng hợp từ danh sách trên Wikipedia{source ? <> (<a href={source} target="_blank" rel="noopener noreferrer">{slug}</a>)</> : null}, đối chiếu với Wikidata; mùa nào hai nguồn lệch nhau thì được kiểm tra tay. Cập nhật khi mùa giải kết thúc.</p>
-  </div>;
-}
-
 const positionRows = [["FW", "Tiền đạo"], ["MF", "Tiền vệ"], ["DF", "Hậu vệ"], ["GK", "Thủ môn"]] as const;
 /**
  * "Đội hình tiêu biểu": the best 4-3-3 of the round, picked by the provider's match ratings (see

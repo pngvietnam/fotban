@@ -25,3 +25,29 @@ describe("knockout bracket plan", () => {
     expect(used).toEqual(Array.from({ length: 24 }, (_, index) => index + 1));
   });
 });
+
+import { clubHistory, seasonStories, startsAtBeginning } from "../lib/league-memories";
+describe("season stories", () => {
+  const list = [
+    { season: "2024–25", champion: "Liverpool", runnerUp: "Arsenal", points: 84, runnerUpPoints: 74 },
+    { season: "2023–24", champion: "Manchester City", runnerUp: "Arsenal", points: 91, runnerUpPoints: 89 },
+    { season: "2022–23", champion: "Manchester City", runnerUp: "Arsenal", points: 89, runnerUpPoints: 84 },
+    { season: "2021–22", champion: "Manchester City", runnerUp: "Liverpool", points: 93, runnerUpPoints: 92 },
+  ];
+  it("derives title numbers, streaks and margins from the stored points, and says when the list starts late", () => {
+    expect(startsAtBeginning(list)).toBe(false);
+    const stories = seasonStories(list, false);
+    const city = stories.find((item) => item.season === "2023–24")!;
+    expect(city.titleNumber).toBe(3); expect(city.streak).toBe(3);
+    expect(city.moments.map((moment) => moment.text)).toContain("Danh hiệu thứ 3 kể từ 2021–22");
+    expect(stories.find((item) => item.season === "2021–22")!.moments.map((moment) => moment.text)).toContain("Hơn á quân đúng 1 điểm");
+    expect(stories[0].moments.map((moment) => moment.text)).not.toContain("Từ á quân lên ngôi vô địch");
+  });
+  it("builds a club's history: titles, runner-up finishes, longest run and best total", () => {
+    const history = clubHistory("Manchester City FC", seasonStories(list, false), false);
+    expect(history.titles).toHaveLength(3); expect(history.runnerUps).toHaveLength(0);
+    expect(history.longestStreak).toEqual({ years: 3, from: "2021–22", to: "2023–24" });
+    expect(history.bestSeason?.points).toBe(93); expect(history.since).toBe("2021–22");
+    expect(clubHistory("Arsenal", seasonStories(list, false), false).runnerUps).toHaveLength(3);
+  });
+});
