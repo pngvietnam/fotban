@@ -51,3 +51,25 @@ describe("season stories", () => {
     expect(clubHistory("Arsenal", seasonStories(list, false), false).runnerUps).toHaveLength(3);
   });
 });
+
+import { sameClubName } from "../lib/league-memories";
+describe("title counts", () => {
+  const counts = (slug: "premier-league" | "la-liga" | "ligue-1" | "champions-league") => Object.fromEntries(clubTallies(seasonHonours(slug)).map((item) => [item.club, item.titles]));
+  it("every season has one real champion: no placeholders, and no club listed twice under two names", () => {
+    for (const slug of ["premier-league", "la-liga", "ligue-1", "champions-league"] as const) {
+      const list = seasonHonours(slug);
+      const champions = [...new Set(list.map((item) => item.champion))];
+      expect(champions.every((name) => !/suspended|league|war|not held|\d{4}/i.test(name.replace(/^Football League$/, "")))).toBe(true);
+      for (const [index, name] of champions.entries()) for (const other of champions.slice(index + 1)) expect([name, other, sameClubName(name, other) && !/Manchester|Sheffield|Inter|Milan|Madrid/.test(`${name}${other}`)]).toEqual([name, other, false]);
+      expect(clubTallies(list).reduce((sum, item) => sum + item.titles, 0)).toBe(list.length);
+    }
+  });
+  it("matches the clubs' own title totals, with older names counted for the club that carries the record", () => {
+    expect(counts("premier-league")).toMatchObject({ Liverpool: 20, "Manchester United": 20, "Manchester City": 10, Everton: 9, "Aston Villa": 7, Chelsea: 6 });
+    expect(seasonHonours("premier-league").length).toBe(127);
+    expect(counts("la-liga")).toMatchObject({ "Real Madrid": 36, Barcelona: 29, "Atlético Madrid": 11, "Athletic Bilbao": 8, Valencia: 6 });
+    expect(counts("la-liga")["Madrid FC"]).toBeUndefined(); expect(counts("la-liga")["Atlético Aviación"]).toBeUndefined();
+    expect(counts("champions-league")).toMatchObject({ "Real Madrid": 15, Milan: 7, "Bayern Munich": 6, Liverpool: 6, Barcelona: 5, Ajax: 4 });
+    expect(counts("ligue-1")).toMatchObject({ Marseille: 9, "Saint-Étienne": 10 });
+  });
+});

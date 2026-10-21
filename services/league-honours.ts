@@ -7,6 +7,8 @@ export type ClubTally = { club: string; titles: number; runnerUps: number; seaso
 const honours = honoursFile.honours as Record<string, Honour[]>;
 export const honoursSource = (slug: LeagueSlug) => (honoursFile.sources as Record<string, string>)[slug] ?? null;
 export const honoursGeneratedAt = honoursFile.generatedAt;
+/** Notes on how to read the counts (stripped titles, suspended seasons, older club names). */
+export const honoursNotes = (slug: LeagueSlug) => ((honoursFile as { notes?: Record<string, { season: string; text: string }[]> }).notes?.[slug]) ?? [];
 
 /** Seasons newest first, as stored (built by scripts/build-honours.ts from Wikipedia lists checked against Wikidata). */
 export const seasonHonours = (slug: LeagueSlug): Honour[] => honours[slug] ?? [];

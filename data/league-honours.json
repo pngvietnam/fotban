@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-21T09:20:08.050Z",
+ "generatedAt": "2026-10-21T09:44:09.930Z",
  "sources": {
   "premier-league": "https://en.wikipedia.org/wiki/List_of_English_football_champions",
   "la-liga": "https://en.wikipedia.org/wiki/List_of_Spanish_football_champions",
@@ -519,6 +519,471 @@
    {
     "season": "1992–93",
     "champion": "Manchester United",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1991–92",
+    "champion": "Leeds United",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1990–91",
+    "champion": "Arsenal",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1989–90",
+    "champion": "Liverpool",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1988–89",
+    "champion": "Arsenal",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1987–88",
+    "champion": "Liverpool",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1986–87",
+    "champion": "Everton",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1985–86",
+    "champion": "Liverpool",
+    "runnerUp": "Everton"
+   },
+   {
+    "season": "1984–85",
+    "champion": "Everton",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1983–84",
+    "champion": "Liverpool",
+    "runnerUp": "Southampton"
+   },
+   {
+    "season": "1982–83",
+    "champion": "Liverpool",
+    "runnerUp": "Watford"
+   },
+   {
+    "season": "1981–82",
+    "champion": "Liverpool",
+    "runnerUp": "Ipswich Town"
+   },
+   {
+    "season": "1980–81",
+    "champion": "Aston Villa",
+    "runnerUp": "Ipswich Town"
+   },
+   {
+    "season": "1979–80",
+    "champion": "Liverpool",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1978–79",
+    "champion": "Liverpool",
+    "runnerUp": "Nottingham Forest"
+   },
+   {
+    "season": "1977–78",
+    "champion": "Nottingham Forest",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1976–77",
+    "champion": "Liverpool",
+    "runnerUp": "Manchester City"
+   },
+   {
+    "season": "1975–76",
+    "champion": "Liverpool",
+    "runnerUp": "Queens Park Rangers"
+   },
+   {
+    "season": "1974–75",
+    "champion": "Derby County",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1973–74",
+    "champion": "Leeds United",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1972–73",
+    "champion": "Liverpool",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "1971–72",
+    "champion": "Derby County",
+    "runnerUp": "Leeds United"
+   },
+   {
+    "season": "1970–71",
+    "champion": "Arsenal",
+    "runnerUp": "Leeds United"
+   },
+   {
+    "season": "1969–70",
+    "champion": "Everton",
+    "runnerUp": "Leeds United"
+   },
+   {
+    "season": "1968–69",
+    "champion": "Leeds United",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1967–68",
+    "champion": "Manchester City",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1966–67",
+    "champion": "Manchester United",
+    "runnerUp": "Nottingham Forest"
+   },
+   {
+    "season": "1965–66",
+    "champion": "Liverpool",
+    "runnerUp": "Leeds United"
+   },
+   {
+    "season": "1964–65",
+    "champion": "Manchester United",
+    "runnerUp": "Leeds United"
+   },
+   {
+    "season": "1963–64",
+    "champion": "Liverpool",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1962–63",
+    "champion": "Everton",
+    "runnerUp": "Tottenham Hotspur"
+   },
+   {
+    "season": "1961–62",
+    "champion": "Ipswich Town",
+    "runnerUp": "Burnley"
+   },
+   {
+    "season": "1960–61",
+    "champion": "Tottenham Hotspur",
+    "runnerUp": "Sheffield Wednesday"
+   },
+   {
+    "season": "1959–60",
+    "champion": "Burnley",
+    "runnerUp": "Wolverhampton Wanderers"
+   },
+   {
+    "season": "1958–59",
+    "champion": "Wolverhampton Wanderers",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1957–58",
+    "champion": "Wolverhampton Wanderers",
+    "runnerUp": "Preston North End"
+   },
+   {
+    "season": "1956–57",
+    "champion": "Manchester United",
+    "runnerUp": "Tottenham Hotspur"
+   },
+   {
+    "season": "1955–56",
+    "champion": "Manchester United",
+    "runnerUp": "Blackpool"
+   },
+   {
+    "season": "1954–55",
+    "champion": "Chelsea",
+    "runnerUp": "Wolverhampton Wanderers"
+   },
+   {
+    "season": "1953–54",
+    "champion": "Wolverhampton Wanderers",
+    "runnerUp": "West Bromwich Albion"
+   },
+   {
+    "season": "1952–53",
+    "champion": "Arsenal",
+    "runnerUp": "Preston North End"
+   },
+   {
+    "season": "1951–52",
+    "champion": "Manchester United",
+    "runnerUp": "Tottenham Hotspur"
+   },
+   {
+    "season": "1950–51",
+    "champion": "Tottenham Hotspur",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1949–50",
+    "champion": "Portsmouth",
+    "runnerUp": "Wolverhampton Wanderers"
+   },
+   {
+    "season": "1948–49",
+    "champion": "Portsmouth",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1947–48",
+    "champion": "Arsenal",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1946–47",
+    "champion": "Liverpool",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1938–39",
+    "champion": "Everton",
+    "runnerUp": "Wolverhampton Wanderers"
+   },
+   {
+    "season": "1937–38",
+    "champion": "Arsenal",
+    "runnerUp": "Wolverhampton Wanderers"
+   },
+   {
+    "season": "1936–37",
+    "champion": "Manchester City",
+    "runnerUp": "Charlton Athletic"
+   },
+   {
+    "season": "1935–36",
+    "champion": "Sunderland",
+    "runnerUp": "Derby County"
+   },
+   {
+    "season": "1934–35",
+    "champion": "Arsenal",
+    "runnerUp": "Sunderland"
+   },
+   {
+    "season": "1933–34",
+    "champion": "Arsenal",
+    "runnerUp": "Huddersfield Town"
+   },
+   {
+    "season": "1932–33",
+    "champion": "Arsenal",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1931–32",
+    "champion": "Everton",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "1930–31",
+    "champion": "Arsenal",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1929–30",
+    "champion": "Sheffield Wednesday",
+    "runnerUp": "Derby County"
+   },
+   {
+    "season": "1928–29",
+    "champion": "Sheffield Wednesday",
+    "runnerUp": "Leicester City"
+   },
+   {
+    "season": "1927–28",
+    "champion": "Everton",
+    "runnerUp": "Huddersfield Town"
+   },
+   {
+    "season": "1926–27",
+    "champion": "Newcastle United",
+    "runnerUp": "Huddersfield Town"
+   },
+   {
+    "season": "1925–26",
+    "champion": "Huddersfield Town",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "1924–25",
+    "champion": "Huddersfield Town",
+    "runnerUp": "West Bromwich Albion"
+   },
+   {
+    "season": "1923–24",
+    "champion": "Huddersfield Town",
+    "runnerUp": "Cardiff City"
+   },
+   {
+    "season": "1922–23",
+    "champion": "Liverpool",
+    "runnerUp": "Sunderland"
+   },
+   {
+    "season": "1921–22",
+    "champion": "Liverpool",
+    "runnerUp": "Tottenham Hotspur"
+   },
+   {
+    "season": "1920–21",
+    "champion": "Burnley",
+    "runnerUp": "Manchester City"
+   },
+   {
+    "season": "1919–20",
+    "champion": "West Bromwich Albion",
+    "runnerUp": "Burnley"
+   },
+   {
+    "season": "1914–15",
+    "champion": "Everton",
+    "runnerUp": "Oldham Athletic"
+   },
+   {
+    "season": "1913–14",
+    "champion": "Blackburn Rovers",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1912–13",
+    "champion": "Sunderland",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1911–12",
+    "champion": "Blackburn Rovers",
+    "runnerUp": "Everton"
+   },
+   {
+    "season": "1910–11",
+    "champion": "Manchester United",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1909–10",
+    "champion": "Aston Villa",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1908–09",
+    "champion": "Newcastle United",
+    "runnerUp": "Everton"
+   },
+   {
+    "season": "1907–08",
+    "champion": "Manchester United",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1906–07",
+    "champion": "Newcastle United",
+    "runnerUp": "Bristol City"
+   },
+   {
+    "season": "1905–06",
+    "champion": "Liverpool",
+    "runnerUp": "Preston North End"
+   },
+   {
+    "season": "1904–05",
+    "champion": "Newcastle United",
+    "runnerUp": "Everton"
+   },
+   {
+    "season": "1903–04",
+    "champion": "Sheffield Wednesday",
+    "runnerUp": "Manchester City"
+   },
+   {
+    "season": "1902–03",
+    "champion": "Sheffield Wednesday",
+    "runnerUp": "Aston Villa"
+   },
+   {
+    "season": "1901–02",
+    "champion": "Sunderland",
+    "runnerUp": "Everton"
+   },
+   {
+    "season": "1900–01",
+    "champion": "Liverpool",
+    "runnerUp": "Sunderland"
+   },
+   {
+    "season": "1899–00",
+    "champion": "Aston Villa",
+    "runnerUp": "Sheffield United"
+   },
+   {
+    "season": "1898–99",
+    "champion": "Aston Villa",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "1897–98",
+    "champion": "Sheffield United",
+    "runnerUp": "Sunderland"
+   },
+   {
+    "season": "1896–97",
+    "champion": "Aston Villa",
+    "runnerUp": "Sheffield United"
+   },
+   {
+    "season": "1895–96",
+    "champion": "Aston Villa",
+    "runnerUp": "Derby County"
+   },
+   {
+    "season": "1894–95",
+    "champion": "Sunderland",
+    "runnerUp": "Everton"
+   },
+   {
+    "season": "1893–94",
+    "champion": "Aston Villa",
+    "runnerUp": "Sunderland"
+   },
+   {
+    "season": "1892–93",
+    "champion": "Sunderland",
+    "runnerUp": "Preston North End"
+   },
+   {
+    "season": "1891–92",
+    "champion": "Sunderland",
+    "runnerUp": "Preston North End"
+   },
+   {
+    "season": "1890–91",
+    "champion": "Everton",
+    "runnerUp": "Preston North End"
+   },
+   {
+    "season": "1889–90",
+    "champion": "Preston North End",
+    "runnerUp": "Everton"
+   },
+   {
+    "season": "1888–89",
+    "champion": "Preston North End",
     "runnerUp": "Aston Villa"
    }
   ],
@@ -1162,7 +1627,7 @@
    {
     "season": "1943–44",
     "champion": "Valencia",
-    "runnerUp": "Atlético Aviación"
+    "runnerUp": "Atlético Madrid"
    },
    {
     "season": "1942–43",
@@ -1176,37 +1641,37 @@
    },
    {
     "season": "1940–41",
-    "champion": "Atlético Aviación",
+    "champion": "Atlético Madrid",
     "runnerUp": "Athletic Bilbao"
    },
    {
     "season": "1939–40",
-    "champion": "Atlético Aviación",
+    "champion": "Atlético Madrid",
     "runnerUp": "Sevilla"
    },
    {
     "season": "1935–36",
     "champion": "Athletic Bilbao",
-    "runnerUp": "Madrid FC"
+    "runnerUp": "Real Madrid"
    },
    {
     "season": "1934–35",
     "champion": "Real Betis",
-    "runnerUp": "Madrid FC"
+    "runnerUp": "Real Madrid"
    },
    {
     "season": "1933–34",
     "champion": "Athletic Bilbao",
-    "runnerUp": "Madrid FC"
+    "runnerUp": "Real Madrid"
    },
    {
     "season": "1932–33",
-    "champion": "Madrid FC",
+    "champion": "Real Madrid",
     "runnerUp": "Athletic Bilbao"
    },
    {
     "season": "1931–32",
-    "champion": "Madrid FC",
+    "champion": "Real Madrid",
     "runnerUp": "Athletic Bilbao"
    },
    {
@@ -1222,7 +1687,7 @@
    {
     "season": "1929",
     "champion": "Barcelona",
-    "runnerUp": "Madrid FC"
+    "runnerUp": "Real Madrid"
    }
   ],
   "ligue-1": [
@@ -2589,6 +3054,48 @@
     "champion": "Real Madrid",
     "runnerUp": "Reims",
     "score": "4–3"
+   }
+  ]
+ },
+ "notes": {
+  "ligue-1": [
+   {
+    "season": "1992–93",
+    "text": "Marseille bị tước danh hiệu vì vụ dàn xếp tỉ số, nên mùa này không có nhà vô địch."
+   },
+   {
+    "season": "1939–45",
+    "text": "Giải tạm dừng vì Thế chiến II."
+   },
+   {
+    "season": "1932–45",
+    "text": "Olympique Lillois (vô địch 1932–33) là tiền thân của Lille."
+   }
+  ],
+  "premier-league": [
+   {
+    "season": "1915–19, 1939–46",
+    "text": "Giải tạm dừng vì hai cuộc thế chiến."
+   },
+   {
+    "season": "1888–1992",
+    "text": "Tính toàn bộ giải hạng nhất nước Anh (Football League First Division) trước khi có Premier League."
+   }
+  ],
+  "la-liga": [
+   {
+    "season": "1936–39",
+    "text": "Giải tạm dừng vì Nội chiến Tây Ban Nha."
+   },
+   {
+    "season": "1929–41",
+    "text": "Madrid FC là tên cũ của Real Madrid, Atlético Aviación là tên cũ của Atlético Madrid; số danh hiệu đã gộp."
+   }
+  ],
+  "champions-league": [
+   {
+    "season": "1955–92",
+    "text": "Tính cả Cúp C1 châu Âu trước khi đổi tên thành Champions League."
    }
   ]
  }

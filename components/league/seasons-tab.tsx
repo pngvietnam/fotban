@@ -61,7 +61,7 @@ function ClubMemories({ slug, club, stories, crests, finals }: { slug: LeagueSlu
  * "Mùa giải": a reader's way into the competition's memory. The latest season in the spotlight, a club picker
  * for "my team's history", the honours table with points and top scorers, and the league of clubs by titles.
  */
-export function SeasonsTab({ slug, stories, tallies, crests, source, finals, club }: { slug: LeagueSlug; stories: SeasonStory[]; tallies: { club: string; titles: number; runnerUps: number }[]; crests: CrestMap; source: string | null; finals: boolean; club: string | null }) {
+export function SeasonsTab({ slug, stories, tallies, crests, source, finals, club, notes = [] }: { notes?: { season: string; text: string }[]; slug: LeagueSlug; stories: SeasonStory[]; tallies: { club: string; titles: number; runnerUps: number }[]; crests: CrestMap; source: string | null; finals: boolean; club: string | null }) {
   if (!stories.length) return <section className="dp-panel"><h2>Mùa giải</h2><p className="dp-muted">Chưa có dữ liệu các mùa giải trước.</p></section>;
   const picked = club ? tallies.find((item) => sameClubName(item.club, club))?.club ?? null : null;
   const pickable = tallies.filter((item) => item.titles > 0 || item.runnerUps > 0);
@@ -98,6 +98,7 @@ export function SeasonsTab({ slug, stories, tallies, crests, source, finals, clu
         </li>)}</ol>
       </section>
     </div>
+    {notes.length > 0 && <ul className="sn-notes" aria-label="Ghi chú về số liệu">{notes.map((note) => <li key={note.text}><b>{note.season}</b> {note.text}</li>)}</ul>}
     <p className="dp-note">Tổng hợp từ các trang Wikipedia{source ? <> (<a href={source} target="_blank" rel="noopener noreferrer">danh sách nhà vô địch</a>)</> : null} và từng mùa giải, đối chiếu Wikidata. {stories.length && !startsAtBeginning(stories) ? `Số liệu bắt đầu từ mùa ${stories[stories.length - 1].season} (khi giải mang tên hiện nay). ` : ""}Điểm và vua phá lưới có từ mùa 1995/96. Các “điểm nhấn” được tính từ chính các số liệu này.</p>
   </div>;
 }

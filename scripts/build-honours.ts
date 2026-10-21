@@ -12,13 +12,61 @@ type TopScorer = { name: string; club: string | null; goals: number };
 type Honour = { season: string; champion: string; runnerUp: string | null; score?: string | null; points?: number | null; runnerUpPoints?: number | null; played?: number | null; topScorers?: TopScorer[] };
 const userAgent = "FotbanHonours/1.0 (Vietnamese football site; data checked against Wikidata)";
 const pages = {
-  "premier-league": { title: "List_of_English_football_champions", from: 1992 },
+  "premier-league": { title: "List_of_English_football_champions", from: 1888 },
   "la-liga": { title: "List_of_Spanish_football_champions", from: 1929 },
   "ligue-1": { title: "List_of_French_football_champions", from: 1932 },
   "champions-league": { title: "List_of_European_Cup_and_UEFA_Champions_League_finals", from: 1955 },
 } as const;
 type Slug = keyof typeof pages;
 const wikidataLeague: Record<Slug, string> = { "premier-league": "Q9448", "la-liga": "Q324867", "ligue-1": "Q13394", "champions-league": "Q18756" };
+/** One club under its older name: counted with the club that carries its record (checked against the club's own title count). */
+const SAME_CLUB: Record<string, string> = { "Madrid FC": "Real Madrid", "Atlético Aviación": "Atlético Madrid", "The Wednesday": "Sheffield Wednesday" };
+const canonical = (name: string | null) => (name && SAME_CLUB[name]) || name;
+
+/** What a reader needs to know to read the counts: stripped titles, suspended seasons, older club names, how far back each list goes. */
+const NOTES: Record<string, { season: string; text: string }[]> = {
+  "ligue-1": [
+    {
+      "season": "1992–93",
+      "text": "Marseille bị tước danh hiệu vì vụ dàn xếp tỉ số, nên mùa này không có nhà vô địch."
+    },
+    {
+      "season": "1939–45",
+      "text": "Giải tạm dừng vì Thế chiến II."
+    },
+    {
+      "season": "1932–45",
+      "text": "Olympique Lillois (vô địch 1932–33) là tiền thân của Lille."
+    }
+  ],
+  "premier-league": [
+    {
+      "season": "1915–19, 1939–46",
+      "text": "Giải tạm dừng vì hai cuộc thế chiến."
+    },
+    {
+      "season": "1888–1992",
+      "text": "Tính toàn bộ giải hạng nhất nước Anh (Football League First Division) trước khi có Premier League."
+    }
+  ],
+  "la-liga": [
+    {
+      "season": "1936–39",
+      "text": "Giải tạm dừng vì Nội chiến Tây Ban Nha."
+    },
+    {
+      "season": "1929–41",
+      "text": "Madrid FC là tên cũ của Real Madrid, Atlético Aviación là tên cũ của Atlético Madrid; số danh hiệu đã gộp."
+    }
+  ],
+  "champions-league": [
+    {
+      "season": "1955–92",
+      "text": "Tính cả Cúp C1 châu Âu trước khi đổi tên thành Champions League."
+    }
+  ]
+};
+
 /** Settled by hand after checking the cited pages; key: "slug season". These differ only in the club's name. */
 const OVERRIDES: Record<string, Partial<Honour>> = {
   "la-liga 1999–00": {}, // Deportivo La Coruña = Deportivo de A Coruña
@@ -49,7 +97,7 @@ function club($: CheerioAPI, cell: Element | undefined) {
   if (!cell) return null;
   const link = $(cell).find("a[rel='mw:WikiLink']").filter((_, a) => !$(a).closest(".flagicon, sup").length && clean($(a).text()).length > 1).first();
   const text = clean(link.length ? link.text() : $(cell).text());
-  return text && !/^(—|–|-|n\/a|not (held|awarded|played)|abandoned|cancelled|none|spanish civil war|world war)/i.test(text) ? text : null;
+  return text && !/^(—|–|-|n\/a|not (held|awarded|played)|abandoned|cancelled|none|league suspended|football league|spanish civil war|world war)/i.test(text) ? text : null;
 }
 const seasonKey = (raw: string) => {
   const match = /(\d{4})\s*[–-]\s*(\d{2,4})/.exec(raw) ?? /^(\d{4})$/.exec(raw.trim());
@@ -165,7 +213,7 @@ async function main() {
       const merged = { ...row, ...override };
       const named = winners.get(row.season);
       if (!override && named && ![...named].some((name) => sameClub(name, row.champion))) { disputed.push(`${slug} ${row.season}: Wikipedia ${row.champion} / Wikidata ${[...named].join(", ")}`); return []; }
-      return [merged];
+      return [{ ...merged, champion: canonical(merged.champion)!, runnerUp: canonical(merged.runnerUp) }];
     });
     for (const item of result[slug]) {
       if (Number(item.season.slice(0, 4)) < detailFrom) continue;
@@ -176,6 +224,6 @@ async function main() {
     console.log(`${slug}: ${result[slug].length} seasons (${rows.length} read, ${winners.size} checked against Wikidata)`);
   }
   if (disputed.length) console.log(`Left out, sources disagree (settle in OVERRIDES):\n  ${disputed.join("\n  ")}`);
-  writeFileSync("data/league-honours.json", `${JSON.stringify({ generatedAt: new Date().toISOString(), sources: Object.fromEntries(Object.entries(pages).map(([slug, page]) => [slug, `https://en.wikipedia.org/wiki/${page.title}`])), honours: result }, null, 1)}\n`);
+  writeFileSync("data/league-honours.json", `${JSON.stringify({ generatedAt: new Date().toISOString(), notes: NOTES, sources: Object.fromEntries(Object.entries(pages).map(([slug, page]) => [slug, `https://en.wikipedia.org/wiki/${page.title}`])), honours: result }, null, 1)}\n`);
 }
 void main().catch((error: unknown) => { console.error(error instanceof Error ? error.message : "Honours build failed."); process.exitCode = 1; });
