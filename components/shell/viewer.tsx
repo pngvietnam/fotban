@@ -15,7 +15,7 @@ const AccountIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="
  */
 export function TopbarAccount() {
   const viewer = useFollows();
-  const saved = useSavedStories().length;
+  const saved = useSavedStories().saved.length;
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;

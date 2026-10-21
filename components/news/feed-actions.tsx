@@ -2,9 +2,8 @@
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-const likedKey = "fotban-liked-stories";
-const savedKey = "fotban-saved-stories";
-export type SavedStory = { slug: string; title: string; publisher: string; savedAt: string };
+import { likedKey, savedKey, useAccountSaved, type SavedStory } from "../account/follow-store";
+export type { SavedStory };
 
 /** Browser lists (guest likes, saved stories) read through useSyncExternalStore; writes notify every reader on the page. */
 const listeners = new Set<() => void>();
@@ -23,9 +22,17 @@ function write(key: string, value: unknown) {
 const isString = (item: unknown): item is string => typeof item === "string";
 const isSaved = (item: unknown): item is SavedStory => !!item && typeof item === "object" && typeof (item as SavedStory).slug === "string" && typeof (item as SavedStory).title === "string";
 
-/** The stories saved in this browser, newest first. */
-export function useSavedStories() { return parseList(useSyncExternalStore(subscribe, () => read(savedKey), () => null), isSaved); }
-export const removeSavedStory = (slug: string) => write(savedKey, parseList(read(savedKey), isSaved).filter((item) => item.slug !== slug));
+/** Saved stories, newest first: the account's list when signed in, this browser's list for guests. */
+export function useSavedStories() {
+  const guest = parseList(useSyncExternalStore(subscribe, () => read(savedKey), () => null), isSaved);
+  const account = useAccountSaved();
+  const saved = account.signedIn ? account.saved : guest;
+  const set = (story: Omit<SavedStory, "savedAt">, on: boolean) => {
+    if (account.signedIn) { void account.save(story, on); return; }
+    write(savedKey, on ? [{ ...story, savedAt: new Date().toISOString() }, ...guest.filter((item) => item.slug !== story.slug)].slice(0, 200) : guest.filter((item) => item.slug !== story.slug));
+  };
+  return { ready: account.ready, saved, set };
+}
 
 const Glyph = ({ name, size = 18 }: { name: "heart" | "share" | "bookmark"; size?: number }) => {
   const paths = { heart: "M12 20s-7-4.4-9-9.2C1.6 7.3 4 4 7.3 4c2 0 3.6 1.1 4.7 2.6C13.1 5.1 14.7 4 16.7 4 20 4 22.4 7.3 21 10.8 19 15.6 12 20 12 20z", share: "M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7 M16 6l-4-4-4 4 M12 2v13", bookmark: "M6 3h12v18l-6-4-6 4z" };
@@ -70,9 +77,9 @@ export function ShareButton({ path, title, className }: { path: string; title: s
 
 /** Bookmark a story in this browser ("Tin đã lưu"). */
 export function SaveButton({ story, className = "post-save", label = false }: { story: Omit<SavedStory, "savedAt">; className?: string; label?: boolean }) {
-  const saved = parseList(useSyncExternalStore(subscribe, () => read(savedKey), () => null), isSaved);
+  const { saved, set } = useSavedStories();
   const on = saved.some((item) => item.slug === story.slug);
-  const toggle = () => write(savedKey, on ? saved.filter((item) => item.slug !== story.slug) : [{ ...story, savedAt: new Date().toISOString() }, ...saved].slice(0, 200));
+  const toggle = () => set(story, !on);
   return <button type="button" className={`${className} ${on ? "is-selected" : ""}`} aria-pressed={on} aria-label={on ? "Bỏ lưu tin" : "Lưu tin"} onClick={toggle}>{label ? (on ? "Đã lưu ✓" : "+ Lưu tin") : <Glyph name="bookmark" />}</button>;
 }
 

@@ -3,6 +3,7 @@ import { FollowingService, UserPreferenceService, requireAccount, type SessionRe
 import type { SyncDatabase } from "../lib/sync-database";
 import { InvalidRequestBody, readSmallJson } from "../lib/request-body";
 import { StoryLikeService } from "./story-likes";
+import { StorySaveService } from "./story-saves";
 
 export const privateHeaders = { "Cache-Control": "private, no-store, max-age=0", "Vary": "Cookie", "X-Robots-Tag": "noindex, nofollow" };
 export async function accountRequest(request: Request, dependencies: { database: SyncDatabase; session: SessionResolver; appUrl: string; onError?: () => void }) {
@@ -19,10 +20,13 @@ export async function accountRequest(request: Request, dependencies: { database:
       if (url.pathname === "/api/account") return reply({ user, preferences: await preferences.get(), follows: await following.list(), catalog: await following.catalog(url.searchParams.get("q") ?? "") });
       if (url.pathname === "/api/following") return reply({ follows: await following.list() });
       if (url.pathname === "/api/preferences") return reply(await preferences.get());
+      if (url.pathname === "/api/saved") return reply({ saved: await new StorySaveService(dependencies.database, session).list() });
     }
     const body = await readSmallJson(request, 8192);
     if (url.pathname === "/api/following" && ["POST", "DELETE"].includes(request.method)) return reply(await following.set(body, request.method === "POST"));
     if (url.pathname === "/api/preferences" && request.method === "PATCH") return reply(await preferences.update(body));
+    if (url.pathname === "/api/saved" && ["POST", "DELETE"].includes(request.method)) return reply(await new StorySaveService(dependencies.database, session).set(body, request.method === "POST"));
+    if (url.pathname === "/api/sync" && request.method === "POST") return reply(await new StorySaveService(dependencies.database, session).merge(body));
     if (url.pathname === "/api/likes" && ["POST", "DELETE"].includes(request.method)) return reply(await new StoryLikeService(dependencies.database, session).set(body, request.method === "POST"));
     return reply({ error: "Yêu cầu không được hỗ trợ." }, 405);
   } catch (error) {

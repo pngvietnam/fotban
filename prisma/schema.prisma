@@ -167,12 +167,25 @@ model User {
   publishedBriefs   BriefRevision[] @relation("BriefPublisher")
   feedCardDecisions FeedCard[]      @relation("FeedCardDecider")
   storyLikes        StoryLike[]
+  storySaves        StorySave[]
 
   @@unique([authProvider, authSubject])
 }
 
 /// A signed-in reader likes a feed story; counts shown on the site come only from these rows.
 model StoryLike {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  articleId String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([articleId])
+}
+
+model StorySave {
   id        String   @id @default(uuid()) @db.Uuid
   userId    String   @db.Uuid
   articleId String   @db.Uuid
@@ -672,6 +685,7 @@ model Article {
   feedCard               FeedCard?
   reliabilityAssessments ReliabilityAssessment[]
   storyLikes             StoryLike[]
+  storySaves             StorySave[]
 
   @@index([publicationStatus, publishedAt])
   @@index([sourceId, publishedAt])
