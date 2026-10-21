@@ -1,7 +1,9 @@
 import { ProviderError } from "../errors";
 import { HIGHLIGHTLY } from "./config";
-import { normalizePlayerProfile, normalizePlayerSearch, normalizeBoxScore, normalizeDetail, normalizeLeagues, normalizeLineups, normalizeMatches, type HighlightlyBoxScore, type HighlightlyDetail, type HighlightlyLeague, type HighlightlyLineups, type HighlightlyMatch } from "./normalization";
+import { normalizePlayerProfile, normalizeHeadToHead, normalizePlayerSearch, normalizeBoxScore, normalizeDetail, normalizeLeagues, normalizeLineups, normalizeMatches, type HighlightlyBoxScore, type HighlightlyDetail, type HighlightlyLeague, type HighlightlyLineups, type HighlightlyMatch } from "./normalization";
 
+/** Past meetings of two clubs in every competition (the match page's "Đối đầu"). */
+export type HeadToHeadApi = { headToHead(teamOne: string, teamTwo: string): Promise<ReturnType<typeof normalizeHeadToHead>> };
 /** What the match-detail sync needs from a detail provider; tests pass a fake. */
 /** Player lookups for the transfer pages (profile: transfers with fees, market value, contract, injuries). */
 export type PlayerProfileApi = {
@@ -65,6 +67,11 @@ export class HighlightlyProvider implements MatchDetailApi, PlayerProfileApi {
     if (!/^\d{1,20}$/.test(id)) throw new ProviderError("UNSUPPORTED");
     const body = await this.request(`/players/${id}`);
     return this.parse(() => normalizePlayerProfile(body));
+  }
+  async headToHead(teamOne: string, teamTwo: string) {
+    if (!/^\d{1,20}$/.test(teamOne) || !/^\d{1,20}$/.test(teamTwo)) throw new ProviderError("UNSUPPORTED");
+    const body = await this.request("/head-2-head", { teamIdOne: teamOne, teamIdTwo: teamTwo });
+    return this.parse(() => normalizeHeadToHead(body));
   }
   async match(id: string) {
     if (!/^\d{1,20}$/.test(id)) throw new ProviderError("UNSUPPORTED");

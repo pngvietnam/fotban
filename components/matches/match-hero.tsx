@@ -7,7 +7,7 @@ import { leagueHref } from "../../lib/league-presentation";
 import { clubPath } from "../../lib/club-presentation";
 import { safeCrestUrl } from "../../lib/crest";
 import { isLeagueSlug } from "../../services/league-hub";
-import { scorerLines } from "./match-tab-views";
+import { scorerLines, type HeroLine } from "./match-tab-views";
 
 function Side({ team, side }: { team: MatchTeam | null; side: "home" | "away" }) {
   const crest = safeCrestUrl(team?.externalCrestUrl);
@@ -18,6 +18,8 @@ function Side({ team, side }: { team: MatchTeam | null; side: "home" | "away" })
   </>;
   return team?.id ? <Link href={clubPath(team.id)}>{body}</Link> : <span>{body}</span>;
 }
+
+const item = (line: HeroLine, index: number) => <li key={index} className={line.kind === "red" ? "red" : undefined}>{line.kind === "red" && <><i aria-hidden="true" /><span className="sr-only">Thẻ đỏ: </span></>}{line.text}</li>;
 
 /** The dark score card of prototype v2: competition and round, both clubs, score or kickoff, date and venue. */
 export function MatchHero({ match, now, venueName }: { match: MatchDetail; now: Date; venueName: string | null }) {
@@ -34,7 +36,7 @@ export function MatchHero({ match, now, venueName }: { match: MatchDetail; now: 
       <Side team={match.homeClub} side="home" />
       <span><strong>{score.text}</strong><small>{notes}</small></span>
       <Side team={match.awayClub} side="away" />
-      {scorers && <><ul aria-label="Bàn thắng đội nhà" className="dp-hero-goals">{scorers.home.map((line, index) => <li key={index}>{line}</li>)}</ul><ul aria-label="Bàn thắng đội khách" className="dp-hero-goals away">{scorers.away.map((line, index) => <li key={index}>{line}</li>)}</ul></>}
+      {scorers && <><ul aria-label="Bàn thắng và thẻ đỏ đội nhà" className="dp-hero-goals">{scorers.home.map(item)}</ul><ul aria-label="Bàn thắng và thẻ đỏ đội khách" className="dp-hero-goals away">{scorers.away.map(item)}</ul></>}
     </div>
     <p>{dayNumbers(matchDayKey(match.kickoffAt))} · {formatMatchTime(match.kickoffAt)} UTC+7{venueName ? ` · ${venueName}` : ""}</p>
   </section>;

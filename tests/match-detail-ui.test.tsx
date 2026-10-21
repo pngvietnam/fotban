@@ -29,7 +29,7 @@ describe("match detail tabs with provider data", () => {
     expect(rows.eq(1).text()).toContain("45+2′");
     expect(rows.eq(2).text()).toContain("Vào: B. Winger"); expect(rows.eq(2).text()).toContain("Ra: B. Defender");
     expect($("a[href='/player/player-33333333-3333-4333-8333-333333333333']").length).toBeGreaterThan(0);
-    expect($("[aria-label='Bàn thắng đội nhà']").text()).toContain("Alpha Striker 12′");
+    expect($("[aria-label='Bàn thắng và thẻ đỏ đội nhà']").text()).toContain("Alpha Striker 12′");
   });
   it("groups statistics by section, labels them in Vietnamese and sums total shots from inside + outside the box", () => {
     const stat = (metric: string, value: string, side: typeof home) => ({ metric, value, unit: null, club: { id: side.id, name: side.name }, player: null });

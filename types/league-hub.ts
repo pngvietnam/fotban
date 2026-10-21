@@ -14,5 +14,7 @@ export type FixtureRow = {
   slug: string; kickoffAt: string; status: string; round: string | null;
   home: { name: string; tla: string | null; crestUrl: string | null }; away: { name: string; tla: string | null; crestUrl: string | null };
   homeScore: number | null; awayScore: number | null;
+  /** The competition, where the query reads it (club fixtures). */
+  competition?: { name: string; slug: string } | null;
 };
 export type ClubRow = { clubId: string; name: string; shortName: string | null; tla: string | null; crestUrl: string | null; position: number | null; points: number | null };

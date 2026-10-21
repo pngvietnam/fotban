@@ -1,11 +1,9 @@
 import Link from "next/link";
 import type { MatchDetail } from "../../types/match-ui";
 import type { MatchHub } from "../../services/match-hub";
-import type { FixtureRow } from "../../types/league-hub";
-import { resultLabel, resultText } from "../../lib/league-presentation";
 import { teamName } from "../../lib/match-presentation";
 import { playerPath } from "../../lib/player-presentation";
-import { FixtureItem, StandingsTable } from "../league/league-hub";
+import { StandingsTable } from "../league/league-hub";
 import { NewsImage } from "../ui/news-image";
 import type { MatchReview } from "../../lib/match-review";
 import { newsRelativeTime } from "../../lib/news-presentation";
@@ -77,18 +75,31 @@ export function EventsList({ match }: { match: MatchDetail }) {
 }
 /** Goal scorers under the scoreboard, per side. */
 /** Goal scorers under the score; `className` restyles the strip (the match hero uses its own). */
-export function scorerLines(match: MatchDetail) {
-  const goals = match.events.filter((event) => isGoal(event.type));
-  if (!goals.length) return null;
-  const side = (home: boolean) => goals.filter((event) => Boolean(match.homeClub?.id && event.club?.id === match.homeClub.id) === home)
-    .map((event) => `${personName(event.player, event.playerName) ?? "Bàn thắng"} ${minuteText(event)}${event.type === "PENALTY" ? " (pen)" : event.type === "OWN_GOAL" ? " (phản lưới)" : ""}`);
+export type HeroLine = { text: string; kind: "goal" | "red" };
+/** Each side's goals, one line per scorer with every minute ("Phil Foden 34′, 65′ (pen)"), then its red cards. */
+export function scorerLines(match: MatchDetail): { home: HeroLine[]; away: HeroLine[] } | null {
+  const marks = match.events.filter((event) => isGoal(event.type) || event.type === "RED_CARD");
+  if (!marks.some((event) => isGoal(event.type))) return null;
+  const side = (home: boolean) => {
+    const own = marks.filter((event) => Boolean(match.homeClub?.id && event.club?.id === match.homeClub.id) === home);
+    const lines = new Map<string, { name: string; minutes: string[]; kind: HeroLine["kind"] }>();
+    for (const event of own) {
+      const name = personName(event.player, event.playerName) ?? (event.type === "RED_CARD" ? "Thẻ đỏ" : "Bàn thắng");
+      const kind = event.type === "RED_CARD" ? "red" : "goal";
+      const key = `${kind}:${event.player?.id ?? name}`;
+      const line = lines.get(key) ?? { name, minutes: [], kind };
+      line.minutes.push(`${minuteText(event)}${event.type === "PENALTY" ? " (pen)" : event.type === "OWN_GOAL" ? " (phản lưới)" : ""}`);
+      lines.set(key, line);
+    }
+    return [...lines.values()].sort((a, b) => a.kind === b.kind ? 0 : a.kind === "goal" ? -1 : 1).map((line): HeroLine => ({ text: `${line.name} ${line.minutes.join(", ")}`, kind: line.kind }));
+  };
   return { home: side(true), away: side(false) };
 }
 export function Scorers({ match, className = "grid grid-cols-2 gap-6 border-t border-slate-100 px-5 py-3 text-xs leading-6 text-slate-600" }: { match: MatchDetail; className?: string }) {
   const lines = scorerLines(match);
   if (!lines) return null;
   return <div className={className}>
-    <ul aria-label="Bàn thắng đội nhà" className="text-right">{lines.home.map((line, index) => <li key={index}>{line}</li>)}</ul><ul aria-label="Bàn thắng đội khách">{lines.away.map((line, index) => <li key={index}>{line}</li>)}</ul>
+    <ul aria-label="Bàn thắng đội nhà" className="text-right">{lines.home.map((line, index) => <li key={index}>{line.text}</li>)}</ul><ul aria-label="Bàn thắng đội khách">{lines.away.map((line, index) => <li key={index}>{line.text}</li>)}</ul>
   </div>;
 }
 
@@ -170,9 +181,9 @@ function StatRow({ metric, pair, of }: { metric: string; pair: StatPair; of?: St
   const shown = (value: number | null, side: "home" | "away") => value === null ? "—" : `${statValue(metric, value)}${of ? share(value, of[side]) : ""}`;
   const leader = !lowerIsBetter.has(metric) && pair.home !== null && pair.away !== null && pair.home !== pair.away ? (pair.home > pair.away ? "home" : "away") : null;
   return <li aria-label={`${statLabel(metric)}: ${shown(pair.home, "home")} - ${shown(pair.away, "away")}`} className="grid grid-cols-[minmax(4.5rem,auto)_1fr_minmax(4.5rem,auto)] items-center gap-2 py-1.5 text-sm">
-    <span aria-hidden="true" className={`justify-self-start whitespace-nowrap rounded-full px-2 py-0.5 tabular-nums ${leader === "home" ? "bg-slate-900 font-bold text-white" : "font-semibold text-slate-800"}`}>{shown(pair.home, "home")}</span>
+    <span aria-hidden="true" className={`justify-self-start whitespace-nowrap rounded-full px-2 py-0.5 tabular-nums ${leader === "home" ? "mf-pill home" : "font-semibold text-slate-800"}`}>{shown(pair.home, "home")}</span>
     <span aria-hidden="true" className="text-center text-xs leading-snug text-slate-600">{statLabel(metric)}</span>
-    <span aria-hidden="true" className={`justify-self-end whitespace-nowrap rounded-full px-2 py-0.5 tabular-nums ${leader === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold text-slate-800"}`}>{shown(pair.away, "away")}</span>
+    <span aria-hidden="true" className={`justify-self-end whitespace-nowrap rounded-full px-2 py-0.5 tabular-nums ${leader === "away" ? "mf-pill away" : "font-semibold text-slate-800"}`}>{shown(pair.away, "away")}</span>
   </li>;
 }
 /** Team statistics as a grid of small cards, then the rest collapsed. */
@@ -187,12 +198,12 @@ export function StatsList({ match }: { match: MatchDetail }) {
   return <section aria-labelledby="match-stats" className="space-y-4">
     <h2 id="match-stats" className="sr-only">Thống kê đội</h2>
     <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {cards.map((card) => <div key={card.title} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-        <h3 className="mb-1 text-sm font-bold">{card.title}</h3>
+      {cards.map((card) => <div key={card.title} className="dp-panel mf-card mf-tight">
+        <h3 className="mf-subheading">{card.title}</h3>
         <ul className="divide-y divide-slate-100">{card.metrics.map(row)}</ul>
       </div>)}
     </div>
-    {others.length > 0 && <details className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+    {others.length > 0 && <details className="dp-panel mf-card mf-tight">
       <summary className="cursor-pointer text-sm font-semibold text-slate-700">Chỉ số khác ({others.length})</summary>
       <ul className="mt-2 grid gap-x-8 divide-y divide-slate-100 md:grid-cols-2 md:divide-y-0">{others.map(row)}</ul>
     </details>}
@@ -212,28 +223,28 @@ export function TopStats({ match, href, title = "Thông số nổi bật" }: { m
   const passes = pairs.get("total_passes");
   // "Chuyền chính xác 412 (86%)": accurate passes with their share of all passes, both from the provider.
   const passShare = (side: "home" | "away") => { const done = pairs.get("successful_passes")?.[side]; const total = passes?.[side]; return done != null && total ? ` (${Math.round((done / total) * 100)}%)` : ""; };
-  return <section aria-labelledby="match-top-stats" className={panel}>
-    <h2 id="match-top-stats" className="mb-4 font-bold">{title}</h2>
-    {home !== null && away !== null && <div className="mb-5">
-      <p className="mb-2 text-center text-xs font-semibold text-slate-600">Kiểm soát bóng</p>
-      <div role="img" aria-label={`Kiểm soát bóng: ${Math.round(home)}% - ${Math.round(away)}%`} className="flex h-8 overflow-hidden rounded-full text-sm font-bold">
-        <span className="flex items-center bg-slate-900 pl-3 text-white" style={{ width: `${Math.max(12, Math.min(88, home))}%` }}>{Math.round(home)}%</span>
-        <span className="flex flex-1 items-center justify-end bg-lime-500 pr-3 text-slate-950">{Math.round(away)}%</span>
+  return <section aria-labelledby="match-top-stats" className="dp-panel mf-card mf-top">
+    <div className="mf-heading"><h2 id="match-top-stats">{title}</h2></div>
+    {home !== null && away !== null && <div className="mf-possession">
+      <p>Kiểm soát bóng</p>
+      <div role="img" aria-label={`Kiểm soát bóng: ${Math.round(home)}% - ${Math.round(away)}%`}>
+        <span className="home" style={{ width: `${Math.max(12, Math.min(88, home))}%` }}>{Math.round(home)}%</span>
+        <span className="away">{Math.round(away)}%</span>
       </div>
     </div>}
-    <ul className="space-y-3">{metrics.map((metric) => {
+    <ul className="mf-stats">{metrics.map((metric) => {
       const pair = pairs.get(metric)!;
       const shown = (side: "home" | "away") => pair[side] === null ? "—" : `${statValue(metric, pair[side]!)}${metric === "successful_passes" ? passShare(side) : ""}`;
       const leader = pair.home !== null && pair.away !== null && pair.home !== pair.away ? (pair.home > pair.away ? "home" : "away") : null;
       // Fewer fouls and cards is the better side, so those are not highlighted.
       const highlight = ["fouls", "yellow_cards"].includes(metric) ? null : leader;
-      return <li key={metric} aria-label={`${statLabel(metric)}: ${shown("home")} - ${shown("away")}`} className="flex items-center justify-between gap-3 text-sm">
-        <span aria-hidden="true" className={`rounded-full px-2.5 py-0.5 tabular-nums ${highlight === "home" ? "bg-slate-900 font-bold text-white" : "font-semibold"}`}>{shown("home")}</span>
-        <span aria-hidden="true" className="text-center text-xs text-slate-600">{statLabel(metric)}</span>
-        <span aria-hidden="true" className={`rounded-full px-2.5 py-0.5 tabular-nums ${highlight === "away" ? "bg-lime-500 font-bold text-slate-950" : "font-semibold"}`}>{shown("away")}</span>
+      return <li key={metric} aria-label={`${statLabel(metric)}: ${shown("home")} - ${shown("away")}`}>
+        <span aria-hidden="true" className={highlight === "home" ? "mf-pill home" : undefined}>{shown("home")}</span>
+        <span aria-hidden="true">{statLabel(metric)}</span>
+        <span aria-hidden="true" className={highlight === "away" ? "mf-pill away" : undefined}>{shown("away")}</span>
       </li>;
     })}</ul>
-    {href && <Link href={href} className="mt-5 block text-center text-sm font-semibold underline-offset-4 hover:underline">Xem tất cả thống kê →</Link>}
+    {href && <Link href={href} className="mf-more">Xem tất cả thống kê →</Link>}
   </section>;
 }
 /** FotMob's "Match review": the leading Vietnamese publisher story about this match. */
@@ -241,9 +252,9 @@ export function MatchReviewCard({ review, now }: { review: MatchReview; now: Dat
   const { lead, others } = review.group;
   const pictured = [lead, ...others].find((card) => card.image);
   const publishers = [...new Set(others.map((card) => card.publisher))].filter((name) => name !== lead.publisher);
-  return <section aria-labelledby="match-review" className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-    <h2 id="match-review" className="px-5 pt-4 text-xs font-bold uppercase tracking-wide text-slate-500 sm:px-6">{review.kind === "review" ? "Tường thuật trận đấu" : "Trước trận đấu"}</h2>
-    <Link href={`/news/${lead.slug}`} className="group flex flex-col gap-4 p-5 sm:flex-row sm:p-6">
+  return <section aria-labelledby="match-review" className="dp-panel mf-card mf-review">
+    <h2 id="match-review" className="mf-kicker">{review.kind === "review" ? "Tường thuật trận đấu" : "Trước trận đấu"}</h2>
+    <Link href={`/news/${lead.slug}`} className="group mt-3 flex flex-col gap-4 sm:flex-row">
       {pictured && <span className="shrink-0 sm:w-56"><NewsImage src={pictured.image} className="aspect-video rounded-xl" /><span className="mt-1 block text-[11px] text-slate-600">Ảnh: {pictured.publisher}</span></span>}
       <span className="min-w-0">
         <span className="block break-words text-lg font-bold leading-snug group-hover:underline">{lead.title}</span>
@@ -254,53 +265,32 @@ export function MatchReviewCard({ review, now }: { review: MatchReview; now: Dat
   </section>;
 }
 
-/** Result of a fixture from one club's point of view (by name, since fixture rows carry names). */
-function resultFor(fixture: FixtureRow, clubName: string) {
-  if (fixture.homeScore === null || fixture.awayScore === null) return null;
-  if (fixture.homeScore === fixture.awayScore) return "D" as const;
-  return (fixture.homeScore > fixture.awayScore) === (fixture.home.name === clubName) ? "W" as const : "L" as const;
-}
-function FormColumn({ name, clubName, fixtures }: { name: string; clubName: string; fixtures: FixtureRow[] }) {
-  const results = [...fixtures].reverse().map((fixture) => resultFor(fixture, clubName)).filter((result) => result !== null);
-  const tone = { W: "bg-emerald-700", D: "bg-slate-500", L: "bg-rose-700" } as const;
-  return <div className="min-w-0"><p className="mb-2 break-words text-xs font-semibold text-slate-500">{name}</p>
-    {results.length ? <ul aria-label={`Phong độ ${name}: ${results.map((result) => resultText[result]).join(", ")}`} className="flex gap-1">{results.map((result, index) => <li key={index} aria-hidden="true" className={`grid h-7 w-7 place-items-center rounded text-xs font-bold text-white ${tone[result]}`}>{resultLabel[result]}</li>)}</ul> : <p className="text-xs text-slate-400">Chưa có kết quả</p>}</div>;
-}
-export function FormPanel({ match, hub }: { match: MatchDetail; hub: MatchHub }) {
-  if (!hub.home && !hub.away) return null;
-  return <section aria-labelledby="match-form" className={panel}>
-    <h2 id="match-form" className="mb-4 text-base font-bold">Phong độ</h2>
-    <div className="grid gap-5 sm:grid-cols-2">
-      <FormColumn name={teamName(match.homeClub, "home", true)} clubName={match.homeClub?.name ?? ""} fixtures={hub.home?.recent ?? []} />
-      <FormColumn name={teamName(match.awayClub, "away", true)} clubName={match.awayClub?.name ?? ""} fixtures={hub.away?.recent ?? []} />
-    </div>
-    <p className="mt-3 text-[11px] text-slate-500">5 trận gần nhất, từ kết quả đã lưu.</p>
-  </section>;
-}
-export function NextMatches({ match, hub }: { match: MatchDetail; hub: MatchHub }) {
-  const items = [[teamName(match.homeClub, "home", true), hub.home?.next], [teamName(match.awayClub, "away", true), hub.away?.next]] as const;
-  if (!items.some(([, next]) => next)) return null;
-  return <section aria-labelledby="match-next" className={panel}>
-    <h2 id="match-next" className="mb-2 text-base font-bold">Trận tiếp theo</h2>
-    {items.map(([name, next]) => next && <div key={name}><p className="mt-3 text-xs font-semibold text-slate-500">{name}</p><ul><FixtureItem fixture={next} /></ul></div>)}
-  </section>;
-}
 export function StandingsPanel({ match, hub }: { match: MatchDetail; hub: MatchHub }) {
   if (!hub.league || !hub.standings) return <Unavailable>Giải đấu này chưa có bảng xếp hạng.</Unavailable>;
   return <StandingsTable data={hub.standings} league={hub.league} highlight={[match.homeClub?.id, match.awayClub?.id].filter((id): id is string => Boolean(id))} />;
 }
+const meetingDay = (iso: string) => new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(iso));
+/** Earlier meetings only (never this match), in every competition the data provider lists; wins counted for the page's home club. */
 export function HeadToHeadPanel({ match, hub }: { match: MatchDetail; hub: MatchHub }) {
-  const { fixtures, homeWins, draws, awayWins } = hub.headToHead;
-  if (!fixtures.length) return <Unavailable>Chưa có dữ liệu các lần gặp nhau của hai đội.</Unavailable>;
+  const { meetings, homeWins, draws, awayWins, source } = hub.headToHead;
   const home = teamName(match.homeClub, "home", true); const away = teamName(match.awayClub, "away", true);
-  return <section aria-labelledby="match-h2h" className={panel}>
-    <h2 id="match-h2h" className="mb-4 text-base font-bold">Thành tích đối đầu</h2>
-    <div className="mb-4 grid grid-cols-3 gap-2 text-center">
-      <div className="rounded-xl bg-slate-50 p-3"><p className="text-2xl font-bold tabular-nums">{homeWins}</p><p className="mt-1 break-words text-[11px] text-slate-500">{home} thắng</p></div>
-      <div className="rounded-xl bg-slate-50 p-3"><p className="text-2xl font-bold tabular-nums">{draws}</p><p className="mt-1 text-[11px] text-slate-500">Hòa</p></div>
-      <div className="rounded-xl bg-slate-50 p-3"><p className="text-2xl font-bold tabular-nums">{awayWins}</p><p className="mt-1 break-words text-[11px] text-slate-500">{away} thắng</p></div>
-    </div>
-    <ul>{fixtures.map((fixture) => <FixtureItem key={fixture.slug} fixture={fixture} />)}</ul>
-    <p className="mt-3 text-[11px] text-slate-500">Các lần gặp nhau đã lưu trong hệ thống.</p>
+  if (!meetings.length) return <Unavailable>{source === "provider" ? `${home} và ${away} chưa gặp nhau trước trận này.` : "Chưa có dữ liệu các lần gặp nhau trước trận này."}</Unavailable>;
+  // eslint-disable-next-line @next/next/no-img-element -- hotlinked football-data crest
+  const crest = (club: MatchDetail["homeClub"]) => { const url = safeCrestUrl(club?.externalCrestUrl); return url ? <img src={url} alt="" referrerPolicy="no-referrer" /> : null; };
+  return <section aria-labelledby="match-h2h" className="dp-panel mf-card">
+    <div className="mf-heading"><h2 id="match-h2h">Thành tích đối đầu</h2><span>{meetings.length} trận gần nhất</span></div>
+    <div className="mf-h2h large"><span>{crest(match.homeClub)}<b>{homeWins}</b><small>{home} thắng</small></span><span><b>{draws}</b><small>Hòa</small></span><span>{crest(match.awayClub)}<b>{awayWins}</b><small>{away} thắng</small></span></div>
+    <ul className="mf-meetings">{meetings.map((meeting) => {
+      const [left, right] = meeting.homeIsPageHome ? [match.homeClub, match.awayClub] : [match.awayClub, match.homeClub];
+      const leftName = teamName(left, meeting.homeIsPageHome ? "home" : "away", true); const rightName = teamName(right, meeting.homeIsPageHome ? "away" : "home", true);
+      const body = <>
+        <span className="mf-meeting-when">{meetingDay(meeting.date)}{meeting.competition ? <small>{meeting.competition}</small> : null}</span>
+        <span className="mf-meeting-team home">{leftName}{crest(left)}</span>
+        <b>{meeting.homeScore} – {meeting.awayScore}{meeting.penalties ? <small>Luân lưu {meeting.penalties}</small> : null}</b>
+        <span className="mf-meeting-team">{crest(right)}{rightName}</span>
+      </>;
+      return <li key={meeting.key}>{meeting.slug ? <Link href={`/match/${encodeURIComponent(meeting.slug)}`} className="mf-meeting">{body}</Link> : <div className="mf-meeting">{body}</div>}</li>;
+    })}</ul>
+    <p className="mf-note">{source === "provider" ? "Các lần gặp nhau trước trận này ở mọi giải đấu, theo Highlightly." : "Các lần gặp nhau trước trận này trong dữ liệu Fotban đang lưu."}</p>
   </section>;
 }

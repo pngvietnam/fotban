@@ -7,7 +7,7 @@ import { exhaustQuota, reserveQuota } from "./match-details";
 
 /** Profile reads have their own small daily allowance so match details keep theirs (both share the free 100/day). */
 export const PROFILE_QUOTA_KEY = "HIGHLIGHTLY_PROFILES";
-export const profileDailyBudget = 30;
+export const profileDailyBudget = 20;
 const provider = HIGHLIGHTLY.id;
 const dayMs = 86400_000;
 const refreshMs = 3 * dayMs;

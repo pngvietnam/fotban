@@ -176,6 +176,27 @@ export type PlayerProfileData = {
   transfers: RecordedTransfer[]; rumours: { club: string; date: string | null }[];
   injuries: { reason: string; from: string | null; to: string | null; missedGames: number | null }[];
 };
+const meetingSchema = z.object({
+  id, date: z.string(), round: z.string().max(120).nullish(),
+  league: z.object({ name: text.nullish(), season: z.union([z.number(), z.string()]).nullish() }).partial().nullish(),
+  homeTeam: team, awayTeam: team,
+  state: z.object({ description: z.string().max(80).nullish(), score: z.object({ current: z.string().max(20).nullish(), penalties: z.string().max(20).nullish() }).partial().nullish() }).partial().nullish(),
+});
+/** A finished meeting of two clubs: provider team ids and the score from the home side. */
+export type Meeting = { id: string; date: string; competition: string | null; season: string | null; homeTeamId: string; awayTeamId: string; homeScore: number; awayScore: number; penalties: string | null };
+/** Head-to-head list: finished meetings with a readable score only, newest first; anything unfinished or malformed is dropped. */
+export function normalizeHeadToHead(body: unknown): Meeting[] {
+  const rows = z.array(z.unknown()).max(100).parse(body);
+  return rows.flatMap((raw) => {
+    const row = meetingSchema.safeParse(raw);
+    if (!row.success) return [];
+    const { data } = row;
+    const score = /^(\d{1,2})\s*-\s*(\d{1,2})$/.exec(data.state?.score?.current?.trim() ?? "");
+    const date = new Date(data.date);
+    if (!score || !/^finished/i.test(data.state?.description ?? "") || !Number.isFinite(date.getTime())) return [];
+    return [{ id: data.id, date: date.toISOString(), competition: data.league?.name ?? null, season: data.league?.season != null ? String(data.league.season) : null, homeTeamId: data.homeTeam.id, awayTeamId: data.awayTeam.id, homeScore: Number(score[1]), awayScore: Number(score[2]), penalties: data.state?.score?.penalties?.trim() || null }];
+  }).sort((a, b) => b.date.localeCompare(a.date));
+}
 export function normalizePlayerSearch(body: unknown) { return playerSearchSchema.parse(body).data.map((row) => ({ id: row.id, name: row.name, fullName: row.fullName ?? null })); }
 export function normalizePlayerProfile(body: unknown): PlayerProfileData | null {
   const row = playerProfileSchema.parse(body)[0];

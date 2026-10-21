@@ -358,6 +358,21 @@ model Player {
   profiles      PlayerProfile[]
 }
 
+/// Past meetings of two clubs in every competition, per pair of provider team ids (teamA < teamB).
+model HeadToHead {
+  provider      String
+  teamA         String
+  teamB         String
+  meetings      Json      @default("[]")
+  fetchedAt     DateTime? @db.Timestamptz(3)
+  attempts      Int       @default(0)
+  lastAttemptAt DateTime? @db.Timestamptz(3)
+  lastError     String?
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@id([provider, teamA, teamB])
+}
+
 /// Provider profile of a player: recorded transfers with fees, market value, contract and injuries (JSON as normalised).
 model PlayerProfile {
   playerId            String    @db.Uuid

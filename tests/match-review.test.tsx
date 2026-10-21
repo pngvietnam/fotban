@@ -52,13 +52,13 @@ describe("facts tab", () => {
       stat("total_passes", "400", home), stat("successful_passes", "320", home), stat("total_passes", "500", away), stat("successful_passes", "450", away), stat("fouls", "12", home), stat("fouls", "9", away)];
     const $ = load(renderToStaticMarkup(<MatchDetailView match={detail({ stats })} now={uiNow} review={review} />));
     const headings = $("h2").map((_, node) => $(node).text().replace("▶", "").trim()).get();
-    // A finished match: review, then its highlight, then the headline figures.
-    expect(headings.slice(0, 3)).toEqual(["Tường thuật trận đấu", "Video trận đấu", "Thông số nổi bật"]);
+    // A finished match: the summary (top statistics) first, then the highlight and the press review.
+    expect(headings.slice(0, 3)).toEqual(["Thống kê hàng đầu", "Video trận đấu", "Tường thuật trận đấu"]);
     expect($("#match-review").parent().text()).toContain("Cùng đưa tin: Dân trí");
     expect($("[aria-label='Kiểm soát bóng: 47% - 53%']")).toHaveLength(1);
     expect($("[aria-label='Bàn thắng kỳ vọng (xG): 0.43 - 1.47']")).toHaveLength(1);
     expect($("[aria-label='Chuyền thành công: 320 (80%) - 450 (90%)']")).toHaveLength(1);
-    expect($("#match-top-stats").parent().find("a").attr("href")).toBe("/match/fixture-alpha-beta?tab=thong-ke");
+    expect($("#match-top-stats").closest("section").find("a").attr("href")).toBe("/match/fixture-alpha-beta?tab=thong-ke");
   });
   it("leaves both blocks out when there is no story and no figures", () => {
     const $ = load(renderToStaticMarkup(<MatchDetailView match={detail()} now={uiNow} />));

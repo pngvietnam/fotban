@@ -11,6 +11,7 @@ import { publishFeedCards } from "../services/feed-cards";
 import { syncMatches } from "../services/match-sync";
 import { syncMatchDetails } from "../services/match-details";
 import { syncPlayerProfiles } from "../services/player-profiles";
+import { syncHeadToHead } from "../services/head-to-head";
 import { VideoFeedSync } from "../services/video-feed-sync";
 import { VideoStore } from "../services/video-store";
 import { YouTubeFeedReader } from "../providers/youtube/rss";
@@ -86,6 +87,11 @@ async function main() {
         try {
           const profiles = await syncPlayerProfiles(database, details);
           if (profiles.requests || profiles.stopped === "ERROR") logger.info({ ...profiles }, "worker.player_profiles");
+        } catch { ok = false; }
+        // Match pages: earlier meetings (every competition) of clubs playing soon, from their own small allowance.
+        try {
+          const meetings = await syncHeadToHead(database, details);
+          if (meetings.requests || meetings.stopped === "ERROR") logger.info({ ...meetings }, "worker.head_to_head");
         } catch { ok = false; }
       }
       if (Date.now() >= videosDueAt) {
