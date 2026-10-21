@@ -49,6 +49,7 @@
     "admin:bootstrap": "tsx --env-file-if-exists=.env scripts/bootstrap-admin.ts",
     "admin:smoke": "tsx --env-file-if-exists=.env scripts/validate-admin.ts",
     "matches:details": "tsx --env-file-if-exists=.env scripts/match-details.ts",
+    "honours:build": "tsx scripts/build-honours.ts",
     "leagues:leaders": "tsx --env-file-if-exists=.env scripts/league-leaders.ts",
     "matches:h2h": "tsx --env-file-if-exists=.env scripts/head-to-head.ts",
     "players:profiles": "tsx --env-file-if-exists=.env scripts/player-profiles.ts"

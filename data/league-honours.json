@@ -1,0 +1,1545 @@
+{
+ "generatedAt": "2026-10-21T08:29:46.051Z",
+ "sources": {
+  "premier-league": "https://en.wikipedia.org/wiki/List_of_English_football_champions",
+  "la-liga": "https://en.wikipedia.org/wiki/List_of_Spanish_football_champions",
+  "ligue-1": "https://en.wikipedia.org/wiki/List_of_French_football_champions",
+  "champions-league": "https://en.wikipedia.org/wiki/List_of_European_Cup_and_UEFA_Champions_League_finals"
+ },
+ "honours": {
+  "premier-league": [
+   {
+    "season": "2025–26",
+    "champion": "Arsenal",
+    "runnerUp": "Manchester City"
+   },
+   {
+    "season": "2024–25",
+    "champion": "Liverpool",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "2023–24",
+    "champion": "Manchester City",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "2022–23",
+    "champion": "Manchester City",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "2021–22",
+    "champion": "Manchester City",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "2020–21",
+    "champion": "Manchester City",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "2019–20",
+    "champion": "Liverpool",
+    "runnerUp": "Manchester City"
+   },
+   {
+    "season": "2018–19",
+    "champion": "Manchester City",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "2017–18",
+    "champion": "Manchester City",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "2016–17",
+    "champion": "Chelsea",
+    "runnerUp": "Tottenham Hotspur"
+   },
+   {
+    "season": "2015–16",
+    "champion": "Leicester City",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "2014–15",
+    "champion": "Chelsea",
+    "runnerUp": "Manchester City"
+   },
+   {
+    "season": "2013–14",
+    "champion": "Manchester City",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "2012–13",
+    "champion": "Manchester United",
+    "runnerUp": "Manchester City"
+   },
+   {
+    "season": "2011–12",
+    "champion": "Manchester City",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "2010–11",
+    "champion": "Manchester United",
+    "runnerUp": "Chelsea"
+   },
+   {
+    "season": "2009–10",
+    "champion": "Chelsea",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "2008–09",
+    "champion": "Manchester United",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "2007–08",
+    "champion": "Manchester United",
+    "runnerUp": "Chelsea"
+   },
+   {
+    "season": "2006–07",
+    "champion": "Manchester United",
+    "runnerUp": "Chelsea"
+   },
+   {
+    "season": "2005–06",
+    "champion": "Chelsea",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "2004–05",
+    "champion": "Chelsea",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "2003–04",
+    "champion": "Arsenal",
+    "runnerUp": "Chelsea"
+   },
+   {
+    "season": "2002–03",
+    "champion": "Manchester United",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "2001–02",
+    "champion": "Arsenal",
+    "runnerUp": "Liverpool"
+   },
+   {
+    "season": "2000–01",
+    "champion": "Manchester United",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "1999–00",
+    "champion": "Manchester United",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "1998–99",
+    "champion": "Manchester United",
+    "runnerUp": "Arsenal"
+   },
+   {
+    "season": "1997–98",
+    "champion": "Arsenal",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1996–97",
+    "champion": "Manchester United",
+    "runnerUp": "Newcastle United"
+   },
+   {
+    "season": "1995–96",
+    "champion": "Manchester United",
+    "runnerUp": "Newcastle United"
+   },
+   {
+    "season": "1994–95",
+    "champion": "Blackburn Rovers",
+    "runnerUp": "Manchester United"
+   },
+   {
+    "season": "1993–94",
+    "champion": "Manchester United",
+    "runnerUp": "Blackburn Rovers"
+   },
+   {
+    "season": "1992–93",
+    "champion": "Manchester United",
+    "runnerUp": "Aston Villa"
+   }
+  ],
+  "la-liga": [
+   {
+    "season": "2025–26",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2024–25",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2023–24",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "2022–23",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2021–22",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "2020–21",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2019–20",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "2018–19",
+    "champion": "Barcelona",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "2017–18",
+    "champion": "Barcelona",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "2016–17",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "2015–16",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2014–15",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2013–14",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "2012–13",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2011–12",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "2010–11",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2009–10",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2008–09",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2007–08",
+    "champion": "Real Madrid",
+    "runnerUp": "Villarreal"
+   },
+   {
+    "season": "2006–07",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "2005–06",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2004–05",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "2003–04",
+    "champion": "Valencia",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "2002–03",
+    "champion": "Real Madrid",
+    "runnerUp": "Real Sociedad"
+   },
+   {
+    "season": "2001–02",
+    "champion": "Valencia",
+    "runnerUp": "Deportivo La Coruña"
+   },
+   {
+    "season": "2000–01",
+    "champion": "Real Madrid",
+    "runnerUp": "Deportivo La Coruña"
+   },
+   {
+    "season": "1999–00",
+    "champion": "Deportivo La Coruña",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1998–99",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1997–98",
+    "champion": "Barcelona",
+    "runnerUp": "Athletic Bilbao"
+   },
+   {
+    "season": "1996–97",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1995–96",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Valencia"
+   },
+   {
+    "season": "1994–95",
+    "champion": "Real Madrid",
+    "runnerUp": "Deportivo La Coruña"
+   },
+   {
+    "season": "1993–94",
+    "champion": "Barcelona",
+    "runnerUp": "Deportivo La Coruña"
+   },
+   {
+    "season": "1992–93",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1991–92",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1990–91",
+    "champion": "Barcelona",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "1989–90",
+    "champion": "Real Madrid",
+    "runnerUp": "Valencia"
+   },
+   {
+    "season": "1988–89",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1987–88",
+    "champion": "Real Madrid",
+    "runnerUp": "Real Sociedad"
+   },
+   {
+    "season": "1986–87",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1985–86",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1984–85",
+    "champion": "Barcelona",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "1983–84",
+    "champion": "Athletic Bilbao",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1982–83",
+    "champion": "Athletic Bilbao",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1981–82",
+    "champion": "Real Sociedad",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1980–81",
+    "champion": "Real Sociedad",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1979–80",
+    "champion": "Real Madrid",
+    "runnerUp": "Real Sociedad"
+   },
+   {
+    "season": "1978–79",
+    "champion": "Real Madrid",
+    "runnerUp": "Sporting Gijón"
+   },
+   {
+    "season": "1977–78",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1976–77",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1975–76",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1974–75",
+    "champion": "Real Madrid",
+    "runnerUp": "Zaragoza"
+   },
+   {
+    "season": "1973–74",
+    "champion": "Barcelona",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "1972–73",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1971–72",
+    "champion": "Real Madrid",
+    "runnerUp": "Valencia"
+   },
+   {
+    "season": "1970–71",
+    "champion": "Valencia",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1969–70",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Athletic Bilbao"
+   },
+   {
+    "season": "1968–69",
+    "champion": "Real Madrid",
+    "runnerUp": "Las Palmas"
+   },
+   {
+    "season": "1967–68",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1966–67",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1965–66",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1964–65",
+    "champion": "Real Madrid",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "1963–64",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1962–63",
+    "champion": "Real Madrid",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "1961–62",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1960–61",
+    "champion": "Real Madrid",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "1959–60",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1958–59",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1957–58",
+    "champion": "Real Madrid",
+    "runnerUp": "Atlético Madrid"
+   },
+   {
+    "season": "1956–57",
+    "champion": "Real Madrid",
+    "runnerUp": "Sevilla"
+   },
+   {
+    "season": "1955–56",
+    "champion": "Athletic Bilbao",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1954–55",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1953–54",
+    "champion": "Real Madrid",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1952–53",
+    "champion": "Barcelona",
+    "runnerUp": "Valencia"
+   },
+   {
+    "season": "1951–52",
+    "champion": "Barcelona",
+    "runnerUp": "Athletic Bilbao"
+   },
+   {
+    "season": "1950–51",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Sevilla"
+   },
+   {
+    "season": "1949–50",
+    "champion": "Atlético Madrid",
+    "runnerUp": "Deportivo La Coruña"
+   },
+   {
+    "season": "1948–49",
+    "champion": "Barcelona",
+    "runnerUp": "Valencia"
+   },
+   {
+    "season": "1947–48",
+    "champion": "Barcelona",
+    "runnerUp": "Valencia"
+   },
+   {
+    "season": "1946–47",
+    "champion": "Valencia",
+    "runnerUp": "Athletic Bilbao"
+   },
+   {
+    "season": "1945–46",
+    "champion": "Sevilla",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1944–45",
+    "champion": "Barcelona",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1943–44",
+    "champion": "Valencia",
+    "runnerUp": "Atlético Aviación"
+   },
+   {
+    "season": "1942–43",
+    "champion": "Athletic Bilbao",
+    "runnerUp": "Sevilla"
+   },
+   {
+    "season": "1941–42",
+    "champion": "Valencia",
+    "runnerUp": "Real Madrid"
+   },
+   {
+    "season": "1940–41",
+    "champion": "Atlético Aviación",
+    "runnerUp": "Athletic Bilbao"
+   },
+   {
+    "season": "1939–40",
+    "champion": "Atlético Aviación",
+    "runnerUp": "Sevilla"
+   },
+   {
+    "season": "1938–39",
+    "champion": "Spanish Civil War",
+    "runnerUp": "Spanish Civil War"
+   },
+   {
+    "season": "1937–38",
+    "champion": "Spanish Civil War",
+    "runnerUp": "Spanish Civil War"
+   },
+   {
+    "season": "1936–37",
+    "champion": "Spanish Civil War",
+    "runnerUp": "Spanish Civil War"
+   },
+   {
+    "season": "1935–36",
+    "champion": "Athletic Bilbao",
+    "runnerUp": "Madrid FC"
+   },
+   {
+    "season": "1934–35",
+    "champion": "Real Betis",
+    "runnerUp": "Madrid FC"
+   },
+   {
+    "season": "1933–34",
+    "champion": "Athletic Bilbao",
+    "runnerUp": "Madrid FC"
+   },
+   {
+    "season": "1932–33",
+    "champion": "Madrid FC",
+    "runnerUp": "Athletic Bilbao"
+   },
+   {
+    "season": "1931–32",
+    "champion": "Madrid FC",
+    "runnerUp": "Athletic Bilbao"
+   },
+   {
+    "season": "1930–31",
+    "champion": "Athletic Bilbao",
+    "runnerUp": "Racing Santander"
+   },
+   {
+    "season": "1929–30",
+    "champion": "Athletic Bilbao",
+    "runnerUp": "Barcelona"
+   },
+   {
+    "season": "1929",
+    "champion": "Barcelona",
+    "runnerUp": "Madrid FC"
+   }
+  ],
+  "ligue-1": [
+   {
+    "season": "2025–26",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Lens"
+   },
+   {
+    "season": "2024–25",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "2023–24",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Monaco"
+   },
+   {
+    "season": "2022–23",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Lens"
+   },
+   {
+    "season": "2021–22",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "2020–21",
+    "champion": "Lille",
+    "runnerUp": "Paris Saint-Germain"
+   },
+   {
+    "season": "2019–20",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "2018–19",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Lille"
+   },
+   {
+    "season": "2017–18",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Monaco"
+   },
+   {
+    "season": "2016–17",
+    "champion": "Monaco",
+    "runnerUp": "Paris Saint-Germain"
+   },
+   {
+    "season": "2015–16",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Lyon"
+   },
+   {
+    "season": "2014–15",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Lyon"
+   },
+   {
+    "season": "2013–14",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Monaco"
+   },
+   {
+    "season": "2012–13",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "2011–12",
+    "champion": "Montpellier",
+    "runnerUp": "Paris Saint-Germain"
+   },
+   {
+    "season": "2010–11",
+    "champion": "Lille",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "2009–10",
+    "champion": "Marseille",
+    "runnerUp": "Lyon"
+   },
+   {
+    "season": "2008–09",
+    "champion": "Bordeaux",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "2007–08",
+    "champion": "Lyon",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "2006–07",
+    "champion": "Lyon",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "2005–06",
+    "champion": "Lyon",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "2004–05",
+    "champion": "Lyon",
+    "runnerUp": "Lille"
+   },
+   {
+    "season": "2003–04",
+    "champion": "Lyon",
+    "runnerUp": "Paris Saint-Germain"
+   },
+   {
+    "season": "2002–03",
+    "champion": "Lyon",
+    "runnerUp": "Monaco"
+   },
+   {
+    "season": "2001–02",
+    "champion": "Lyon",
+    "runnerUp": "Lens"
+   },
+   {
+    "season": "2000–01",
+    "champion": "Nantes",
+    "runnerUp": "Lyon"
+   },
+   {
+    "season": "1999–00",
+    "champion": "Monaco",
+    "runnerUp": "Paris Saint-Germain"
+   },
+   {
+    "season": "1998–99",
+    "champion": "Bordeaux",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "1997–98",
+    "champion": "Lens",
+    "runnerUp": "Metz"
+   },
+   {
+    "season": "1996–97",
+    "champion": "Monaco",
+    "runnerUp": "Paris Saint-Germain"
+   },
+   {
+    "season": "1995–96",
+    "champion": "Auxerre",
+    "runnerUp": "Paris Saint-Germain"
+   },
+   {
+    "season": "1994–95",
+    "champion": "Nantes",
+    "runnerUp": "Lyon"
+   },
+   {
+    "season": "1993–94",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "1991–92",
+    "champion": "Marseille",
+    "runnerUp": "Monaco"
+   },
+   {
+    "season": "1990–91",
+    "champion": "Marseille",
+    "runnerUp": "Monaco"
+   },
+   {
+    "season": "1989–90",
+    "champion": "Marseille",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "1988–89",
+    "champion": "Marseille",
+    "runnerUp": "Paris Saint-Germain"
+   },
+   {
+    "season": "1987–88",
+    "champion": "Monaco",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "1986–87",
+    "champion": "Bordeaux",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "1985–86",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Nantes"
+   },
+   {
+    "season": "1984–85",
+    "champion": "Bordeaux",
+    "runnerUp": "Nantes"
+   },
+   {
+    "season": "1983–84",
+    "champion": "Bordeaux",
+    "runnerUp": "Monaco"
+   },
+   {
+    "season": "1982–83",
+    "champion": "Nantes",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "1981–82",
+    "champion": "Monaco",
+    "runnerUp": "Saint-Étienne"
+   },
+   {
+    "season": "1980–81",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Nantes"
+   },
+   {
+    "season": "1979–80",
+    "champion": "Nantes",
+    "runnerUp": "Sochaux"
+   },
+   {
+    "season": "1978–79",
+    "champion": "Strasbourg",
+    "runnerUp": "Nantes"
+   },
+   {
+    "season": "1977–78",
+    "champion": "Monaco",
+    "runnerUp": "Nantes"
+   },
+   {
+    "season": "1976–77",
+    "champion": "Nantes",
+    "runnerUp": "Lens"
+   },
+   {
+    "season": "1975–76",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Nice"
+   },
+   {
+    "season": "1974–75",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "1973–74",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Nantes"
+   },
+   {
+    "season": "1972–73",
+    "champion": "Nantes",
+    "runnerUp": "Nice"
+   },
+   {
+    "season": "1971–72",
+    "champion": "Marseille",
+    "runnerUp": "Nîmes"
+   },
+   {
+    "season": "1970–71",
+    "champion": "Marseille",
+    "runnerUp": "Saint-Étienne"
+   },
+   {
+    "season": "1969–70",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "1968–69",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "1967–68",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Nice"
+   },
+   {
+    "season": "1966–67",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Nantes"
+   },
+   {
+    "season": "1965–66",
+    "champion": "Nantes",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "1964–65",
+    "champion": "Nantes",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "1963–64",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Monaco"
+   },
+   {
+    "season": "1962–63",
+    "champion": "Monaco",
+    "runnerUp": "Reims"
+   },
+   {
+    "season": "1961–62",
+    "champion": "Reims",
+    "runnerUp": "RC Paris"
+   },
+   {
+    "season": "1960–61",
+    "champion": "Monaco",
+    "runnerUp": "RC Paris"
+   },
+   {
+    "season": "1959–60",
+    "champion": "Reims",
+    "runnerUp": "Nîmes"
+   },
+   {
+    "season": "1958–59",
+    "champion": "Nice",
+    "runnerUp": "Nîmes"
+   },
+   {
+    "season": "1957–58",
+    "champion": "Reims",
+    "runnerUp": "Nîmes"
+   },
+   {
+    "season": "1956–57",
+    "champion": "Saint-Étienne",
+    "runnerUp": "Lens"
+   },
+   {
+    "season": "1955–56",
+    "champion": "Nice",
+    "runnerUp": "Lens"
+   },
+   {
+    "season": "1954–55",
+    "champion": "Reims",
+    "runnerUp": "Toulouse"
+   },
+   {
+    "season": "1953–54",
+    "champion": "Lille",
+    "runnerUp": "Reims"
+   },
+   {
+    "season": "1952–53",
+    "champion": "Reims",
+    "runnerUp": "Sochaux"
+   },
+   {
+    "season": "1951–52",
+    "champion": "Nice",
+    "runnerUp": "Bordeaux"
+   },
+   {
+    "season": "1950–51",
+    "champion": "Nice",
+    "runnerUp": "Lille"
+   },
+   {
+    "season": "1949–50",
+    "champion": "Bordeaux",
+    "runnerUp": "Lille"
+   },
+   {
+    "season": "1948–49",
+    "champion": "Reims",
+    "runnerUp": "Lille"
+   },
+   {
+    "season": "1947–48",
+    "champion": "Marseille",
+    "runnerUp": "Lille"
+   },
+   {
+    "season": "1946–47",
+    "champion": "Roubaix–Tourcoing",
+    "runnerUp": "Reims"
+   },
+   {
+    "season": "1945–46",
+    "champion": "Lille",
+    "runnerUp": "Saint-Étienne"
+   },
+   {
+    "season": "1939–45",
+    "champion": "World War II",
+    "runnerUp": "World War II"
+   },
+   {
+    "season": "1938–39",
+    "champion": "Sète",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "1937–38",
+    "champion": "Sochaux",
+    "runnerUp": "Marseille"
+   },
+   {
+    "season": "1936–37",
+    "champion": "Marseille",
+    "runnerUp": "Sochaux"
+   },
+   {
+    "season": "1935–36",
+    "champion": "RC Paris",
+    "runnerUp": "Olympique Lillois"
+   },
+   {
+    "season": "1934–35",
+    "champion": "Sochaux",
+    "runnerUp": "Strasbourg"
+   },
+   {
+    "season": "1933–34",
+    "champion": "Sète",
+    "runnerUp": "Fives"
+   },
+   {
+    "season": "1932–33",
+    "champion": "Olympique Lillois",
+    "runnerUp": "Cannes"
+   }
+  ],
+  "champions-league": [
+   {
+    "season": "2025–26",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Arsenal",
+    "score": "1–1 (luân lưu)"
+   },
+   {
+    "season": "2024–25",
+    "champion": "Paris Saint-Germain",
+    "runnerUp": "Inter Milan",
+    "score": "5–0"
+   },
+   {
+    "season": "2023–24",
+    "champion": "Real Madrid",
+    "runnerUp": "Borussia Dortmund",
+    "score": "2–0"
+   },
+   {
+    "season": "2022–23",
+    "champion": "Manchester City",
+    "runnerUp": "Inter Milan",
+    "score": "1–0"
+   },
+   {
+    "season": "2021–22",
+    "champion": "Real Madrid",
+    "runnerUp": "Liverpool",
+    "score": "1–0"
+   },
+   {
+    "season": "2020–21",
+    "champion": "Chelsea",
+    "runnerUp": "Manchester City",
+    "score": "1–0"
+   },
+   {
+    "season": "2019–20",
+    "champion": "Bayern Munich",
+    "runnerUp": "Paris Saint-Germain",
+    "score": "1–0"
+   },
+   {
+    "season": "2018–19",
+    "champion": "Liverpool",
+    "runnerUp": "Tottenham Hotspur",
+    "score": "2–0"
+   },
+   {
+    "season": "2017–18",
+    "champion": "Real Madrid",
+    "runnerUp": "Liverpool",
+    "score": "3–1"
+   },
+   {
+    "season": "2016–17",
+    "champion": "Real Madrid",
+    "runnerUp": "Juventus",
+    "score": "4–1"
+   },
+   {
+    "season": "2015–16",
+    "champion": "Real Madrid",
+    "runnerUp": "Atlético Madrid",
+    "score": "1–1 (luân lưu)"
+   },
+   {
+    "season": "2014–15",
+    "champion": "Barcelona",
+    "runnerUp": "Juventus",
+    "score": "3–1"
+   },
+   {
+    "season": "2013–14",
+    "champion": "Real Madrid",
+    "runnerUp": "Atlético Madrid",
+    "score": "4–1"
+   },
+   {
+    "season": "2012–13",
+    "champion": "Bayern Munich",
+    "runnerUp": "Borussia Dortmund",
+    "score": "2–1"
+   },
+   {
+    "season": "2011–12",
+    "champion": "Chelsea",
+    "runnerUp": "Bayern Munich",
+    "score": "1–1 (luân lưu)"
+   },
+   {
+    "season": "2010–11",
+    "champion": "Barcelona",
+    "runnerUp": "Manchester United",
+    "score": "3–1"
+   },
+   {
+    "season": "2009–10",
+    "champion": "Inter Milan",
+    "runnerUp": "Bayern Munich",
+    "score": "2–0"
+   },
+   {
+    "season": "2008–09",
+    "champion": "Barcelona",
+    "runnerUp": "Manchester United",
+    "score": "2–0"
+   },
+   {
+    "season": "2007–08",
+    "champion": "Manchester United",
+    "runnerUp": "Chelsea",
+    "score": "1–1 (luân lưu)"
+   },
+   {
+    "season": "2006–07",
+    "champion": "Milan",
+    "runnerUp": "Liverpool",
+    "score": "2–1"
+   },
+   {
+    "season": "2005–06",
+    "champion": "Barcelona",
+    "runnerUp": "Arsenal",
+    "score": "2–1"
+   },
+   {
+    "season": "2004–05",
+    "champion": "Liverpool",
+    "runnerUp": "Milan",
+    "score": "3–3 (luân lưu)"
+   },
+   {
+    "season": "2003–04",
+    "champion": "Porto",
+    "runnerUp": "Monaco",
+    "score": "3–0"
+   },
+   {
+    "season": "2002–03",
+    "champion": "Milan",
+    "runnerUp": "Juventus",
+    "score": "0–0 (luân lưu)"
+   },
+   {
+    "season": "2001–02",
+    "champion": "Real Madrid",
+    "runnerUp": "Bayer Leverkusen",
+    "score": "2–1"
+   },
+   {
+    "season": "2000–01",
+    "champion": "Bayern Munich",
+    "runnerUp": "Valencia",
+    "score": "1–1 (luân lưu)"
+   },
+   {
+    "season": "1999–00",
+    "champion": "Real Madrid",
+    "runnerUp": "Valencia",
+    "score": "3–0"
+   },
+   {
+    "season": "1998–99",
+    "champion": "Manchester United",
+    "runnerUp": "Bayern Munich",
+    "score": "2–1"
+   },
+   {
+    "season": "1997–98",
+    "champion": "Real Madrid",
+    "runnerUp": "Juventus",
+    "score": "1–0"
+   },
+   {
+    "season": "1996–97",
+    "champion": "Borussia Dortmund",
+    "runnerUp": "Juventus",
+    "score": "3–1"
+   },
+   {
+    "season": "1995–96",
+    "champion": "Juventus",
+    "runnerUp": "Ajax",
+    "score": "1–1 (luân lưu)"
+   },
+   {
+    "season": "1994–95",
+    "champion": "Ajax",
+    "runnerUp": "Milan",
+    "score": "1–0"
+   },
+   {
+    "season": "1993–94",
+    "champion": "Milan",
+    "runnerUp": "Barcelona",
+    "score": "4–0"
+   },
+   {
+    "season": "1992–93",
+    "champion": "Marseille",
+    "runnerUp": "Milan",
+    "score": "1–0"
+   },
+   {
+    "season": "1991–92",
+    "champion": "Barcelona",
+    "runnerUp": "Sampdoria",
+    "score": "1–0"
+   },
+   {
+    "season": "1990–91",
+    "champion": "Red Star Belgrade",
+    "runnerUp": "Marseille",
+    "score": "0–0 (luân lưu)"
+   },
+   {
+    "season": "1989–90",
+    "champion": "Milan",
+    "runnerUp": "Benfica",
+    "score": "1–0"
+   },
+   {
+    "season": "1988–89",
+    "champion": "Milan",
+    "runnerUp": "Steaua București",
+    "score": "4–0"
+   },
+   {
+    "season": "1987–88",
+    "champion": "PSV Eindhoven",
+    "runnerUp": "Benfica",
+    "score": "0–0 (luân lưu)"
+   },
+   {
+    "season": "1986–87",
+    "champion": "Porto",
+    "runnerUp": "Bayern Munich",
+    "score": "2–1"
+   },
+   {
+    "season": "1985–86",
+    "champion": "Steaua București",
+    "runnerUp": "Barcelona",
+    "score": "0–0 (luân lưu)"
+   },
+   {
+    "season": "1984–85",
+    "champion": "Juventus",
+    "runnerUp": "Liverpool",
+    "score": "1–0"
+   },
+   {
+    "season": "1983–84",
+    "champion": "Liverpool",
+    "runnerUp": "Roma",
+    "score": "1–1 (luân lưu)"
+   },
+   {
+    "season": "1982–83",
+    "champion": "Hamburger SV",
+    "runnerUp": "Juventus",
+    "score": "1–0"
+   },
+   {
+    "season": "1981–82",
+    "champion": "Aston Villa",
+    "runnerUp": "Bayern Munich",
+    "score": "1–0"
+   },
+   {
+    "season": "1980–81",
+    "champion": "Liverpool",
+    "runnerUp": "Real Madrid",
+    "score": "1–0"
+   },
+   {
+    "season": "1979–80",
+    "champion": "Nottingham Forest",
+    "runnerUp": "Hamburger SV",
+    "score": "1–0"
+   },
+   {
+    "season": "1978–79",
+    "champion": "Nottingham Forest",
+    "runnerUp": "Malmö FF",
+    "score": "1–0"
+   },
+   {
+    "season": "1977–78",
+    "champion": "Liverpool",
+    "runnerUp": "Club Brugge",
+    "score": "1–0"
+   },
+   {
+    "season": "1976–77",
+    "champion": "Liverpool",
+    "runnerUp": "Borussia Mönchengladbach",
+    "score": "3–1"
+   },
+   {
+    "season": "1975–76",
+    "champion": "Bayern Munich",
+    "runnerUp": "Saint-Étienne",
+    "score": "1–0"
+   },
+   {
+    "season": "1974–75",
+    "champion": "Bayern Munich",
+    "runnerUp": "Leeds United",
+    "score": "2–0"
+   },
+   {
+    "season": "1973–74",
+    "champion": "Bayern Munich",
+    "runnerUp": "Atlético Madrid",
+    "score": "4–0"
+   },
+   {
+    "season": "1972–73",
+    "champion": "Ajax",
+    "runnerUp": "Juventus",
+    "score": "1–0"
+   },
+   {
+    "season": "1971–72",
+    "champion": "Ajax",
+    "runnerUp": "Inter Milan",
+    "score": "2–0"
+   },
+   {
+    "season": "1970–71",
+    "champion": "Ajax",
+    "runnerUp": "Panathinaikos",
+    "score": "2–0"
+   },
+   {
+    "season": "1969–70",
+    "champion": "Feyenoord",
+    "runnerUp": "Celtic",
+    "score": "2–1"
+   },
+   {
+    "season": "1968–69",
+    "champion": "Milan",
+    "runnerUp": "Ajax",
+    "score": "4–1"
+   },
+   {
+    "season": "1967–68",
+    "champion": "Manchester United",
+    "runnerUp": "Benfica",
+    "score": "4–1"
+   },
+   {
+    "season": "1966–67",
+    "champion": "Celtic",
+    "runnerUp": "Inter Milan",
+    "score": "2–1"
+   },
+   {
+    "season": "1965–66",
+    "champion": "Real Madrid",
+    "runnerUp": "Partizan",
+    "score": "2–1"
+   },
+   {
+    "season": "1964–65",
+    "champion": "Inter Milan",
+    "runnerUp": "Benfica",
+    "score": "1–0"
+   },
+   {
+    "season": "1963–64",
+    "champion": "Inter Milan",
+    "runnerUp": "Real Madrid",
+    "score": "3–1"
+   },
+   {
+    "season": "1962–63",
+    "champion": "Milan",
+    "runnerUp": "Benfica",
+    "score": "2–1"
+   },
+   {
+    "season": "1961–62",
+    "champion": "Benfica",
+    "runnerUp": "Real Madrid",
+    "score": "5–3"
+   },
+   {
+    "season": "1960–61",
+    "champion": "Benfica",
+    "runnerUp": "Barcelona",
+    "score": "3–2"
+   },
+   {
+    "season": "1959–60",
+    "champion": "Real Madrid",
+    "runnerUp": "Eintracht Frankfurt",
+    "score": "7–3"
+   },
+   {
+    "season": "1958–59",
+    "champion": "Real Madrid",
+    "runnerUp": "Reims",
+    "score": "2–0"
+   },
+   {
+    "season": "1957–58",
+    "champion": "Real Madrid",
+    "runnerUp": "Milan",
+    "score": "3–2"
+   },
+   {
+    "season": "1956–57",
+    "champion": "Real Madrid",
+    "runnerUp": "Fiorentina",
+    "score": "2–0"
+   },
+   {
+    "season": "1955–56",
+    "champion": "Real Madrid",
+    "runnerUp": "Reims",
+    "score": "4–3"
+   }
+  ]
+ }
+}
