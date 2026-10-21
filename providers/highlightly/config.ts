@@ -3,8 +3,8 @@ import type { LeagueSlug } from "../../types/league-hub";
 export const HIGHLIGHTLY = {
   id: "HIGHLIGHTLY",
   baseUrl: "https://soccer.highlightly.net",
-  /** The free Basic plan allows 100 requests per day; ten are left for manual checks. */
-  dailyBudget: 90,
+  /** The free Basic plan allows 100 requests per day: 60 for match details, 30 for player profiles (services/player-profiles.ts), ten left for manual checks. */
+  dailyBudget: 60,
   requestIntervalMs: 1500,
   timeoutMs: 15000,
   attribution: { text: "Diễn biến, đội hình và thống kê: Highlightly", url: "https://highlightly.net" },

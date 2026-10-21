@@ -143,3 +143,51 @@ export function normalizeBoxScore(body: unknown): HighlightlyBoxScore {
     }),
   }));
 }
+
+/* ---- Player profiles (transfers, fees, market value, contract, injuries) ---- */
+
+/** "26/07/2025" → "2025-07-26"; null for anything else. */
+const dmy = (value: string | null | undefined) => { const match = value?.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); return match ? `${match[3]}-${match[2]}-${match[1]}` : null; };
+/** "Jul 26, 2025" → "2025-07-26". */
+const monthDay = (value: string | null | undefined) => { if (!value) return null; const time = Date.parse(`${value} 12:00:00 UTC`); return Number.isFinite(time) ? new Date(time).toISOString().slice(0, 10) : null; };
+/** "02.11.2025" → "2025-11-02". */
+const dotted = (value: string | null | undefined) => { const match = value?.match(/^(\d{2})\.(\d{2})\.(\d{4})$/); return match ? `${match[3]}-${match[2]}-${match[1]}` : null; };
+/** "€69.87M" → 69870000; "€800.00K" → 800000; anything else (free, loan fee text) → null. */
+export function parseMoney(value: string | null | undefined): { amount: number; currency: string } | null {
+  const match = value?.trim().match(/^([€$£])\s*([\d.,]+)\s*([KkMmBb])?$/);
+  if (!match) return null;
+  const amount = Number(match[2].replace(/,/g, "")) * ({ k: 1e3, m: 1e6, b: 1e9 }[(match[3] ?? "").toLowerCase() as "k"] ?? 1);
+  return Number.isFinite(amount) ? { amount: Math.round(amount), currency: { "€": "EUR", "$": "USD", "£": "GBP" }[match[1]]! } : null;
+}
+const loose = z.string().trim().max(300).nullable().optional();
+export const playerSearchSchema = z.object({ data: z.array(z.object({ id, name: text, fullName: text.nullable().optional() })) });
+const playerProfileSchema = z.array(z.object({
+  id, name: text.optional(), fullName: text.nullable().optional(),
+  profile: z.object({ club: z.object({ current: loose, joinedAt: loose, contractExpiry: loose }).partial().nullable().optional(), birthDate: loose, position: z.object({ main: loose }).partial().nullable().optional() }).partial().nullable().optional(),
+  rumours: z.object({ current: z.array(z.object({ club: text, rumourDate: loose })).default([]) }).partial().nullable().optional(),
+  transfers: z.array(z.object({ from: loose, to: loose, fee: loose, type: loose, season: loose, marketValue: loose, transferDate: loose })).nullable().optional(),
+  marketValue: z.array(z.object({ club: loose, value: z.number().nullable().optional(), currency: loose, recordedDate: loose })).nullable().optional(),
+  injuries: z.array(z.object({ reason: loose, season: loose, fromDate: loose, toDate: loose, missedGames: z.number().nullable().optional() })).nullable().optional(),
+}));
+export type RecordedTransfer = { from: string | null; to: string | null; type: string; season: string | null; date: string | null; feeText: string | null; fee: number | null; currency: string | null };
+export type PlayerProfileData = {
+  externalId: string; club: string | null; joinedAt: string | null; contractExpiry: string | null; birthDate: string | null;
+  marketValue: { amount: number; currency: string; at: string | null } | null;
+  transfers: RecordedTransfer[]; rumours: { club: string; date: string | null }[];
+  injuries: { reason: string; from: string | null; to: string | null; missedGames: number | null }[];
+};
+export function normalizePlayerSearch(body: unknown) { return playerSearchSchema.parse(body).data.map((row) => ({ id: row.id, name: row.name, fullName: row.fullName ?? null })); }
+export function normalizePlayerProfile(body: unknown): PlayerProfileData | null {
+  const row = playerProfileSchema.parse(body)[0];
+  if (!row) return null;
+  const sorted = [...(row.marketValue ?? [])].sort((a, b) => (dmy(b.recordedDate) ?? "").localeCompare(dmy(a.recordedDate) ?? ""));
+  const latest = sorted.find((value) => typeof value.value === "number" && value.value > 0);
+  return {
+    externalId: row.id, club: row.profile?.club?.current ?? null, joinedAt: dmy(row.profile?.club?.joinedAt), contractExpiry: dmy(row.profile?.club?.contractExpiry), birthDate: dmy(row.profile?.birthDate),
+    marketValue: latest && latest.value ? { amount: Math.round(latest.value), currency: latest.currency === "€" ? "EUR" : latest.currency === "$" ? "USD" : latest.currency === "£" ? "GBP" : "EUR", at: dmy(latest.recordedDate) } : null,
+    transfers: (row.transfers ?? []).map((item): RecordedTransfer => { const money = parseMoney(item.fee); return { from: item.from ?? null, to: item.to ?? null, type: (item.type ?? "transfer").toLowerCase(), season: item.season ?? null, date: monthDay(item.transferDate), feeText: item.fee ?? null, fee: money?.amount ?? null, currency: money?.currency ?? null }; })
+      .filter((item) => item.date).sort((a, b) => b.date!.localeCompare(a.date!)),
+    rumours: (row.rumours?.current ?? []).map((item) => ({ club: item.club, date: dmy(item.rumourDate) })),
+    injuries: (row.injuries ?? []).map((item) => ({ reason: item.reason ?? "Chấn thương", from: dotted(item.fromDate), to: dotted(item.toDate), missedGames: item.missedGames ?? null })).sort((a, b) => (b.from ?? "").localeCompare(a.from ?? "")),
+  };
+}

@@ -19,14 +19,14 @@ const lookbackMs = 3 * 86400_000;
 export type DetailSyncResult = { mapped: number; lineups: number; details: number; boxScores: number; requests: number; stopped: "DONE" | "QUOTA" | "ERROR"; error?: string };
 
 /** Atomically spends one request of today's (UTC) allowance; false when it is used up. */
-export async function reserveQuota(db: SqlExecutor, now: Date, budget: number = HIGHLIGHTLY.dailyBudget) {
+export async function reserveQuota(db: SqlExecutor, now: Date, budget: number = HIGHLIGHTLY.dailyBudget, key: string = provider) {
   const rows = await db.query<{ used: number }>(`INSERT INTO "ProviderQuota" (provider,day,used,"updatedAt") VALUES ($1,$2::date,1,now())
-    ON CONFLICT (provider,day) DO UPDATE SET used="ProviderQuota".used+1,"updatedAt"=now() WHERE "ProviderQuota".used<$3 RETURNING used`, [provider, now.toISOString().slice(0, 10), budget]);
+    ON CONFLICT (provider,day) DO UPDATE SET used="ProviderQuota".used+1,"updatedAt"=now() WHERE "ProviderQuota".used<$3 RETURNING used`, [key, now.toISOString().slice(0, 10), budget]);
   return rows.length > 0;
 }
 /** After an HTTP 429 nothing more is sent today. */
-export async function exhaustQuota(db: SqlExecutor, now: Date, budget: number = HIGHLIGHTLY.dailyBudget) {
-  await db.query(`INSERT INTO "ProviderQuota" (provider,day,used,"updatedAt") VALUES ($1,$2::date,$3,now()) ON CONFLICT (provider,day) DO UPDATE SET used=GREATEST("ProviderQuota".used,$3),"updatedAt"=now()`, [provider, now.toISOString().slice(0, 10), budget]);
+export async function exhaustQuota(db: SqlExecutor, now: Date, budget: number = HIGHLIGHTLY.dailyBudget, key: string = provider) {
+  await db.query(`INSERT INTO "ProviderQuota" (provider,day,used,"updatedAt") VALUES ($1,$2::date,$3,now()) ON CONFLICT (provider,day) DO UPDATE SET used=GREATEST("ProviderQuota".used,$3),"updatedAt"=now()`, [key, now.toISOString().slice(0, 10), budget]);
 }
 
 type Due = {

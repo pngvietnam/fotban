@@ -1,8 +1,13 @@
 import { ProviderError } from "../errors";
 import { HIGHLIGHTLY } from "./config";
-import { normalizeBoxScore, normalizeDetail, normalizeLeagues, normalizeLineups, normalizeMatches, type HighlightlyBoxScore, type HighlightlyDetail, type HighlightlyLeague, type HighlightlyLineups, type HighlightlyMatch } from "./normalization";
+import { normalizePlayerProfile, normalizePlayerSearch, normalizeBoxScore, normalizeDetail, normalizeLeagues, normalizeLineups, normalizeMatches, type HighlightlyBoxScore, type HighlightlyDetail, type HighlightlyLeague, type HighlightlyLineups, type HighlightlyMatch } from "./normalization";
 
 /** What the match-detail sync needs from a detail provider; tests pass a fake. */
+/** Player lookups for the transfer pages (profile: transfers with fees, market value, contract, injuries). */
+export type PlayerProfileApi = {
+  searchPlayers(name: string): Promise<{ id: string; name: string; fullName: string | null }[]>;
+  playerProfile(id: string): Promise<ReturnType<typeof normalizePlayerProfile>>;
+};
 export type MatchDetailApi = {
   leagues(name: string): Promise<HighlightlyLeague[]>;
   matches(query: { leagueId: string; date: string }): Promise<HighlightlyMatch[]>;
@@ -25,7 +30,7 @@ type Options = {
  * Highlightly football API (free Basic plan). Every request counts against a small daily allowance,
  * so there are no automatic retries: a failed read is retried by a later worker pass.
  */
-export class HighlightlyProvider implements MatchDetailApi {
+export class HighlightlyProvider implements MatchDetailApi, PlayerProfileApi {
   #apiKey?: string;
   constructor(apiKey: string | undefined, private options: Options = {}) { this.#apiKey = apiKey?.trim() || undefined; }
 
@@ -55,6 +60,12 @@ export class HighlightlyProvider implements MatchDetailApi {
   }
   async leagues(name: string) { const body = await this.request("/leagues", { leagueName: name }); return this.parse(() => normalizeLeagues(body)); }
   async matches(query: { leagueId: string; date: string }) { const body = await this.request("/matches", { leagueId: query.leagueId, date: query.date, timezone: "Etc/UTC" }); return this.parse(() => normalizeMatches(body)); }
+  async searchPlayers(name: string) { const body = await this.request("/players", { name, limit: "10" }); return this.parse(() => normalizePlayerSearch(body)); }
+  async playerProfile(id: string) {
+    if (!/^\d{1,20}$/.test(id)) throw new ProviderError("UNSUPPORTED");
+    const body = await this.request(`/players/${id}`);
+    return this.parse(() => normalizePlayerProfile(body));
+  }
   async match(id: string) {
     if (!/^\d{1,20}$/.test(id)) throw new ProviderError("UNSUPPORTED");
     const body = await this.request(`/matches/${id}`);

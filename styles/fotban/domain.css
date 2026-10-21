@@ -208,3 +208,22 @@ a.dp-primary{color:#fff}
 .dp-two-columns>div{min-width:0}
 @media(max-width:950px){.dp-two-columns{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:650px){.dp-stat-strip{flex-wrap:wrap;gap:20px 28px;padding:18px}.dp-fixture{grid-template-columns:44px minmax(0,1fr) 40px minmax(0,1fr)}.dp-fixture>span:nth-child(2),.dp-fixture>span:nth-child(4){font-size:var(--fb-type-caption-size)}}
+/* Transfer dossier */
+.dossier-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.dossier-who{display:flex;align-items:center;gap:18px;min-width:0}
+.dossier-who h1{margin:6px 0}
+.dossier-note{background:#fbf3df;border:1px solid #f0e2bd;border-radius:9px;padding:12px 16px;margin:0 0 16px;color:#7b6024}
+.dossier-route{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#fff;border:1px solid var(--dp-border);border-radius:10px;padding:26px 32px;margin-bottom:20px}
+.dossier-route>span{font-size:28px;color:#7e9a6c}
+.dossier-club{flex:1;display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;min-width:0}
+.dossier-club small{font-size:var(--fb-type-caption-size);letter-spacing:.6px;color:var(--fb-color-muted)}
+.dossier-club strong{display:inline-flex;align-items:center;gap:10px;font-size:22px;font-weight:600;color:#126344;overflow-wrap:anywhere}
+.dossier-club strong img,.dossier-club strong .dp-crest-fallback{width:32px;height:32px}
+.dossier-sources{list-style:none;margin:12px 0 0;padding:0}
+.dossier-sources li{padding:10px 0;border-top:1px solid #edf1e8}
+.dossier-sources a{font-weight:600;font-size:var(--fb-type-meta-size);text-decoration:none;color:inherit}
+.dossier-sources a:hover{text-decoration:underline}
+.dossier-sources small{display:block;font-size:var(--fb-type-caption-size);color:var(--fb-color-muted);margin-top:3px}
+.dossier-note+.dossier-route{margin-top:0}
+.transfer-dossier .dp-panel{margin-bottom:16px}
+@media(max-width:650px){.dossier-route{padding:18px 14px;flex-direction:column}.dossier-route>span{transform:rotate(90deg)}.dossier-club strong{font-size:18px}}

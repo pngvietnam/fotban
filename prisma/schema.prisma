@@ -342,6 +342,33 @@ model Player {
   follows       UserFollow[]
   identities    ExternalIdentity[]
   transfers     Transfer[]
+  profiles      PlayerProfile[]
+}
+
+/// Provider profile of a player: recorded transfers with fees, market value, contract and injuries (JSON as normalised).
+model PlayerProfile {
+  playerId            String    @db.Uuid
+  provider            String
+  externalId          String?
+  club                String?
+  joinedAt            DateTime? @db.Date
+  contractExpiry      DateTime? @db.Date
+  marketValue         Decimal?  @db.Decimal(18, 2)
+  marketValueCurrency String?   @db.VarChar(3)
+  marketValueAt       DateTime? @db.Date
+  transfers           Json      @default("[]")
+  rumours             Json      @default("[]")
+  injuries            Json      @default("[]")
+  fetchedAt           DateTime? @db.Timestamptz(3)
+  attempts            Int       @default(0)
+  lastAttemptAt       DateTime? @db.Timestamptz(3)
+  lastError           String?
+  createdAt           DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime  @updatedAt @db.Timestamptz(3)
+  player              Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@id([playerId, provider])
+  @@index([fetchedAt])
 }
 
 // Wikimedia Commons photo found for a player. Only matched by Wikidata with an identical birth date and

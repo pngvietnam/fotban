@@ -10,6 +10,7 @@ import { vietnameseSource } from "../providers/news/vietnamese-sources";
 import { publishFeedCards } from "../services/feed-cards";
 import { syncMatches } from "../services/match-sync";
 import { syncMatchDetails } from "../services/match-details";
+import { syncPlayerProfiles } from "../services/player-profiles";
 import { VideoFeedSync } from "../services/video-feed-sync";
 import { VideoStore } from "../services/video-store";
 import { YouTubeFeedReader } from "../providers/youtube/rss";
@@ -80,6 +81,11 @@ async function main() {
         try {
           const result = await syncMatchDetails(database, details);
           if (result.requests || result.stopped === "ERROR") logger.info({ ...result }, "worker.match_details");
+        } catch { ok = false; }
+        // Transfer pages: profiles of players the press is writing about, from their own small allowance.
+        try {
+          const profiles = await syncPlayerProfiles(database, details);
+          if (profiles.requests || profiles.stopped === "ERROR") logger.info({ ...profiles }, "worker.player_profiles");
         } catch { ok = false; }
       }
       if (Date.now() >= videosDueAt) {
