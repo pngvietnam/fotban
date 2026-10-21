@@ -14,6 +14,8 @@ import { NewsState } from "@/components/news/news-state";
 import { FollowLink } from "@/components/account/follow-link";
 import { BackLink } from "@/components/shell/back-link";
 import { Crest, DomainTabs, Empty, StandingsPanel, StoryGrid } from "@/components/domain/domain-ui";
+import { KnockoutBracket } from "@/components/league/knockout-bracket";
+import { timelineLeague } from "@/lib/match-timeline";
 import { ClubSeasonCard, DayCard, FixtureViewSwitch, LeagueHeader, NewsList, RoundCard, ScorersTable, StandingsMini, TopScorers } from "@/components/league/league-overview";
 
 export const dynamic = "force-dynamic";
@@ -68,6 +70,7 @@ export default async function LeaguePage({ params, searchParams }: Props) {
       {query.view === "ngay" && <DayCard slug={slug} days={result.data.days} />}
       {query.view === "doi" && <ClubSeasonCard slug={slug} clubs={clubs ?? []} club={result.data.club} />}
     </div>}
+    {query.tab === "loai-truc-tiep" && <KnockoutBracket standings={standings} currentRound={leaders?.currentMatchday ?? rounds.current} totalRounds={timelineLeague(slug)?.rounds ?? 8} />}
     {query.tab === "thong-ke" && <ScorersTable leaders={leaders} />}
     {query.tab === "tin-tuc" && <StoryGrid result={feed!} now={now} offset={query.offset} href={href} empty={{ title: `Chưa có tin ${league.name}`, text: "Chưa có tin mới trong 7 ngày gần đây." }} />}
     {query.tab === "doi-bong" && (clubs?.length ? <div className="dp-club-grid">{clubs.map((club) => <Link className="dp-club-tile" key={club.clubId} href={clubPath(club.clubId)}><Crest url={club.crestUrl} name={club.name} /><h3>{club.shortName?.trim() || club.name}</h3><p>{club.position ? `Hạng ${club.position}${club.points !== null ? ` · ${club.points} điểm` : ""}` : league.name}</p><span>Khám phá CLB ↗</span></Link>)}</div> : <Empty title="Chưa có danh sách đội bóng" text="Danh sách sẽ xuất hiện khi dữ liệu mùa giải được đồng bộ." />)}

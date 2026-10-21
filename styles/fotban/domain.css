@@ -443,3 +443,43 @@ a.dp-primary{color:#fff}
 .lg-picker{display:flex;align-items:center;gap:var(--fb-space-12);margin-bottom:var(--fb-space-12)}
 .lg-picker>label{font-size:var(--fb-type-meta-size);font-weight:600;color:var(--fb-color-muted)}
 .lg-picker>select{min-height:40px;min-width:220px;max-width:100%;padding:0 12px;border:var(--fb-border-width) solid var(--fb-color-border);border-radius:8px;background:#fff;font:inherit;font-size:16px;color:var(--fb-color-ink)}
+
+/* Knockout bracket: a mirrored tree on wide screens, lists on phones (the lists are also what screen readers get) */
+.kb-note{margin:0 0 var(--fb-space-16)}
+.kb-tree{display:grid;grid-template-columns:minmax(0,1fr) 150px minmax(0,1fr);align-items:stretch;min-height:560px}
+.kb-half{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.kb-col{display:flex;flex-direction:column;justify-content:space-around;position:relative;padding:0 14px}
+.kb-pair{display:flex;flex-direction:column;justify-content:space-around;flex:1;position:relative}
+.kb-box{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;margin:6px 0;padding:8px 6px;border:var(--fb-border-width) solid var(--fb-color-border);border-radius:10px;background:#fff;font-size:var(--fb-type-caption-size);text-align:center}
+.kb-box>small{font-weight:700;color:var(--fb-color-ink)}
+.kb-empty{min-height:64px;justify-content:center;color:#a3ae9f;background:var(--fb-color-canvas)}
+.kb-empty>span{font-size:var(--fb-type-meta-size);font-weight:700}
+.kb-options{display:flex;flex-direction:column;align-items:center;gap:1px}
+.kb-team{display:flex;flex-direction:column;align-items:center}
+.kb-or{font-size:10px;color:var(--fb-color-muted)}
+.kb-team>a,.kb-static{display:inline-flex;align-items:center;gap:4px;color:var(--fb-color-ink);text-decoration:none;font-weight:600}
+.kb-team>a:hover{text-decoration:underline}
+.kb-team img,.kb-team .dp-crest-fallback{width:16px;height:16px;object-fit:contain}
+.kb-team small{font-size:10px;font-weight:400;color:var(--fb-color-muted)}
+.kb-winner{font-size:var(--fb-type-caption-size);color:var(--fb-color-muted)}
+/* Connectors: every box joins the next column; pairs join in the middle */
+.kb-half.left .kb-col:not(:last-child) .kb-box::after,.kb-half.right .kb-col:not(:first-child) .kb-box::before{content:"";position:absolute;top:50%;width:14px;border-top:2px solid #c9d3c4}
+.kb-half.left .kb-col:not(:last-child) .kb-box::after{right:-16px}
+.kb-half.right .kb-col:not(:first-child) .kb-box::before{left:-16px}
+.kb-half.left .kb-pair::after,.kb-half.right .kb-pair::before{content:"";position:absolute;top:25%;bottom:25%;border-right:2px solid #c9d3c4}
+.kb-half.left .kb-pair::after{right:-16px}
+.kb-half.right .kb-pair::before{left:-16px}
+.kb-half.left .kb-col.sf .kb-box::after,.kb-half.right .kb-col.sf .kb-box::before{content:"";position:absolute;top:50%;width:14px;border-top:2px solid #c9d3c4}
+.kb-half.left .kb-col.sf .kb-box::after{right:-16px}
+.kb-half.right .kb-col.sf .kb-box::before{left:-16px}
+.kb-final{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
+.kb-final>.kb-cup{color:#a3ae9f}
+.kb-final>small{font-size:var(--fb-type-caption-size);font-weight:650;letter-spacing:.04em;text-transform:uppercase;color:var(--fb-color-muted)}
+.kb-final>.kb-box{width:100%}
+.kb-final>b{padding:2px 8px;border-radius:6px;background:#f6dd8c;font-size:var(--fb-type-caption-size);color:#4a3a06}
+.kb-lists{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.kb-lists>h3{margin:var(--fb-space-16) 0 var(--fb-space-8);font-size:var(--fb-type-meta-size);font-weight:650;letter-spacing:.04em;text-transform:uppercase;color:var(--fb-color-muted)}
+.kb-lists>ul{list-style:none;margin:0;padding:0}
+.kb-lists>ul>li{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:var(--fb-space-8);padding:10px 0;border-top:var(--fb-border-width) solid var(--fb-color-border);font-size:var(--fb-type-meta-size)}
+.kb-lists>ul>li>small{font-weight:700}
+@media(max-width:1150px){.kb-tree{display:none}.kb-lists{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal}}
