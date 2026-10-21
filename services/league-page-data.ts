@@ -2,11 +2,13 @@ import "server-only";
 import { getDatabase } from "../lib/db";
 import { logger } from "../lib/logger";
 import { prismaSyncDatabase } from "../lib/sync-database";
-import { fixtureWindow, type LeagueQuery } from "../lib/league-presentation";
+import type { LeagueQuery } from "../lib/league-presentation";
 import type { ClubRow, FixtureRow, LeagueInfo, LeagueSlug, StandingsData } from "../types/league-hub";
-import { leagueClubs, leagueFixtures, leagueInfo, leagueRecent, leagueStandings, leagueUpcoming } from "./league-hub";
+import { leagueClubs, leagueInfo, leagueRoundFixtures, leagueRounds, leagueStandings, type LeagueRounds } from "./league-hub";
+import { readLeagueLeaders, type LeagueLeaders } from "./league-leaders";
 
-export type LeagueData = { league: LeagueInfo; standings?: StandingsData; fixtures?: FixtureRow[]; upcoming?: FixtureRow[]; recent?: FixtureRow[]; clubs?: ClubRow[] };
+/** `round`: the round shown (the chosen one, else the current one) with its matches. */
+export type LeagueData = { league: LeagueInfo; leaders: LeagueLeaders | null; rounds: LeagueRounds; round?: { number: number; fixtures: FixtureRow[] } | null; standings?: StandingsData; clubs?: ClubRow[] };
 export type LeagueResult = { kind: "ready"; data: LeagueData } | { kind: "not-found" } | { kind: "error" };
 
 /** Reads only what the selected tab needs, in one read-only snapshot. */
@@ -18,10 +20,14 @@ export async function readLeague(slug: LeagueSlug, query: LeagueQuery, now = new
       await tx.query("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
       const league = await leagueInfo(tx, slug, now);
       if (!league) return { kind: "not-found" };
-      const data: LeagueData = { league };
+      // The header shows the emblem and current round on every tab.
+      const [leaders, rounds] = await Promise.all([readLeagueLeaders(tx, slug), leagueRounds(tx, slug, now)]);
+      const data: LeagueData = { league, leaders, rounds };
       if (query.tab === "tong-quan" || query.tab === "bang-xep-hang") data.standings = await leagueStandings(tx, slug, now);
-      if (query.tab === "tong-quan") { data.upcoming = await leagueUpcoming(tx, slug, now); data.recent = await leagueRecent(tx, slug, now); }
-      if (query.tab === "lich-thi-dau") { const window = fixtureWindow(query.from, now); data.fixtures = await leagueFixtures(tx, slug, window.start, window.end); }
+      if (query.tab === "tong-quan" || query.tab === "lich-thi-dau") {
+        const number = query.round && rounds.rounds.includes(query.round) ? query.round : rounds.current;
+        data.round = number ? { number, fixtures: await leagueRoundFixtures(tx, slug, number, now) } : null;
+      }
       if (query.tab === "doi-bong") data.clubs = await leagueClubs(tx, slug, now);
       return { kind: "ready", data };
     });

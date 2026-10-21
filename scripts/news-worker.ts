@@ -12,6 +12,8 @@ import { syncMatches } from "../services/match-sync";
 import { syncMatchDetails } from "../services/match-details";
 import { syncPlayerProfiles } from "../services/player-profiles";
 import { syncHeadToHead } from "../services/head-to-head";
+import { syncLeagueLeaders } from "../services/league-leaders";
+import { isLeagueSlug } from "../services/league-hub";
 import { VideoFeedSync } from "../services/video-feed-sync";
 import { VideoStore } from "../services/video-store";
 import { YouTubeFeedReader } from "../providers/youtube/rss";
@@ -75,6 +77,8 @@ async function main() {
             await syncMatches(match.provider, match.store, { mode: "matches", competition, dateFrom: vietnamDay(-3), dateTo: vietnamDay(10) }, logger, { ttlMs: matchTtlMs });
             await syncMatches(match.provider, match.store, { mode: "standings", competition }, logger, { ttlMs: standingsTtlMs });
           } catch { ok = false; } // Provider errors are recorded by the sync; keep the news loop alive.
+          // League pages: top scorers, current matchday and emblem, every six hours per league.
+          try { if (isLeagueSlug(competition) && await syncLeagueLeaders(database, match.provider, competition)) logger.info({ competition }, "worker.league_leaders"); } catch { ok = false; }
         }
       }
       // Events, lineups and statistics: only due matches cost a request; stops for the day at the allowance.

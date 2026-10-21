@@ -1,4 +1,4 @@
-export const leagueTabs = ["tong-quan", "tin-tuc", "bang-xep-hang", "lich-thi-dau", "doi-bong", "chuyen-nhuong"] as const;
+export const leagueTabs = ["tong-quan", "bang-xep-hang", "lich-thi-dau", "thong-ke", "tin-tuc", "chuyen-nhuong", "doi-bong"] as const;
 export type LeagueTab = typeof leagueTabs[number];
 export type LeagueSlug = "premier-league" | "la-liga" | "ligue-1" | "champions-league";
 export type LeagueInfo = { id: string; slug: LeagueSlug; name: string; country: string; seasonName: string | null };

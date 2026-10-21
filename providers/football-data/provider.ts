@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { MatchProvider, MatchQuery } from "../../types/match-provider";
 import { ProviderError } from "../errors";
 import { competitionConfig, FOOTBALL_DATA } from "./config";
-import { normalizeBatch, normalizeCompetition, normalizeMatch, normalizeSeason, normalizeStandings, normalizeTeam } from "./normalization";
+import { normalizeBatch, normalizeCompetition, normalizeMatch, normalizeScorers, normalizeSeason, normalizeStandings, normalizeTeam } from "./normalization";
 
 type Options = {
   fetch?: typeof fetch; timeoutMs?: number; retries?: number;
@@ -120,6 +120,10 @@ export class FootballDataMatchProvider implements MatchProvider {
   }
   async getMatchEvents(_externalId: string) { void _externalId; return { available: false as const, reason: "Detailed events are not a free-tier capability." }; }
   async getMatchStats(_externalId: string) { void _externalId; return { available: false as const, reason: "Advanced statistics are not a free-tier capability." }; }
+  /** Top scorers of the current season, with the season's current matchday and the competition emblem. */
+  async getScorers(competition: string, limit = 20) {
+    return normalizeScorers(await this.request(`/competitions/${this.code(competition)}/scorers?limit=${Math.min(Math.max(limit, 1), 50)}`));
+  }
   async getStandings(competition: string, season?: number) {
     const result = normalizeStandings(await this.request(`/competitions/${this.code(competition)}/standings${this.seasonQuery(season)}`));
     if (result.items.some((row) => row.competition.key !== competition)) throw new ProviderError("MALFORMED_RESPONSE");

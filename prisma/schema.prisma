@@ -267,6 +267,7 @@ model League {
   follows                 UserFollow[]
   identities              ExternalIdentity[]
   standings               Standing[]
+  leaders                 LeagueLeaders?
   videoSourceCompetitions VideoSourceCompetition[]
 }
 
@@ -356,6 +357,18 @@ model Player {
   identities    ExternalIdentity[]
   transfers     Transfer[]
   profiles      PlayerProfile[]
+}
+
+/// Per league: the provider's current matchday, emblem and top scorers (JSON as normalised), refreshed every few hours.
+model LeagueLeaders {
+  leagueId        String   @id @db.Uuid
+  provider        String
+  currentMatchday Int?
+  emblemUrl       String?
+  scorers         Json     @default("[]")
+  fetchedAt       DateTime @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(3)
+  league          League   @relation(fields: [leagueId], references: [id], onDelete: Cascade)
 }
 
 /// Past meetings of two clubs in every competition, per pair of provider team ids (teamA < teamB).

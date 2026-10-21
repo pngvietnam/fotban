@@ -326,3 +326,110 @@ a.dp-primary{color:#fff}
 /* Form controls: their values are not text nodes, so the automated audit misses them */
 .fb-app :is(.dp-search,.ov-table select,.md-league-select>select,.md-date-picker>input,.md-round-filter>select){color:#3f5a32}
 .fb-app .dp-search::placeholder{color:#6b7a62}
+
+/* League page: compact header, the round first, table and scorers beside it, stories after */
+.lg-head{display:flex;align-items:center;gap:var(--fb-space-16);margin:0 0 var(--fb-space-16)}
+.lg-emblem{width:64px;height:64px;flex-shrink:0;object-fit:contain;padding:8px;border:var(--fb-border-width) solid var(--fb-color-border);border-radius:14px;background:#fff}
+.lg-mark{display:grid;place-items:center;font-size:20px;font-weight:750;color:var(--fb-color-brand)}
+.lg-head-text{flex:1;min-width:0}
+.lg-head-text>h1{margin:0;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-.6px;color:var(--fb-color-ink)}
+.lg-head-text>p{margin:4px 0 0;font-size:var(--fb-type-meta-size);color:var(--fb-color-muted)}
+.lg-overview{display:grid;grid-template-columns:minmax(0,1fr) 360px;grid-template-areas:"round side" "news side";gap:var(--fb-space-20);align-items:start;margin-top:var(--fb-space-20)}
+.lg-round-area{grid-area:round;min-width:0}
+.lg-side{grid-area:side;display:flex;flex-direction:column;gap:var(--fb-space-20);min-width:0}
+.lg-news-area{grid-area:news;min-width:0}
+.fb-app .lg-card{margin:0}
+.lg-card-head{display:flex;align-items:center;justify-content:space-between;gap:var(--fb-space-12);margin-bottom:var(--fb-space-12)}
+.lg-card-head>h2{margin:0;font-size:var(--fb-type-title-size);font-weight:650;line-height:1.4;color:var(--fb-color-ink)}
+.lg-card-head>a{display:inline-flex;align-items:center;min-height:24px;font-size:var(--fb-type-meta-size);font-weight:600;color:var(--fb-color-brand);white-space:nowrap}
+.lg-card-head>span{font-size:var(--fb-type-caption-size);color:var(--fb-color-muted)}
+.lg-more{display:flex;justify-content:center;align-items:center;min-height:36px;margin-top:var(--fb-space-12);font-size:var(--fb-type-meta-size);font-weight:600;color:var(--fb-color-brand)}
+
+/* Round */
+.lg-round-nav{display:flex;gap:6px}
+.lg-round-nav>*{display:grid;place-items:center;width:34px;height:34px;border:var(--fb-border-width) solid var(--fb-color-border);border-radius:50%;font-size:18px;line-height:1;color:var(--fb-color-ink);text-decoration:none}
+.lg-round-nav>a:hover{background:var(--fb-color-canvas)}
+.lg-round-nav>span{color:#c2cbbd}
+.lg-round-chips{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;margin-bottom:var(--fb-space-8)}
+.lg-round-chips>a{display:grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border:var(--fb-border-width) solid var(--fb-color-border);border-radius:8px;font-size:var(--fb-type-meta-size);font-weight:600;color:var(--fb-color-ink);text-decoration:none;flex-shrink:0}
+.lg-round-chips>a.active{background:var(--fb-color-brand);border-color:var(--fb-color-brand);color:#fff}
+.lg-day+.lg-day{margin-top:var(--fb-space-12)}
+.lg-day>h3{margin:0;padding:6px 0;font-size:var(--fb-type-caption-size);font-weight:650;letter-spacing:.04em;text-transform:uppercase;color:var(--fb-color-muted)}
+.lg-day>ul{list-style:none;margin:0;padding:0}
+.lg-fx{display:grid;grid-template-columns:minmax(0,1fr) 76px minmax(0,1fr);align-items:center;gap:var(--fb-space-12);padding:10px 8px;border-top:var(--fb-border-width) solid var(--fb-color-border);color:inherit;text-decoration:none;font-size:var(--fb-type-meta-size)}
+.lg-fx:hover{background:var(--fb-color-canvas)}
+.lg-fx-team{display:flex;align-items:center;gap:8px;min-width:0;font-weight:600;color:var(--fb-color-ink)}
+.lg-fx-team.home{justify-content:flex-end;text-align:right}
+.lg-fx-team>span{overflow-wrap:anywhere}
+.lg-fx-team>img,.lg-fx-team>.dp-crest-fallback{width:22px;height:22px;object-fit:contain;flex-shrink:0}
+.lg-fx-mid{display:flex;flex-direction:column;align-items:center;font-variant-numeric:tabular-nums}
+.lg-fx-mid>b{font-size:var(--fb-type-body-size);font-weight:700;color:var(--fb-color-ink)}
+.lg-fx:not(.done):not(.live) .lg-fx-mid>b{font-weight:600;color:var(--fb-color-brand)}
+.lg-fx-mid>small{font-size:var(--fb-type-caption-size);color:var(--fb-color-muted)}
+.lg-fx.live .lg-fx-mid>small{color:#b42318;font-weight:650}
+
+/* Stories */
+.lg-news{list-style:none;margin:0;padding:0}
+.lg-news>li>a{display:flex;align-items:center;gap:var(--fb-space-16);padding:12px 0;border-top:var(--fb-border-width) solid var(--fb-color-border);color:inherit;text-decoration:none}
+.lg-news>li:first-child>a{border-top:0;padding-top:0}
+.lg-news-text{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+.lg-news-text>b{font-size:var(--fb-type-body-size);font-weight:650;line-height:1.5;color:var(--fb-color-ink)}
+.lg-news>li>a:hover .lg-news-text>b{text-decoration:underline}
+.lg-news-text>small{font-size:var(--fb-type-caption-size);color:var(--fb-color-muted)}
+.lg-news-image{width:120px;aspect-ratio:16/10;flex-shrink:0;border-radius:8px}
+
+/* Table and scorers */
+.lg-table{width:100%;border-collapse:collapse;font-size:var(--fb-type-meta-size);font-variant-numeric:tabular-nums}
+.lg-table :is(th,td){padding:8px 6px;text-align:center}
+.lg-table thead th{font-size:var(--fb-type-caption-size);font-weight:600;color:var(--fb-color-muted)}
+.lg-table tbody tr{border-top:var(--fb-border-width) solid var(--fb-color-border)}
+.lg-table tbody th{text-align:left;font-weight:600}
+.lg-table tbody th a{display:flex;align-items:center;gap:8px;min-height:24px;color:var(--fb-color-ink);text-decoration:none}
+.lg-table tbody th a:hover{text-decoration:underline}
+.lg-table tbody th img,.lg-table tbody th .dp-crest-fallback{width:20px;height:20px;object-fit:contain;flex-shrink:0}
+.lg-table td:first-child{position:relative;width:28px}
+.lg-table tr.followed{background:#f3f8ee}
+.lg-table abbr{text-decoration:none}
+/* Zone colour: a bar before the position, always named in the legend and for screen readers */
+:is(.lg-table tr,.dp-standing)[class*="zone-"] > :first-child{box-shadow:inset 3px 0 0 var(--zone)}
+.zone-advance{--zone:#1f7a4d}
+.zone-playoff{--zone:#365f86}
+.zone-out{--zone:#8d9a8b}
+.zone-relegation{--zone:#b42318}
+.lg-zone-legend{display:flex;flex-wrap:wrap;gap:6px 16px;list-style:none;margin:var(--fb-space-12) 0 0;padding:0;font-size:var(--fb-type-caption-size);color:var(--fb-color-muted)}
+.lg-zone-legend i{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:2px;background:var(--zone);vertical-align:-1px}
+.lg-scorers{list-style:none;margin:0;padding:0}
+.lg-scorers>li{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:var(--fb-border-width) solid var(--fb-color-border)}
+.lg-scorers>li:first-child{border-top:0;padding-top:0}
+.lg-rank{width:18px;text-align:center;font-size:var(--fb-type-meta-size);font-weight:600;color:var(--fb-color-muted)}
+.lg-scorer-text{display:flex;flex:1;flex-direction:column;min-width:0;font-size:var(--fb-type-meta-size);font-weight:650;color:var(--fb-color-ink)}
+.lg-scorer-text>a{color:inherit}
+.lg-scorer-text>a:hover{text-decoration:underline}
+.lg-scorer-text>small{display:flex;align-items:center;gap:5px;font-size:var(--fb-type-caption-size);font-weight:400;color:var(--fb-color-muted)}
+.lg-scorer-text>small>img,.lg-scorer-text>small>.dp-crest-fallback{width:14px;height:14px;object-fit:contain}
+.lg-goals{display:flex;flex-direction:column;align-items:center;min-width:36px}
+.lg-goals>b{font-size:18px;font-weight:700;line-height:1.1;color:var(--fb-color-ink)}
+.lg-goals>small{font-size:var(--fb-type-caption-size);color:var(--fb-color-muted)}
+.lg-scroll{overflow-x:auto}
+.lg-stats-table{min-width:460px}
+.lg-stat-player{display:flex;align-items:center;gap:10px}
+.lg-stat-player>span{display:flex;flex-direction:column}
+.lg-stat-player small{font-weight:400;font-size:var(--fb-type-caption-size);color:var(--fb-color-muted)}
+.lg-stat-player a{color:var(--fb-color-ink)}
+.lg-stat-player small a{color:var(--fb-color-muted)}
+
+@media(max-width:1150px){.lg-overview{grid-template-columns:minmax(0,1fr) 320px}}
+@media(max-width:950px){.lg-overview{grid-template-columns:minmax(0,1fr);grid-template-areas:"round" "side" "news"}}
+@media(max-width:650px){
+  .lg-head{gap:var(--fb-space-12)}
+  .lg-emblem{width:48px;height:48px;padding:6px;border-radius:12px}
+  .lg-head-text>h1{font-size:22px}
+  .lg-head>.dp-primary{min-width:44px;padding:0 12px}
+  .lg-fx{grid-template-columns:minmax(0,1fr) 60px minmax(0,1fr);gap:8px;padding:10px 2px}
+  .lg-fx-team.home{flex-direction:column-reverse;text-align:center;align-items:center}
+  .lg-fx-team.away{flex-direction:column;text-align:center}
+  .lg-news-image{width:92px}
+}
+.lg-table thead th:nth-child(2){text-align:left}
+.dp-standing[class*="zone-"]>:first-child{padding-left:8px}
+.lg-table tr[class*="zone-"]>td:first-child{padding-left:10px}

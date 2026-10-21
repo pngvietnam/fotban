@@ -59,6 +59,25 @@ export async function leagueUpcoming(tx: SqlExecutor, slug: LeagueSlug, now: Dat
   return rows.filter((row) => ["SCHEDULED", "LIVE", "HALFTIME"].includes(row.status)).slice(0, limit);
 }
 
+/** The season a league page shows: the one containing `now`, else the latest. */
+const seasonOf = `(SELECT se.id FROM "Season" se WHERE se."leagueId"=l.id ORDER BY ($2::timestamptz BETWEEN se."startsAt" AND se."endsAt") DESC,se."startsAt" DESC LIMIT 1)`;
+export type LeagueRounds = { rounds: number[]; current: number | null };
+/** Numbered rounds stored for the current season, and the round of the match nearest to now. */
+export async function leagueRounds(tx: SqlExecutor, slug: LeagueSlug, now: Date): Promise<LeagueRounds> {
+  const rows = await tx.query<{ round: number; distance: number }>(`SELECT m.round::int AS round,min(abs(extract(epoch FROM m."kickoffAt"-$2::timestamptz)))::float AS distance
+    FROM "Match" m JOIN "League" l ON l.id=m."leagueId" WHERE l.slug=$1 AND m."seasonId"=${seasonOf} AND m.round ~ '^[0-9]{1,2}$' GROUP BY m.round::int ORDER BY 1`, [slug, now]);
+  const nearest = rows.reduce<{ round: number; distance: number } | null>((best, row) => !best || row.distance < best.distance ? row : best, null);
+  return { rounds: rows.map((row) => row.round), current: nearest?.round ?? null };
+}
+/** Every match of one round of the current season, in kickoff order. */
+export async function leagueRoundFixtures(tx: SqlExecutor, slug: LeagueSlug, round: number, now: Date): Promise<FixtureRow[]> {
+  const rows = await tx.query<{ slug: string; kickoffAt: string; status: string; round: string | null; homeName: string; homeShort: string | null; homeTla: string | null; homeCrest: string | null; awayName: string; awayShort: string | null; awayTla: string | null; awayCrest: string | null; homeScore: number | null; awayScore: number | null }>(
+    `SELECT m.slug,m."kickoffAt",m.status,m.round,hc.name AS "homeName",hc."shortName" AS "homeShort",hc.tla AS "homeTla",hc."externalCrestUrl" AS "homeCrest",ac.name AS "awayName",ac."shortName" AS "awayShort",ac.tla AS "awayTla",ac."externalCrestUrl" AS "awayCrest",m."homeScore",m."awayScore"
+     FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Club" hc ON hc.id=m."homeClubId" JOIN "Club" ac ON ac.id=m."awayClubId"
+     WHERE l.slug=$1 AND m."seasonId"=${seasonOf} AND m.round=$3 ORDER BY m."kickoffAt",m.id LIMIT 60`, [slug, now, String(round)]);
+  return rows.map((row) => ({ slug: row.slug, kickoffAt: new Date(row.kickoffAt).toISOString(), status: row.status, round: row.round, home: { name: row.homeShort?.trim() || row.homeName, tla: row.homeTla, crestUrl: row.homeCrest }, away: { name: row.awayShort?.trim() || row.awayName, tla: row.awayTla, crestUrl: row.awayCrest }, homeScore: row.homeScore, awayScore: row.awayScore }));
+}
+
 /** Clubs of the league's current season with their stored table position. */
 export async function leagueClubs(tx: SqlExecutor, slug: LeagueSlug, now: Date): Promise<ClubRow[]> {
   return tx.query<ClubRow>(

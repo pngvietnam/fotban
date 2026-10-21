@@ -145,3 +145,22 @@ export function normalizeStandings(input: unknown): ProviderBatch<StandingRow> {
   if (result.skipped) result.warnings.push("INCOMPLETE_STANDINGS_TABLE_SKIPPED");
   return result;
 }
+
+const scorerSchema = z.object({
+  player: z.object({ id: z.number().int(), name: z.string().trim().min(1).max(120) }),
+  team: z.object({ id: z.number().int(), name: z.string().trim().min(1).max(120), shortName: z.string().trim().max(80).nullish(), crest: z.string().max(300).nullish() }),
+  playedMatches: z.number().int().min(0).nullish(), goals: z.number().int().min(0).nullish(), assists: z.number().int().min(0).nullish(), penalties: z.number().int().min(0).nullish(),
+});
+export type Scorer = { playerId: string; name: string; teamId: string; teamName: string; played: number | null; goals: number; assists: number | null; penalties: number | null };
+/** Top scorers in the provider's order; rows without a player, team or goal count are dropped, never filled in. */
+export function normalizeScorers(body: unknown): { emblemUrl: string | null; currentMatchday: number | null; scorers: Scorer[] } {
+  const envelope = z.object({ competition: z.object({ emblem: z.string().max(300).nullish() }).partial().nullish(), season: z.object({ currentMatchday: z.number().int().min(0).max(80).nullish() }).partial().nullish(), scorers: z.array(z.unknown()).max(100) }).safeParse(body);
+  if (!envelope.success) throw new ProviderError("MALFORMED_RESPONSE");
+  const scorers = envelope.data.scorers.flatMap((raw) => {
+    const row = scorerSchema.safeParse(raw);
+    if (!row.success || row.data.goals == null) return [];
+    return [{ playerId: String(row.data.player.id), name: row.data.player.name, teamId: String(row.data.team.id), teamName: row.data.team.shortName || row.data.team.name, played: row.data.playedMatches ?? null, goals: row.data.goals, assists: row.data.assists ?? null, penalties: row.data.penalties ?? null }];
+  });
+  const emblem = envelope.data.competition?.emblem;
+  return { emblemUrl: emblem && /^https:\/\/crests\.football-data\.org\//.test(emblem) ? emblem : null, currentMatchday: envelope.data.season?.currentMatchday ?? null, scorers };
+}

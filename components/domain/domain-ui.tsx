@@ -7,6 +7,7 @@ import { clubPath } from "../../lib/club-presentation";
 import { formatMatchTime, formatUpdated, matchDayKey, matchStatusLabels } from "../../lib/match-presentation";
 import { dayNumbers } from "../../lib/match-timeline";
 import { StoryCard } from "../news/story-card";
+import { zoneOf, type TableZone } from "../../lib/league-zones";
 
 /** A crest from football-data only; the club's letters when there is none. */
 export function Crest({ url, name }: { url: string | null | undefined; name: string }) {
@@ -75,19 +76,21 @@ export function FormDots({ form }: { form: ("W" | "D" | "L")[] }) {
 }
 
 /** The league table. `limit` gives the compact overview version; the full one adds W/D/L, goals and form. */
-export function StandingsPanel({ data, leagueName, seasonName, limit, highlight = [] }: { data: StandingsData; leagueName: string; seasonName?: string | null; limit?: number; highlight?: string[] }) {
+export function StandingsPanel({ data, leagueName, seasonName, limit, highlight = [], zones = [] }: { data: StandingsData; leagueName: string; seasonName?: string | null; limit?: number; highlight?: string[]; /** Positions with a fixed consequence (qualify, play-off, relegation), coloured and named. */ zones?: TableZone[] }) {
   if (!data.rows.length) return <section className="dp-panel"><h2>Bảng xếp hạng</h2><p className="dp-muted">Chưa có dữ liệu bảng xếp hạng.</p></section>;
   const rows = limit ? data.rows.slice(0, limit) : data.rows;
   const wide = !limit;
+  const shownZones = zones.filter((zone) => rows.some((row) => row.position >= zone.from && row.position <= zone.to));
   return <section className="dp-panel" aria-label={`Bảng xếp hạng ${leagueName}`}>
     <div className="dp-section-heading"><h2>Bảng xếp hạng</h2><span>{seasonName ? `MÙA ${seasonName}` : leagueName}</span></div>
     <div className={`dp-standing dp-standing-head ${wide ? "wide" : ""}`}><span>#</span><span>CLB</span><span>Trận</span>{wide && <><span>T</span><span>H</span><span>B</span><span>Bàn</span></>}<span>HS</span><span>Điểm</span>{wide && <span className="dp-hide-small">Phong độ</span>}</div>
-    {rows.map((row) => <Link key={row.clubId} href={clubPath(row.clubId)} className={`dp-standing ${wide ? "wide" : ""} ${highlight.includes(row.clubId) ? "followed" : ""}`}>
-      <span>{row.position}</span><span><Crest url={row.crestUrl} name={row.name} />{row.shortName?.trim() || row.name}</span><span>{row.played ?? "–"}</span>
+    {rows.map((row) => { const zone = zoneOf(zones, row.position); return <Link key={row.clubId} href={clubPath(row.clubId)} className={`dp-standing ${wide ? "wide" : ""} ${highlight.includes(row.clubId) ? "followed" : ""} ${zone ? `zone-${zone.tone}` : ""}`} title={zone?.label}>
+      <span>{row.position}{zone && <span className="sr-only"> ({zone.label})</span>}</span><span><Crest url={row.crestUrl} name={row.name} />{row.shortName?.trim() || row.name}</span><span>{row.played ?? "–"}</span>
       {wide && <><span>{row.won ?? "–"}</span><span>{row.drawn ?? "–"}</span><span>{row.lost ?? "–"}</span><span>{row.goalsFor ?? "–"}:{row.goalsAgainst ?? "–"}</span></>}
       <span>{row.goalDifference === null ? "–" : row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference}</span><b>{row.points ?? "–"}</b>
       {wide && <span className="dp-hide-small"><FormDots form={row.form} /></span>}
-    </Link>)}
+    </Link>; })}
+    {shownZones.length > 0 && <ul className="lg-zone-legend" aria-label="Chú thích vị trí">{shownZones.map((zone) => <li key={zone.label} className={`zone-${zone.tone}`}><i aria-hidden="true" />{zone.from === zone.to ? `Hạng ${zone.from}` : `Hạng ${zone.from}–${zone.to}`}: {zone.label}</li>)}</ul>}
     <p className="dp-note">{data.fetchedAt ? `Cập nhật lúc ${formatUpdated(data.fetchedAt)} · ` : ""}T: thắng · H: hòa · B: thua · Phong độ là 5 trận gần nhất từ kết quả đã lưu. Football data provided by the Football-Data.org API.</p>
   </section>;
 }
