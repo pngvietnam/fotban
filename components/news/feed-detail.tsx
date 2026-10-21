@@ -6,16 +6,13 @@ import { feedCertaintyText, feedTransferText, officialWordingNotice } from "../.
 import { clubPath } from "../../lib/club-presentation";
 import { playerPath } from "../../lib/player-presentation";
 import { leagueHref } from "../../lib/league-presentation";
-import { timelineLeague } from "../../lib/match-timeline";
-import { kindOfStoryType } from "../../lib/news-tabs";
-import { newsAbsoluteTime, newsRelativeTime, safeNewsUrl, storyLabels } from "../../lib/news-presentation";
+import { newsAbsoluteTime, safeNewsUrl } from "../../lib/news-presentation";
 import type { LeagueSlug } from "../../types/league-hub";
 import { PostActions, SaveButton, ShareButton } from "./feed-actions";
 import { BackToReading } from "./back-to-reading";
+import { StoryCard, storyKind, storyLeague } from "./story-card";
 
 const matchLink = (slug: string) => `/match/${encodeURIComponent(slug)}`;
-const kindOf = (card: FeedCardView) => kindOfStoryType(card.storyType)?.label ?? storyLabels[card.storyType] ?? "Tin bóng đá";
-const leagueOf = (card: FeedCardView) => card.leagueSlugs.map((slug) => timelineLeague(slug)).find(Boolean) ?? null;
 const initials = (name: string) => name.replace(/[^\p{L}\p{N} ]/gu, "").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => [...word][0]).join("").toUpperCase() || "F";
 
 function ClubContextCard({ club }: { club: ClubContext }) {
@@ -28,23 +25,12 @@ function ClubContextCard({ club }: { club: ClubContext }) {
   return <div className="fb-card context-club"><h3 className="fb-text fb-text-title"><Link href={clubPath(club.clubId)}>{club.name}</Link></h3><ul className="fb-text fb-text-meta">{rows}</ul>{club.dataAsOf && <p className="fb-text fb-text-caption">Dữ liệu trận cập nhật lúc {newsAbsoluteTime(club.dataAsOf)}</p>}</div>;
 }
 
-/** A story card in "Câu chuyện tiếp theo" and "Các báo khác cùng đưa tin". */
-function StoryCard({ card, now }: { card: FeedCardView; now: Date }) {
-  const league = leagueOf(card);
-  return <div className="fb-card context-story text-only">
-    <div className="context-story-top"><span className={`fb-badge ${card.storyType === "TRANSFER" ? "fb-badge-warning" : "fb-badge-info"}`}>{kindOf(card)}</span>{league && <span className="fb-text fb-text-caption">{league.label}</span>}</div>
-    <Link className="context-story-title" href={`/news/${card.slug}`}><h3 className="fb-text fb-text-title">{card.title}</h3></Link>
-    {card.description && <p className="fb-text fb-text-meta">{card.description}</p>}
-    <div className="context-story-footer"><span className="fb-text fb-text-caption">{card.publisher} · <time dateTime={card.publishedAt} title={newsAbsoluteTime(card.publishedAt)}>{newsRelativeTime(card.publishedAt, now)}</time></span><Link href={`/news/${card.slug}`} aria-label={`Đọc ${card.title}`}>→</Link></div>
-  </div>;
-}
-
 /**
  * The story page of prototype v2 with the publisher's own headline, description and picture; the full
  * article stays on the publisher's site. Other coverage, Fotban's match data and related stories follow.
  */
 export function FeedDetailView({ card, others, related = [], context = [], now, likes = { signedIn: false, counts: {}, liked: {} } }: { card: FeedCardView; others: FeedCardView[]; related?: FeedCardView[]; context?: ClubContext[]; now: Date; likes?: StoryLikeState }) {
-  const league = leagueOf(card); const url = safeNewsUrl(card.url);
+  const league = storyLeague(card); const url = safeNewsUrl(card.url);
   const contexts = context.filter((club) => club.standing || club.lastMatch || club.nextMatch);
   const entities = [...new Map([card, ...others].flatMap((item) => item.entities).filter((entity) => entity.id && entity.kind !== "league").map((entity) => [`${entity.kind}:${entity.id}`, entity])).values()].slice(0, 8);
   const stage = card.storyType === "TRANSFER" ? card.transferStage ? feedTransferText[card.transferStage] : feedCertaintyText[card.certainty] : null;
@@ -57,7 +43,7 @@ export function FeedDetailView({ card, others, related = [], context = [], now, 
   return <div className="domain-page news-article">
     <BackToReading className="dp-back">← Quay lại nơi đang đọc</BackToReading>
     <div className="dp-article-layout"><article className="dp-article">
-      <span className="dp-kicker">{[league?.label, kindOf(card)].filter(Boolean).join(" · ")}</span>
+      <span className="dp-kicker">{[league?.label, storyKind(card)].filter(Boolean).join(" · ")}</span>
       <h1>{card.title}</h1>
       <div className="dp-article-meta"><span className="dp-person-avatar" aria-hidden="true">{initials(card.publisher)}</span><span>{card.attribution}<small><time dateTime={card.publishedAt}>{newsAbsoluteTime(card.publishedAt)}</time>{card.originHint ? ` · dẫn lại ${card.originHint}` : ""}</small></span>
         <SaveButton story={{ slug: card.slug, title: card.title, publisher: card.publisher }} className="dp-secondary" label /><ShareButton path={`/news/${card.slug}`} title={card.title} className="dp-secondary" /></div>

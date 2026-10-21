@@ -11,6 +11,7 @@ export const FOOTBALL_DATA = {
 export const competitionConfig: Record<string, { code: string; name: string; country: string }> = {
   "premier-league": { code: "PL", ...matchLeagues["premier-league"] },
   "la-liga": { code: "PD", ...matchLeagues["la-liga"] },
+  "ligue-1": { code: "FL1", ...matchLeagues["ligue-1"] },
   "champions-league": { code: "CL", ...matchLeagues["champions-league"] },
 };
 import { matchLeagues } from "../../lib/match-leagues";

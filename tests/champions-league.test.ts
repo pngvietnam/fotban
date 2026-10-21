@@ -21,7 +21,7 @@ import { vietnameseCatalogFrom } from "../services/vietnamese-catalog";
 const now = new Date("2026-10-19T03:00:00Z");
 describe("the Champions League as a supported competition", () => {
   it("is configured everywhere a competition list is used", () => {
-    expect(Object.keys(matchLeagues)).toEqual(["premier-league", "la-liga", "champions-league"]);
+    expect(Object.keys(matchLeagues)).toEqual(["premier-league", "la-liga", "ligue-1", "champions-league"]);
     expect(competitionConfig["champions-league"].code).toBe("CL"); expect(isLeagueSlug("champions-league")).toBe(true); expect(isLeagueSlug("serie-a")).toBe(false);
     expect(leagueLinks.map((link) => link.slug)).toContain("champions-league");
     expect(parseNewsFilters({ league: "champions-league" })).toEqual({ league: "champions-league", offset: 0 }); expect(parseNewsFilters({ league: "serie-a" })).toBeNull();

@@ -73,7 +73,7 @@ describe("timeline rendering", () => {
     const done = page({ view: view({ status: "finished" }), data: { ...data, earlierDays: 0, nextUpcoming: null } });
     expect(done(".md-fixture-card")).toHaveLength(1);
     expect(done(".md-load-earlier").text()).toContain("Đã hiển thị hết"); expect(done(".md-upcoming-more").text()).toContain("Đã hiển thị hết");
-    expect($(".md-competition-tabs a").map((_, node) => $(node).attr("href")).get()).toEqual(["/matches", "/matches?league=premier-league", "/matches?league=la-liga", "/matches?league=champions-league"]);
+    expect($(".md-competition-tabs a").map((_, node) => $(node).attr("href")).get()).toEqual(["/matches", "/matches?league=premier-league", "/matches?league=la-liga", "/matches?league=ligue-1", "/matches?league=champions-league"]);
   });
   it("explains the club filter to guests and shows a generic error without details", () => {
     const guest = page({ view: view({ doi: true }) });
@@ -120,7 +120,7 @@ describe("timeline data (SQL)", () => {
     const load = loader();
     const data = await read({}, null, load);
     expect(data).toMatchObject({ days: ["2026-10-16"], earlierDays: 3, nextUpcoming: "2026-10-18", highlighted: [] });
-    expect(load).toHaveBeenCalledWith(["2026-10-16"], expect.objectContaining({ leagueSlugs: ["premier-league", "la-liga", "champions-league"], clubIds: null }));
+    expect(load).toHaveBeenCalledWith(["2026-10-16"], expect.objectContaining({ leagueSlugs: ["premier-league", "la-liga", "ligue-1", "champions-league"], clubIds: null }));
     expect(data.matches).toHaveLength(1);
   });
   it("adds earlier match days and later upcoming days on request, within the league and status chosen", async () => {

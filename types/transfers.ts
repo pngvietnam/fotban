@@ -18,7 +18,7 @@ export const transferSnapshotSchema = z.object({
   facts: transferFactsSchema, evidenceIds: z.array(z.uuid()).min(1),
 }).strict();
 export type TransferSnapshot = z.infer<typeof transferSnapshotSchema>;
-export type TransferFilters = { league: "all" | "premier-league" | "la-liga" | "champions-league"; status: "all" | TransferStatus; page: number };
+export type TransferFilters = { league: "all" | "premier-league" | "la-liga" | "ligue-1" | "champions-league"; status: "all" | TransferStatus; page: number };
 export type TransferView = {
   slug: string | null; story: NewsStory; status: TransferStatus; disputed: boolean; facts: TransferFacts;
   firstSeenAt: string; lastUpdatedAt: string; firstSeenDateOnly?: boolean; lastUpdatedDateOnly?: boolean;

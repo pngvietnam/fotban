@@ -34,7 +34,7 @@ export class FollowingService {
     const target = parsed.data; const config = targets[target.type];
     return this.db.transaction(async (tx) => {
       // Table/column identifiers come exclusively from the fixed enum registry.
-      const [entity] = await tx.query<{ name: string }>(`SELECT name FROM "${config.table}" WHERE id=$1::uuid${target.type === "COMPETITION" ? " AND slug IN ('premier-league','la-liga','champions-league')" : ""}`, [target.entityId]);
+      const [entity] = await tx.query<{ name: string }>(`SELECT name FROM "${config.table}" WHERE id=$1::uuid${target.type === "COMPETITION" ? " AND slug IN ('premier-league','la-liga','ligue-1','champions-league')" : ""}`, [target.entityId]);
       if (!entity) throw new AccountError("NOT_FOUND", 404);
       if (following) {
         await tx.query(`INSERT INTO "UserPreference" (id,"userId",locale,timezone,"updatedAt") SELECT $1::uuid,id,locale,timezone,now() FROM "User" WHERE id=$2::uuid ON CONFLICT ("userId") DO NOTHING`, [randomUUID(), user.id]);
@@ -50,7 +50,7 @@ export class FollowingService {
     const term = search.trim().slice(0, 80);
     // Search canonical rows and their aliases; never insert an entity from an alias/name.
     const rows = await this.db.query<{ type: FollowTarget["type"]; entityId: string; name: string }>(`SELECT * FROM (
-      SELECT 'COMPETITION' AS type,id AS "entityId",name FROM "League" WHERE slug IN ('premier-league','la-liga','champions-league')
+      SELECT 'COMPETITION' AS type,id AS "entityId",name FROM "League" WHERE slug IN ('premier-league','la-liga','ligue-1','champions-league')
       UNION ALL SELECT 'CLUB',id,name FROM "Club" WHERE $1<>'' AND (strpos(lower(name),lower($1))>0 OR EXISTS (SELECT 1 FROM unnest(aliases) a WHERE strpos(lower(a),lower($1))>0))
       UNION ALL SELECT 'PLAYER',id,name FROM "Player" WHERE $1<>'' AND (strpos(lower(name),lower($1))>0 OR EXISTS (SELECT 1 FROM unnest(aliases) a WHERE strpos(lower(a),lower($1))>0))
       ) e ORDER BY type,name,"entityId" LIMIT 30`, [term]);

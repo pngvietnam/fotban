@@ -9,7 +9,7 @@ import { leagueClubs, leagueFixtures, leagueInfo, leagueStandings, leagueUpcomin
 const now = new Date("2026-10-19T03:00:00Z");
 describe("league query parsing and windows", () => {
   it("accepts known tabs and valid dates and rejects everything else", () => {
-    expect(parseLeagueQuery({}, now)).toEqual({ tab: "tin-tuc", offset: 0, from: "2026-10-16" });
+    expect(parseLeagueQuery({}, now)).toEqual({ tab: "tong-quan", offset: 0, from: "2026-10-16" });
     expect(parseLeagueQuery({ tab: "lich-thi-dau", tu: "2026-10-20", bao: "24" }, now)).toEqual({ tab: "lich-thi-dau", offset: 24, from: "2026-10-20" });
     for (const bad of [{ tab: "admin" }, { tab: ["a", "b"] }, { bao: "-1" }, { bao: "99999" }, { tu: "2026-02-31" }, { tu: "2026-13-01" }, { tu: "2030-01-01" }, { tu: "abc" }]) expect(parseLeagueQuery(bad, now)).toBeNull();
   });
@@ -18,7 +18,7 @@ describe("league query parsing and windows", () => {
     expect(window.start.toISOString()).toBe("2026-10-12T17:00:00.000Z"); expect(window.end.toISOString()).toBe("2026-10-19T17:00:00.000Z");
     expect(window).toMatchObject({ last: "2026-10-19", prev: "2026-10-06", next: "2026-10-20" });
     expect(fixtureWindow("2027-02-15", now).next).toBeNull();
-    expect(leagueHref("la-liga")).toBe("/league/la-liga"); expect(leagueHref("la-liga", { tab: "bang-xep-hang" })).toBe("/league/la-liga?tab=bang-xep-hang");
+    expect(leagueHref("la-liga")).toBe("/league/la-liga"); expect(leagueHref("la-liga", { tab: "tin-tuc" })).toBe("/league/la-liga?tab=tin-tuc"); expect(leagueHref("la-liga", { tab: "bang-xep-hang" })).toBe("/league/la-liga?tab=bang-xep-hang");
     expect(leagueHref("premier-league", { tab: "lich-thi-dau", from: "2026-10-13" })).toBe("/league/premier-league?tab=lich-thi-dau&tu=2026-10-13");
   });
 });

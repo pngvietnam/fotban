@@ -4,6 +4,7 @@ import type { ClubRow, FixtureRow, LeagueInfo, LeagueSlug, StandingRow, Standing
 export const leagueNames: Record<LeagueSlug, { name: string; country: string }> = {
   "premier-league": { name: "Ngoại hạng Anh", country: "Anh" },
   "la-liga": { name: "La Liga", country: "Tây Ban Nha" },
+  "ligue-1": { name: "Ligue 1", country: "Pháp" },
   "champions-league": { name: "Champions League", country: "Châu Âu" },
 };
 export const isLeagueSlug = (value: string): value is LeagueSlug => Object.hasOwn(leagueNames, value);
@@ -13,7 +14,7 @@ export async function leagueInfo(tx: SqlExecutor, slug: LeagueSlug, now: Date): 
   const [league] = await tx.query<{ id: string }>('SELECT id FROM "League" WHERE slug=$1', [slug]);
   if (!league) return null;
   const [season] = await tx.query<{ name: string }>('SELECT name FROM "Season" WHERE "leagueId"=$1::uuid ORDER BY ($2::timestamptz BETWEEN "startsAt" AND "endsAt") DESC,"startsAt" DESC LIMIT 1', [league.id, now]);
-  return { slug, ...leagueNames[slug], seasonName: season?.name ?? null };
+  return { id: league.id, slug, ...leagueNames[slug], seasonName: season?.name ?? null };
 }
 
 /** Stored standings (TOTAL table) with form computed from finished matches in the same league. */
@@ -47,6 +48,11 @@ export async function leagueFixtures(tx: SqlExecutor, slug: LeagueSlug, from: Da
   return rows.map((row) => ({ slug: row.slug, kickoffAt: new Date(row.kickoffAt).toISOString(), status: row.status, round: row.round, home: { name: row.homeName, tla: row.homeTla, crestUrl: row.homeCrest }, away: { name: row.awayName, tla: row.awayTla, crestUrl: row.awayCrest }, homeScore: row.homeScore, awayScore: row.awayScore }));
 }
 
+/** The latest finished matches of the last `days` days, newest first (for the overview). */
+export async function leagueRecent(tx: SqlExecutor, slug: LeagueSlug, now: Date, limit = 4, days = 7): Promise<FixtureRow[]> {
+  const rows = await leagueFixtures(tx, slug, new Date(now.getTime() - days * 86400000), now);
+  return rows.filter((row) => row.status === "FINISHED" && row.homeScore !== null && row.awayScore !== null).reverse().slice(0, limit);
+}
 /** Next scheduled/live matches from now (for the overview). */
 export async function leagueUpcoming(tx: SqlExecutor, slug: LeagueSlug, now: Date, limit = 4): Promise<FixtureRow[]> {
   const rows = await leagueFixtures(tx, slug, new Date(now.getTime() - 3 * 3600000), new Date(now.getTime() + 21 * 86400000));

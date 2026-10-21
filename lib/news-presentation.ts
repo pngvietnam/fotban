@@ -14,7 +14,7 @@ export const languageLabels: Record<string, string> = { en: "Tiếng Anh", es: "
 
 export function parseNewsFilters(params: Record<string, string | string[] | undefined>): NewsFilters | null {
   const league = params.league ?? "all"; const offset = params.after ?? "0";
-  if (!["all", "premier-league", "la-liga", "champions-league"].includes(league as string) || typeof league !== "string" || typeof offset !== "string" || !/^\d{1,6}$/.test(offset) || Number(offset) > 100000) return null;
+  if (!["all", "premier-league", "la-liga", "ligue-1", "champions-league"].includes(league as string) || typeof league !== "string" || typeof offset !== "string" || !/^\d{1,6}$/.test(offset) || Number(offset) > 100000) return null;
   return { league: league as NewsFilters["league"], offset: Number(offset) };
 }
 export function newsHref(filters: NewsFilters) {

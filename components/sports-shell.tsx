@@ -15,7 +15,7 @@ function Icon({ name, size = 20 }: { name: string; size?: number }) {
 const mainNav = [
   { key: "home", href: "/", label: "Bảng tin", icon: "home" }, { key: "matches", href: "/matches", label: "Trận đấu", icon: "ball" },
   { key: "news", href: "/news", label: "Tin tức", icon: "news" }, { key: "transfers", href: "/transfers", label: "Chuyển nhượng", icon: "transfer" },
-  { key: "league", href: "/league/premier-league", label: "Giải đấu", icon: "cup" },
+  { key: "league", href: "/leagues", label: "Giải đấu", icon: "cup" },
 ] as const;
 
 /**

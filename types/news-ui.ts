@@ -1,6 +1,6 @@
 import type { ReliabilityResult } from "./reliability";
 
-export type NewsFilters = { league: "all" | "premier-league" | "la-liga" | "champions-league"; offset: number };
+export type NewsFilters = { league: "all" | "premier-league" | "la-liga" | "ligue-1" | "champions-league"; offset: number };
 export type NewsEntity = { id?: string; kind: "club" | "player" | "league"; name: string; initials: string; crestUrl?: string | null; tla?: string | null; photoUrl?: string | null };
 export type NewsSourceView = {
   key: string; sourceId?: string; name: string; originalTitle: string; url: string | null;

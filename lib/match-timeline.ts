@@ -12,6 +12,7 @@ import type { MatchSummary } from "../types/match-ui";
 export const timelineLeagues = [
   { slug: "premier-league", label: "Premier League", mark: "PL", tab: 1, emblem: 0, country: "Anh", rounds: 38, roundWord: "Vòng" },
   { slug: "la-liga", label: "La Liga", mark: "LL", tab: 2, emblem: 1, country: "Tây Ban Nha", rounds: 38, roundWord: "Vòng" },
+  { slug: "ligue-1", label: "Ligue 1", mark: "L1", tab: 3, emblem: 2, country: "Pháp", rounds: 34, roundWord: "Vòng" },
   { slug: "champions-league", label: "Champions League", mark: "C1", tab: 4, emblem: 3, country: "Châu Âu", rounds: 8, roundWord: "Lượt trận" },
 ] as const satisfies readonly { slug: keyof typeof matchLeagues; label: string; mark: string; tab: number; emblem: number; country: string; rounds: number; roundWord: string }[];
 export type TimelineLeague = typeof timelineLeagues[number];

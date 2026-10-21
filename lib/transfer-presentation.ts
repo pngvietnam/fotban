@@ -8,7 +8,7 @@ export const transferSlug = (id: string) => `giao-dich-${id}`;
 export function transferIdFromSlug(slug: string) { return /^giao-dich-([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/.exec(slug)?.[1] ?? null; }
 export function parseTransferFilters(params: Record<string, string | string[] | undefined>): TransferFilters | null {
   const league = params.league ?? "all"; const status = params.status ?? "all"; const page = params.page ?? "1";
-  if (typeof league !== "string" || !["all", "premier-league", "la-liga", "champions-league"].includes(league) || typeof status !== "string" || !["all", ...Object.keys(statusLabels)].includes(status) || typeof page !== "string" || !/^[1-9]\d?$/.test(page)) return null;
+  if (typeof league !== "string" || !["all", "premier-league", "la-liga", "ligue-1", "champions-league"].includes(league) || typeof status !== "string" || !["all", ...Object.keys(statusLabels)].includes(status) || typeof page !== "string" || !/^[1-9]\d?$/.test(page)) return null;
   return { league: league as TransferFilters["league"], status: status as TransferFilters["status"], page: Number(page) };
 }
 export function transferHref(filters: TransferFilters) {

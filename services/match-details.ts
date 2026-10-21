@@ -41,7 +41,7 @@ async function dueMatches(db: SqlExecutor, now: Date) {
       d."externalId",d."homeTeamExternalId",d."awayTeamExternalId",d."mapAttemptAt",d."lineupsFetchedAt",d."lineupAttempts",d."detailFetchedAt",d."detailAttempts",d."boxScoreFetchedAt",d."boxScoreAttempts",d."updatedAt" AS "syncUpdatedAt"
     FROM "Match" m JOIN "League" l ON l.id=m."leagueId" JOIN "Club" hc ON hc.id=m."homeClubId" JOIN "Club" ac ON ac.id=m."awayClubId"
     LEFT JOIN "MatchDetailSync" d ON d."matchId"=m.id AND d.provider=$1
-    WHERE l.slug IN ('premier-league','la-liga','champions-league') AND m.status NOT IN ('CANCELLED','POSTPONED')
+    WHERE l.slug IN ('premier-league','la-liga','ligue-1','champions-league') AND m.status NOT IN ('CANCELLED','POSTPONED')
       AND m."kickoffAt"<=$3::timestamptz AND (m."kickoffAt">=$2::timestamptz OR (d."externalId" IS NOT NULL AND m."kickoffAt">=$2::timestamptz-interval '30 days'))
       AND (d."detailFetchedAt" IS NULL OR d."lineupsFetchedAt" IS NULL OR d."boxScoreFetchedAt" IS NULL)
     ORDER BY m."kickoffAt",m.id`, [provider, new Date(now.getTime() - lookbackMs), new Date(now.getTime() + lineupLeadMs)]);

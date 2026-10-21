@@ -71,11 +71,11 @@ describe("VideoFeedSync (SQL)", () => {
   });
   const realFeed = async () => new YouTubeFeedReader({ fetch: (async () => respond(200, feedXml())) as unknown as typeof fetch }).feed(fpt);
 
-  it("registers the three reviewed channels and stores only the match highlight from the feed", async () => {
+  it("registers the reviewed channels and stores only the match highlight from the feed", async () => {
     const report = await new VideoFeedSync(reader({ [fpt]: await realFeed() }), new VideoStore(database)).run(now);
-    expect(report).toMatchObject({ sources: 3, feeds: 1, matches: 1, stored: 1, primary: 1 });
+    expect(report).toMatchObject({ sources: 4, feeds: 1, matches: 1, stored: 1, primary: 1 });
     const sources = await database.query<{ name: string; channelId: string | null }>(`SELECT name,"channelId" FROM "VideoSource" ORDER BY name`);
-    expect(sources.map((source) => source.name)).toEqual(["FPT Bóng Đá", "SCTV Thể Thao Official", "TV360 Thể Thao"]);
+    expect(sources.map((source) => source.name)).toEqual(["FPT Bóng Đá", "SCTV Thể Thao Official", "TV360 Thể Thao", "VTVcab - On Champions League"]);
     expect(sources.find((source) => source.name === "FPT Bóng Đá")?.channelId).toBe(fpt);
     const videos = await database.query<{ externalId: string; selectedAsPrimary: boolean; videoType: string; embedAllowed: boolean }>(`SELECT "externalId","selectedAsPrimary","videoType","embedAllowed" FROM "Video"`);
     expect(videos).toEqual([{ externalId: "2cDvQymAgaE", selectedAsPrimary: true, videoType: "HIGHLIGHT", embedAllowed: true }]);

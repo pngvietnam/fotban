@@ -14,5 +14,6 @@ export const HIGHLIGHTLY = {
 export const highlightlyLeagues: Record<LeagueSlug, { name: string; countries: string[] }> = {
   "premier-league": { name: "Premier League", countries: ["England"] },
   "la-liga": { name: "La Liga", countries: ["Spain"] },
+  "ligue-1": { name: "Ligue 1", countries: ["France"] },
   "champions-league": { name: "UEFA Champions League", countries: ["World", "Europe", "International"] },
 };

@@ -24,7 +24,7 @@ export function sourceRank(source: VideoSource, mapping: VideoMapping) {
   if (source.country === "VN" && mapping.language === "vi" && mapping.rightsType === "AUTHORIZED_LINK") return 1;
   return ({ OFFICIAL_LEAGUE: 2, OFFICIAL_CLUB: 3, BROADCASTER: 4, TRUSTED_MEDIA: 4 } as Record<string, number>)[source.sourceType] ?? 5;
 }
-const leagues: Record<string, RegExp> = { "premier-league": /premier league|ngoai hang anh|\bepl\b/, "la-liga": /la liga|laliga|la liga ea sports/, "champions-league": /champions league|cup c1|c1 chau au|\bucl\b/ };
+const leagues: Record<string, RegExp> = { "premier-league": /premier league|ngoai hang anh|\bepl\b/, "la-liga": /la liga|laliga|la liga ea sports/, "ligue-1": /ligue ?1|ligue one/, "champions-league": /champions league|cup c1|c1 chau au|\bucl\b/ };
 function mention(title: string, aliases: string[]) { return aliases.some((alias) => { const name = normalizedVideoText(alias); return name.length >= 4 && (` ${title} `).includes(` ${name} `); }); }
 /**
  * Day/month dates written in a title ("19/10", "19.10.2026"). A season such as "26/27" (consecutive

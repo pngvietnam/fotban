@@ -1,7 +1,7 @@
-export const leagueTabs = ["tin-tuc", "tong-quan", "bang-xep-hang", "lich-thi-dau", "doi-bong", "chuyen-nhuong"] as const;
+export const leagueTabs = ["tong-quan", "tin-tuc", "bang-xep-hang", "lich-thi-dau", "doi-bong", "chuyen-nhuong"] as const;
 export type LeagueTab = typeof leagueTabs[number];
-export type LeagueSlug = "premier-league" | "la-liga" | "champions-league";
-export type LeagueInfo = { slug: LeagueSlug; name: string; country: string; seasonName: string | null };
+export type LeagueSlug = "premier-league" | "la-liga" | "ligue-1" | "champions-league";
+export type LeagueInfo = { id: string; slug: LeagueSlug; name: string; country: string; seasonName: string | null };
 export type StandingRow = {
   position: number; clubId: string; name: string; shortName: string | null; tla: string | null; crestUrl: string | null;
   played: number | null; won: number | null; drawn: number | null; lost: number | null;
