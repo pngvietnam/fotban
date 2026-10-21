@@ -4,6 +4,7 @@ import type { FeedListResult } from "../../types/feed-card";
 import type { ClubRow, FixtureRow, LeagueInfo, LeagueSlug, StandingsData } from "../../types/league-hub";
 import type { LeagueRounds } from "../../services/league-hub";
 import type { LeagueLeaders } from "../../services/league-leaders";
+import type { PlayerBoards, TeamOfWeekPlayer } from "../../services/league-player-stats";
 import { fixtureViews, leagueHref, type FixtureView } from "../../lib/league-presentation";
 import { dayNumbers, timelineLeague } from "../../lib/match-timeline";
 import { formatMatchDate, formatMatchTime, matchDayKey, matchStatusLabels } from "../../lib/match-presentation";
@@ -199,5 +200,41 @@ export function SeasonsTab({ slug, honours, tallies, source, finals }: { slug: L
       <ol className="lg-tally">{tallies.slice(0, 12).map((item, index) => <li key={item.club}><span className="lg-rank">{index + 1}</span><b>{item.club}</b><span className="lg-tally-num"><b>{item.titles}</b><small>vô địch</small></span><span className="lg-tally-num"><b>{item.runnerUps}</b><small>á quân</small></span></li>)}</ol>
     </section>
     <p className="dp-note lg-source">Tổng hợp từ danh sách trên Wikipedia{source ? <> (<a href={source} target="_blank" rel="noopener noreferrer">{slug}</a>)</> : null}, đối chiếu với Wikidata; mùa nào hai nguồn lệch nhau thì được kiểm tra tay. Cập nhật khi mùa giải kết thúc.</p>
+  </div>;
+}
+
+const positionRows = [["FW", "Tiền đạo"], ["MF", "Tiền vệ"], ["DF", "Hậu vệ"], ["GK", "Thủ môn"]] as const;
+/**
+ * "Đội hình tiêu biểu": the best 4-3-3 of the round, picked by the provider's match ratings (see
+ * teamOfTheWeek). Says how many of the round's matches it is based on and is left out below four players.
+ */
+export function TeamOfTheWeek({ team, title }: { team: { players: TeamOfWeekPlayer[]; coverage: { matches: number; finished: number }; complete: boolean } | undefined; title: string }) {
+  if (!team || team.players.length < 4) return null;
+  return <section className="dp-panel lg-card" aria-labelledby="lg-totw">
+    <div className="lg-card-head"><h2 id="lg-totw">Đội hình tiêu biểu</h2><span>{title}</span></div>
+    <div className="lg-pitch" role="list" aria-label="Đội hình 4-3-3">
+      {positionRows.map(([key, label]) => { const players = team.players.filter((player) => player.position === key); return players.length ? <div className="lg-pitch-row" key={key} role="presentation">{players.map((player) => <div className="lg-pitch-player" role="listitem" key={player.key} aria-label={`${label}: ${player.name}, ${player.clubName}, điểm ${player.rating.toFixed(1)}`}>
+        <span className="lg-pitch-photo"><PlayerPhoto photoUrl={player.photoUrl} size="md" round /><b className={`lg-rating ${player.rating >= 9 ? "r9" : player.rating >= 7 ? "r7" : "r6"}`}>{player.rating.toFixed(1)}</b></span>
+        {player.playerPath ? <Link href={player.playerPath}>{player.name}</Link> : <span>{player.name}</span>}
+        <small>{player.clubName}{player.goals || player.assists ? ` · ${[player.goals ? `${player.goals} bàn` : null, player.assists ? `${player.assists} KT` : null].filter(Boolean).join(", ")}` : ""}</small>
+      </div>)}</div> : null; })}
+    </div>
+    <p className="dp-note">Chọn theo điểm của Highlightly (ít nhất 60 phút, tối đa 3 cầu thủ mỗi CLB), dựa trên {team.coverage.matches}/{team.coverage.finished} trận đã đá trong giai đoạn này có điểm số.{team.complete ? "" : " Chưa đủ 11 vị trí."}</p>
+  </section>;
+}
+
+/** Several leaderboards from the stored box scores, one panel each, with the coverage said plainly. */
+export function PlayerBoardsPanel({ boards }: { boards: PlayerBoards | undefined }) {
+  if (!boards?.boards.length) return null;
+  return <div className="lg-boards">
+    <p className="dp-note lg-coverage">Các bảng dưới đây tính từ điểm số và chỉ số từng cầu thủ của Highlightly cho {boards.coverage.matches}/{boards.coverage.finished} trận đã đá của mùa này, nên số liệu tăng dần theo từng vòng.</p>
+    {boards.boards.map((board) => <section className="dp-panel lg-card" key={board.key} aria-labelledby={`lg-b-${board.key}`}>
+      <div className="lg-card-head"><h2 id={`lg-b-${board.key}`}>{board.title}</h2><span>{board.unit}</span></div>
+      <ol className="lg-scorers">{board.leaders.map((leader, index) => <li key={leader.key}>
+        <span className="lg-rank">{index + 1}</span><PlayerPhoto photoUrl={leader.photoUrl} size="sm" round />
+        <span className="lg-scorer-text">{leader.playerPath ? <Link href={leader.playerPath}>{leader.name}</Link> : <b>{leader.name}</b>}<small><Crest url={leader.crestUrl} name={leader.clubName} />{leader.clubName} · {leader.sub}</small></span>
+        <span className="lg-goals"><b>{leader.value}</b></span>
+      </li>)}</ol>
+    </section>)}
   </div>;
 }

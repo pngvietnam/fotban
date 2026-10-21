@@ -48,7 +48,7 @@ function club($: CheerioAPI, cell: Element | undefined) {
   if (!cell) return null;
   const link = $(cell).find("a[rel='mw:WikiLink']").filter((_, a) => !$(a).closest(".flagicon, sup").length && clean($(a).text()).length > 1).first();
   const text = clean(link.length ? link.text() : $(cell).text());
-  return text && !/^(—|–|-|n\/a|not (held|awarded|played)|abandoned|cancelled|none)/i.test(text) ? text : null;
+  return text && !/^(—|–|-|n\/a|not (held|awarded|played)|abandoned|cancelled|none|spanish civil war|world war)/i.test(text) ? text : null;
 }
 const seasonKey = (raw: string) => {
   const match = /(\d{4})\s*[–-]\s*(\d{2,4})/.exec(raw) ?? /^(\d{4})$/.exec(raw.trim());

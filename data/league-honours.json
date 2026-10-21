@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-21T08:29:46.051Z",
+ "generatedAt": "2026-10-21T08:33:56.304Z",
  "sources": {
   "premier-league": "https://en.wikipedia.org/wiki/List_of_English_football_champions",
   "la-liga": "https://en.wikipedia.org/wiki/List_of_Spanish_football_champions",
@@ -616,21 +616,6 @@
     "runnerUp": "Sevilla"
    },
    {
-    "season": "1938–39",
-    "champion": "Spanish Civil War",
-    "runnerUp": "Spanish Civil War"
-   },
-   {
-    "season": "1937–38",
-    "champion": "Spanish Civil War",
-    "runnerUp": "Spanish Civil War"
-   },
-   {
-    "season": "1936–37",
-    "champion": "Spanish Civil War",
-    "runnerUp": "Spanish Civil War"
-   },
-   {
     "season": "1935–36",
     "champion": "Athletic Bilbao",
     "runnerUp": "Madrid FC"
@@ -1071,11 +1056,6 @@
     "season": "1945–46",
     "champion": "Lille",
     "runnerUp": "Saint-Étienne"
-   },
-   {
-    "season": "1939–45",
-    "champion": "World War II",
-    "runnerUp": "World War II"
    },
    {
     "season": "1938–39",

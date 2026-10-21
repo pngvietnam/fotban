@@ -6,6 +6,7 @@ import type { LeagueQuery } from "../lib/league-presentation";
 import type { ClubRow, FixtureRow, LeagueInfo, LeagueSlug, StandingsData } from "../types/league-hub";
 import { leagueClubSeason, leagueClubs, leagueFixtures, leagueInfo, leagueMatchDays, leagueRoundFixtures, leagueRounds, leagueStandings, type LeagueRounds } from "./league-hub";
 import { readLeagueLeaders, type LeagueLeaders } from "./league-leaders";
+import { playerBoards, teamOfTheWeek, type PlayerBoards } from "./league-player-stats";
 
 /**
  * `round`: the round shown (the chosen one, else the current one) with its matches. On the fixtures tab, `days`
@@ -15,6 +16,7 @@ export type LeagueData = {
   league: LeagueInfo; leaders: LeagueLeaders | null; rounds: LeagueRounds; round?: { number: number; fixtures: FixtureRow[] } | null;
   days?: { days: string[]; day: string | null; fixtures: FixtureRow[] }; club?: { clubId: string | null; fixtures: FixtureRow[] };
   standings?: StandingsData; clubs?: ClubRow[];
+  team?: Awaited<ReturnType<typeof teamOfTheWeek>>; boards?: PlayerBoards;
 };
 export type LeagueResult = { kind: "ready"; data: LeagueData } | { kind: "not-found" } | { kind: "error" };
 
@@ -39,6 +41,11 @@ export async function readLeague(slug: LeagueSlug, query: LeagueQuery, now = new
         const number = query.round && rounds.rounds.includes(query.round) ? query.round : rounds.current;
         data.round = number ? { number, fixtures: await leagueRoundFixtures(tx, slug, number, now) } : null;
       }
+      if (query.tab === "tong-quan" && data.round?.fixtures.length) {
+        const times = data.round.fixtures.map((fixture) => Date.parse(fixture.kickoffAt));
+        data.team = await teamOfTheWeek(tx, slug, new Date(Math.min(...times) - 3600_000), new Date(Math.max(...times) + 6 * 3600_000));
+      }
+      if (query.tab === "thong-ke") data.boards = await playerBoards(tx, slug);
       if (fixturesBy === "ngay") {
         const { days, current } = await leagueMatchDays(tx, slug, now);
         const day = query.day && days.includes(query.day) ? query.day : current;

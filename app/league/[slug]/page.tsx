@@ -17,7 +17,7 @@ import { Crest, DomainTabs, Empty, StandingsPanel, StoryGrid } from "@/component
 import { KnockoutBracket } from "@/components/league/knockout-bracket";
 import { timelineLeague } from "@/lib/match-timeline";
 import { clubTallies, honoursSource, seasonHonours } from "@/services/league-honours";
-import { SeasonsTab, ClubSeasonCard, DayCard, FixtureViewSwitch, LeagueHeader, NewsList, RoundCard, ScorersTable, StandingsMini, TopScorers } from "@/components/league/league-overview";
+import { PlayerBoardsPanel, TeamOfTheWeek, SeasonsTab, ClubSeasonCard, DayCard, FixtureViewSwitch, LeagueHeader, NewsList, RoundCard, ScorersTable, StandingsMini, TopScorers } from "@/components/league/league-overview";
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -62,6 +62,7 @@ export default async function LeaguePage({ params, searchParams }: Props) {
         <StandingsMini slug={slug} data={standings} zones={zones} highlight={followed} />
         <TopScorers slug={slug} leaders={leaders} />
       </aside>
+      <div className="lg-team-area"><TeamOfTheWeek team={result.data.team} title={round ? `${timelineLeague(slug)?.roundWord ?? "Vòng"} ${round.number}` : ""} /></div>
       <div className="lg-news-area"><NewsList result={feed} now={now} href={leagueHref(slug, { tab: "tin-tuc" })} /></div>
     </div>}
     {query.tab === "bang-xep-hang" && standings && <StandingsPanel data={standings} leagueName={league.name} seasonName={league.seasonName} highlight={followed} zones={zones} />}
@@ -73,7 +74,7 @@ export default async function LeaguePage({ params, searchParams }: Props) {
     </div>}
     {query.tab === "loai-truc-tiep" && <KnockoutBracket standings={standings} currentRound={leaders?.currentMatchday ?? rounds.current} totalRounds={timelineLeague(slug)?.rounds ?? 8} />}
     {query.tab === "mua-giai" && <SeasonsTab slug={slug} honours={seasonHonours(slug).slice(0, 40)} tallies={clubTallies(seasonHonours(slug))} source={honoursSource(slug)} finals={slug === "champions-league"} />}
-    {query.tab === "thong-ke" && <ScorersTable leaders={leaders} />}
+    {query.tab === "thong-ke" && <div className="lg-stats"><ScorersTable leaders={leaders} /><PlayerBoardsPanel boards={result.data.boards} /></div>}
     {query.tab === "tin-tuc" && <StoryGrid result={feed!} now={now} offset={query.offset} href={href} empty={{ title: `Chưa có tin ${league.name}`, text: "Chưa có tin mới trong 7 ngày gần đây." }} />}
     {query.tab === "doi-bong" && (clubs?.length ? <div className="dp-club-grid">{clubs.map((club) => <Link className="dp-club-tile" key={club.clubId} href={clubPath(club.clubId)}><Crest url={club.crestUrl} name={club.name} /><h3>{club.shortName?.trim() || club.name}</h3><p>{club.position ? `Hạng ${club.position}${club.points !== null ? ` · ${club.points} điểm` : ""}` : league.name}</p><span>Khám phá CLB ↗</span></Link>)}</div> : <Empty title="Chưa có danh sách đội bóng" text="Danh sách sẽ xuất hiện khi dữ liệu mùa giải được đồng bộ." />)}
     {query.tab === "chuyen-nhuong" && <StoryGrid result={feed!} now={now} offset={query.offset} href={href} empty={{ title: "Chưa có tin chuyển nhượng", text: "Chưa có tin chuyển nhượng được báo chí đưa trong 7 ngày gần đây." }} />}
