@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { readTransferDossier } from "@/services/transfer-board-data";
 import { TransferShell } from "@/components/transfers/transfer-shell";
+import { BackLink } from "@/components/shell/back-link";
 import { TransferState } from "@/components/transfers/transfer-state";
 import { TransferDossier } from "@/components/transfers/dossier";
 
@@ -18,5 +19,5 @@ export default async function TransferPage({ params }: Props) {
   const result = await readTransferDossier((await params).slug);
   if (result.kind === "not-found") notFound();
   if (result.kind === "error") return <TransferShell><h1 className="sr-only">Hồ sơ chuyển nhượng chưa khả dụng</h1><TransferState kind="error" /></TransferShell>;
-  return <TransferShell><TransferDossier data={result.data} now={new Date()} /><p className="sr-only"><Link href="/transfers">Về thị trường chuyển nhượng</Link></p></TransferShell>;
+  return <TransferShell back={<BackLink fallback="/transfers">Chuyển nhượng</BackLink>}><TransferDossier data={result.data} now={new Date()} /><p className="sr-only"><Link href="/transfers">Về thị trường chuyển nhượng</Link></p></TransferShell>;
 }

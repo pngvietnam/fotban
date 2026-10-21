@@ -6,7 +6,6 @@ import { playerPath } from "../../lib/player-presentation";
 import { nationalityVi } from "../../lib/country-vi";
 import { positionGroup } from "../../services/club-hub";
 import { safeCrestUrl } from "../../lib/crest";
-import { BackLink } from "../shell/back-link";
 import { PlayerPhoto } from "../ui/player-photo";
 import { Crest, Empty, StoryGrid } from "../domain/domain-ui";
 import { statusClassFor } from "./market";
@@ -31,7 +30,6 @@ export function TransferDossier({ data, now }: { data: Dossier; now: Date }) {
   const shownFacts = facts.filter((item): item is [string, string] => Boolean(item[1]));
   const injuries = player.injuries.filter((item) => item.from && Date.parse(item.from) > now.getTime() - 180 * 86400000).slice(0, 3);
   return <div className="domain-page transfer-dossier">
-    <BackLink fallback="/transfers">← Quay lại nơi đang xem</BackLink>
     <div className="dp-pagehead dossier-head">
       <div className="dossier-who"><PlayerPhoto photoUrl={player.photoUrl} size="lg" round /><div><span className="dp-kicker">HỒ SƠ CHUYỂN NHƯỢNG</span><h1>{player.name}</h1>
         <p className="dp-muted">{[positionGroup(player.position) === "Khác" ? null : positionGroup(player.position), nationalityVi(player.nationality)].filter(Boolean).join(" · ")}</p></div></div>

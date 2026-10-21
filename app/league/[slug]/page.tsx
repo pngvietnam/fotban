@@ -50,8 +50,7 @@ export default async function LeaguePage({ params, searchParams }: Props) {
   const href = (offset: number) => leagueHref(slug, { tab: query.tab, offset });
   const window = query.tab === "lich-thi-dau" ? fixtureWindow(query.from, now) : null;
   const days = fixtures ? [...new Map(fixtures.map((fixture) => [matchDayKey(fixture.kickoffAt), fixtures.filter((item) => matchDayKey(item.kickoffAt) === matchDayKey(fixture.kickoffAt))])).entries()] : [];
-  return <NewsShell section="league"><div className="domain-page">
-    <BackLink fallback="/leagues">← Quay lại</BackLink>
+  return <NewsShell section="league" back={<BackLink fallback="/leagues">Giải đấu</BackLink>}><div className="domain-page">
     <EntityHeader mark={meta.mark} kicker={`GIẢI ĐẤU${league.seasonName ? ` · MÙA ${league.seasonName.replace(/^(\d{4})\/(\d{4})$/, (_, a, b) => `${a}/${b.slice(2)}`)}` : ""}`} title={league.name} subtitle={`${league.country} · Tin tức, lịch đấu và những cuộc đua đáng theo dõi.`}
       action={<FollowLink type="COMPETITION" entityId={league.id} name={league.name} variant="button" />} />
     <DomainTabs label="Mục của giải đấu" active={query.tab} tabs={leagueTabs.map((tab) => ({ key: tab, label: leagueTabLabels[tab], href: leagueHref(slug, { tab, ...(tab === "lich-thi-dau" && query.from ? { from: query.from } : {}) }) }))} />

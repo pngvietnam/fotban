@@ -7,6 +7,10 @@ import { readNewsPage } from "@/services/news-page-data";
 import { readFeedPage } from "@/services/feed-page-data";
 import { viewerStoryLikes } from "@/services/viewer-likes";
 import { NewsShell } from "@/components/news/news-shell";
+import { BackToReading } from "@/components/news/back-to-reading";
+import { BackLabel } from "@/components/shell/back-link";
+
+const back = <BackToReading className="fb-back"><BackLabel>Quay lại</BackLabel></BackToReading>;
 import { NewsDetailView } from "@/components/news/news-detail";
 import { FeedDetailView } from "@/components/news/feed-detail";
 import { NewsState } from "@/components/news/news-state";
@@ -27,9 +31,9 @@ export default async function NewsDetailPage({ params }: Props) {
     const result = await readFeedPage(feedId);
     if (result.kind === "not-found") notFound();
     const likes = result.kind === "ready" ? await viewerStoryLikes([{ key: result.card.articleId, lead: result.card, others: result.others, latestAt: result.card.publishedAt }]) : undefined;
-    return <NewsShell>{result.kind === "ready" ? <FeedDetailView card={result.card} others={result.others} related={result.related} context={result.context} now={new Date()} likes={likes} /> : <><h1 className="sr-only">Tin tức chưa khả dụng</h1><NewsState kind="error" /></>}</NewsShell>;
+    return <NewsShell back={back}>{result.kind === "ready" ? <FeedDetailView card={result.card} others={result.others} related={result.related} context={result.context} now={new Date()} likes={likes} /> : <><h1 className="sr-only">Tin tức chưa khả dụng</h1><NewsState kind="error" /></>}</NewsShell>;
   }
   const result = await readNewsPage(slug);
   if (result.kind === "not-found") notFound();
-  return <NewsShell>{result.kind === "ready" ? <NewsDetailView story={result.story} now={new Date()} /> : <><h1 className="sr-only">Tin tức chưa khả dụng</h1><NewsState kind="error" /></>}</NewsShell>;
+  return <NewsShell back={back}>{result.kind === "ready" ? <NewsDetailView story={result.story} now={new Date()} /> : <><h1 className="sr-only">Tin tức chưa khả dụng</h1><NewsState kind="error" /></>}</NewsShell>;
 }

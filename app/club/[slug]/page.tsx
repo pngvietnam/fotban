@@ -54,8 +54,7 @@ export default async function ClubPage({ params, searchParams }: Props) {
   const mentioned = feed?.kind === "ready" ? [...new Map(feed.data.groups.flatMap((group) => [group.lead, ...group.others]).flatMap((card) => card.entities).filter((entity) => entity.kind === "player" && entity.id && bySquad.has(entity.id)).map((entity) => [entity.id!, bySquad.get(entity.id!)!])).values()].slice(0, 5) : [];
   const row = standing?.row;
   const emptyTexts: Record<string, string> = { "tin-tuc": `Chưa có tin về ${club.name} trong 7 ngày gần đây.`, "chuyen-nhuong": `Chưa có tin chuyển nhượng về ${club.name} trong 7 ngày gần đây.`, vui: `Chưa có bài vui về ${club.name} trong 7 ngày gần đây.` };
-  return <NewsShell section="league"><div className="domain-page">
-    <BackLink fallback={club.league ? leagueHref(club.league.slug) : "/leagues"}>← Quay lại</BackLink>
+  return <NewsShell section="league" back={<BackLink fallback={club.league ? leagueHref(club.league.slug) : "/leagues"}>Quay lại</BackLink>}><div className="domain-page">
     <EntityHeader crestUrl={club.crestUrl} crestName={club.name} kicker={club.league?.name ?? "HỒ SƠ CLB"} kickerHref={club.league ? leagueHref(club.league.slug) : undefined} title={club.name}
       subtitle={[countryVi(club.country), club.venue].filter(Boolean).join(" · ") || null} action={<FollowLink type="CLUB" entityId={clubId} name={display} variant="button" />} />
     <DomainTabs label="Mục của câu lạc bộ" active={query.tab} tabs={clubTabs.filter((tab) => tab !== "vui" || query.tab === "vui").map((tab) => ({ key: tab, label: clubTabLabels[tab], href: clubHref(slug, { tab }) }))} />

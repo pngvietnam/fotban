@@ -21,9 +21,10 @@ const mainNav = [
 /**
  * The fotban app shell from the approved prototype: sidebar (bottom tab bar on phones), top bar and
  * page content. Reader-specific parts (account button, followed clubs) load on the client so pages
- * stay statically renderable. The notification bell is left out until notifications exist.
+ * stay statically renderable. The notification bell is left out until notifications exist. Detail pages
+ * pass `back` (see BackLink): it sits at the start of the top bar, where every page keeps it.
  */
-export function SportsShell({ children, section }: { children: ReactNode; section: Section }) {
+export function SportsShell({ children, section, back }: { children: ReactNode; section: Section; back?: ReactNode }) {
   const contentId = section === "account" || section === "following" || section === "saved" ? "account-content" : section === "home" ? "morning-content" : section === "matches" ? "match-content" : section === "news" || section === "league" ? "news-content" : "transfer-content";
   return <div className="fb-app match-surface">
     <a href={`#${contentId}`} className="fb-skip-link">Đến nội dung chính</a>
@@ -45,7 +46,7 @@ export function SportsShell({ children, section }: { children: ReactNode; sectio
     </aside>
     <div className="fb-workspace">
       <header className="fb-topbar">
-        <div className="fb-header-location">Không chỉ tỷ số. <span>Cả câu chuyện.</span></div>
+        {back ? <div className="fb-header-start">{back}<span className="fb-header-location" aria-hidden="true" /></div> : <div className="fb-header-location">Không chỉ tỷ số. <span>Cả câu chuyện.</span></div>}
         <div className="fb-header-actions"><span className="fb-timezone">Giờ Việt Nam · UTC+7</span><TopbarAccount /></div>
       </header>
       <main id={contentId} tabIndex={-1} className="fb-main">{children}</main>

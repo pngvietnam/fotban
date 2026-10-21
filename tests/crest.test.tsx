@@ -26,6 +26,6 @@ describe("club crests", () => {
   });
   it("uses the crest on match teams", () => {
     const $ = load(render(<MatchHero now={uiNow} venueName={null} match={uiDetail({ homeClub: { name: "Arsenal FC", shortName: "Arsenal", tla: "ARS", externalCrestUrl: "https://crests.football-data.org/57.png" }, awayClub: { name: "Chelsea FC", tla: "CHE", externalCrestUrl: "https://evil.example/x.png" } })} />));
-    expect($("img")).toHaveLength(1); expect($("img").attr("src")).toContain("57.png"); expect($("b").first().text()).toBe("Arsenal"); expect($(".dp-hero-monogram").text()).toBe("CHE");
+    expect($("img")).toHaveLength(1); expect($("img").attr("src")).toContain("57.png"); expect($("b").first().text()).toBe("Arsenal"); expect($(".mh-mono").text()).toBe("CHE");
   });
 });

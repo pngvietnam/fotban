@@ -9,7 +9,6 @@ import { leagueHref } from "../../lib/league-presentation";
 import { newsAbsoluteTime, safeNewsUrl } from "../../lib/news-presentation";
 import type { LeagueSlug } from "../../types/league-hub";
 import { PostActions, SaveButton, ShareButton } from "./feed-actions";
-import { BackToReading } from "./back-to-reading";
 import { StoryCard, storyKind, storyLeague } from "./story-card";
 
 const matchLink = (slug: string) => `/match/${encodeURIComponent(slug)}`;
@@ -41,7 +40,6 @@ export function FeedDetailView({ card, others, related = [], context = [], now, 
     { label: "Lịch thi đấu", href: "/matches" },
   ].filter((item): item is { label: string; href: string } => Boolean(item));
   return <div className="domain-page news-article">
-    <BackToReading className="dp-back">← Quay lại nơi đang đọc</BackToReading>
     <div className="dp-article-layout"><article className="dp-article">
       <span className="dp-kicker">{[league?.label, storyKind(card)].filter(Boolean).join(" · ")}</span>
       <h1>{card.title}</h1>

@@ -1,7 +1,6 @@
 import type { MatchDetail } from "../../types/match-ui";
 import { teamName } from "../../lib/match-presentation";
 import { MatchAttribution } from "./match-attribution";
-import { BackToSchedule } from "./timeline-client";
 import { MatchHero } from "./match-hero";
 import { FollowLink } from "../account/follow-link";
 import { MatchHighlight } from "./match-highlight";
@@ -33,7 +32,6 @@ export function MatchDetailView({ match, now, highlight, relatedVideos = [], tab
   const weather = formatWeather(match.venueInfo);
   const finished = match.status === "FINISHED";
   return <div className="match-page">
-    <BackToSchedule className="dp-back">← Quay lại lịch đấu</BackToSchedule>
     <h1 className="sr-only">Chi tiết trận đấu: {teamName(match.homeClub, "home", true)} – {teamName(match.awayClub, "away", true)}</h1>
     <MatchHero match={match} now={now} venueName={venueName} />
     <MatchTabsView slug={match.slug} active={tab} />

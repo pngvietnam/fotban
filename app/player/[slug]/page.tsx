@@ -45,8 +45,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
   const feed = await readFeedList({ league: "all", offset: query.tab === "tong-quan" ? 0 : query.offset, follow, ...(transfers ? { storyType: "TRANSFER" } : {}) });
   const age = ageOn(player.birthDate, now); const next = fixtures.upcoming[0];
   const position = positionGroup(player.position);
-  return <NewsShell section="league"><div className="domain-page">
-    <BackLink fallback={clubPath(player.club.clubId)}>← Quay lại</BackLink>
+  return <NewsShell section="league" back={<BackLink fallback={clubPath(player.club.clubId)}>Quay lại</BackLink>}><div className="domain-page">
     <div className="dp-player-hero">
       <div className="dp-player-who"><PlayerPhoto photoUrl={player.photo?.url} size="lg" round />
         <div><span className="dp-kicker">HỒ SƠ CẦU THỦ</span><h1>{player.name}</h1><p>{[position === "Khác" ? null : position, nationalityVi(player.nationality)].filter(Boolean).join(" · ") || "Thông tin đang cập nhật"}</p><Link className="dp-hero-link" href={clubPath(player.club.clubId)}>{player.club.name} ↗</Link></div></div>

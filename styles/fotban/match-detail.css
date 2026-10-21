@@ -145,3 +145,54 @@ a.mf-meeting:hover{background:var(--fb-color-canvas)}
 @media(max-width:900px){.mf-pair{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:1100px){.mf-layout{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:650px){.mf-momentum{height:110px}.mf-next+.mf-next{border-left:0;border-top:var(--fb-border-width) solid var(--fb-color-border)}.mf-meeting{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.mf-meeting-when{grid-column:1/-1;flex-direction:row;gap:6px}}
+
+/* Match hero, compact: meta line, clubs around the score, scorers leaning toward the score */
+.mh{padding:var(--fb-space-16) var(--fb-space-24) var(--fb-space-20);background:#163e2e;border:1px solid #24523b;border-radius:12px;color:#e6f2d9}
+.mh-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 0;margin:0 0 var(--fb-space-16);font-size:var(--fb-type-meta-size);line-height:1.6;color:#b9d3a4;text-align:center}
+.mh-meta>*+*::before{content:"·";margin:0 8px;color:#7fa36a}
+.mh-meta>a{font-weight:650;color:#d4ecb1}
+.mh-meta>a:hover{text-decoration:underline}
+.mh-board{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);column-gap:var(--fb-space-24);align-items:center;max-width:760px;margin:0 auto}
+.mh-side{display:flex;align-items:center;gap:var(--fb-space-12);min-width:0;color:inherit;text-decoration:none}
+.mh-side.home{flex-direction:row-reverse;justify-content:flex-start;text-align:right}
+.mh-side>img,.mh-mono{width:52px;height:52px;object-fit:contain;flex-shrink:0}
+.mh-mono{display:grid;place-items:center;border-radius:50%;background:#24523b;font-size:var(--fb-type-meta-size);font-weight:700}
+.mh-side>b{font-size:20px;font-weight:650;line-height:1.3;overflow-wrap:anywhere}
+a.mh-side:hover>b{text-decoration:underline}
+.mh-score{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:96px}
+.mh-score>strong{font-size:40px;font-weight:650;line-height:1.1;letter-spacing:-1px;white-space:nowrap;color:#d4ecb1}
+.mh-score>small{font-size:var(--fb-type-caption-size);color:#a9c894;text-align:center}
+.mh-goals{grid-row:2;margin:var(--fb-space-12) 0 0;padding:0;list-style:none;font-size:var(--fb-type-meta-size);line-height:1.8;color:#c3dcae;align-self:start}
+.mh-goals.home{grid-column:1;text-align:right}
+.mh-goals.away{grid-column:3;text-align:left}
+.mh-goals>li.red>i{display:inline-block;width:8px;height:11px;margin-right:6px;border-radius:2px;background:#ef5350;vertical-align:-1px}
+@media(max-width:650px){
+  .mh{padding:var(--fb-space-12) var(--fb-space-12) var(--fb-space-16)}
+  .mh-meta{flex-direction:column;margin-bottom:var(--fb-space-12);font-size:var(--fb-type-caption-size)}
+  .mh-meta>*+*::before{content:none}
+  .mh-board{column-gap:var(--fb-space-8)}
+  .mh-side,.mh-side.home{flex-direction:column;gap:6px;text-align:center}
+  .mh-side>img,.mh-mono{width:40px;height:40px}
+  .mh-side>b{font-size:var(--fb-type-body-size)}
+  .mh-score{min-width:72px}
+  .mh-score>strong{font-size:30px}
+  .mh-goals{font-size:var(--fb-type-caption-size);line-height:1.7}
+}
+
+/* Back control at the start of the top bar, the same on every detail page */
+.fb-header-start{display:flex;align-items:center;gap:var(--fb-space-12);min-width:0}
+.fb-header-start>.fb-header-location{display:none}
+.fb-back{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px 0 10px;border:var(--fb-border-width) solid var(--fb-color-border);border-radius:999px;background:#fff;font-size:var(--fb-type-meta-size);font-weight:600;color:var(--fb-color-ink);text-decoration:none;white-space:nowrap}
+.fb-back:hover{background:var(--fb-color-canvas)}
+.fb-back>svg{flex-shrink:0}
+@media(max-width:650px){
+  .fb-back{width:40px;height:40px;min-height:40px;padding:0;justify-content:center}
+  .fb-back-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .fb-header-start>.fb-header-location{display:block}
+}
+
+/* Sideways-scrolling rows never scroll vertically (the tab border overlap used to add a 1px vertical scroll and its arrows) */
+.overflow-x-auto,.md-competition-tabs,.post-chips{overflow-y:hidden}
+.md-tabs-scroll{scrollbar-width:none}
+.md-tabs-scroll::-webkit-scrollbar{display:none}
+.md-tabs-scroll a:focus-visible{outline-offset:-3px}

@@ -4,6 +4,8 @@ import { getDatabase } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { loadMatchDetail, readMatchBySlug } from "@/services/match-ui-data";
 import { MatchShell } from "@/components/matches/match-shell";
+import { BackToSchedule } from "@/components/matches/timeline-client";
+import { BackLabel } from "@/components/shell/back-link";
 import { MatchDetailView } from "@/components/matches/match-detail";
 import { MatchState } from "@/components/matches/match-state";
 import { readRelatedVideos, readVerifiedHighlight } from "@/services/video-query";
@@ -59,5 +61,5 @@ export default async function MatchPage({ params, searchParams }: { params: Prom
       }
     }
   }
-  return <MatchShell>{result.kind === "ready" ? <MatchDetailView match={result.match} highlight={highlight} relatedVideos={relatedVideos} now={now} tab={tab} hub={hub} news={news} review={review} statsView={parsePlayerStatView(query.bang)} statsTeam={parsePlayerTeamFilter(query.doi)} /> : <><h1 className="text-2xl font-bold">Chi tiết trận đấu</h1><MatchState kind="error" /></>}</MatchShell>;
+  return <MatchShell back={<BackToSchedule className="fb-back"><BackLabel>Lịch đấu</BackLabel></BackToSchedule>}>{result.kind === "ready" ? <MatchDetailView match={result.match} highlight={highlight} relatedVideos={relatedVideos} now={now} tab={tab} hub={hub} news={news} review={review} statsView={parsePlayerStatView(query.bang)} statsTeam={parsePlayerTeamFilter(query.doi)} /> : <><h1 className="text-2xl font-bold">Chi tiết trận đấu</h1><MatchState kind="error" /></>}</MatchShell>;
 }
