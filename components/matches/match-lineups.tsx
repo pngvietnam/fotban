@@ -28,7 +28,7 @@ function describe(player: LineupPlayerView, marks: PlayerMarks, best: boolean) {
     marks.subOn ? `vào sân phút ${marks.subOn}` : null, marks.subOff ? `rời sân phút ${marks.subOff}` : null].filter(Boolean).join(", ");
 }
 function PlayerName({ player, className }: { player: LineupPlayerView; className: string }) {
-  return player.playerId ? <Link href={playerPath(player.playerId)} className={`${className} hover:underline`}>{shortName(player.name)}</Link> : <span className={className}>{shortName(player.name)}</span>;
+  return player.playerId ? <Link href={playerPath(player.playerId)} className={`${className} inline-block min-h-6 hover:underline`}>{shortName(player.name)}</Link> : <span className={className}>{shortName(player.name)}</span>;
 }
 function PitchPlayer({ player, marks, best }: { player: LineupPlayerView; marks: PlayerMarks; best: boolean }) {
   return <li aria-label={describe(player, marks, best)} className="flex w-[4.5rem] flex-col items-center text-center sm:w-20">
@@ -107,7 +107,7 @@ export function LineupsView({ match }: { match: MatchDetail }) {
       {hasRatings && <p className="px-4 py-2 text-[11px] text-slate-500">Điểm cầu thủ theo Highlightly (thang 10), có thể khác các trang khác. ★ điểm cao nhất trận.</p>}
     </section>
     <section aria-labelledby="lineup-bench" className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-      <h3 id="lineup-bench" className="mb-3 text-center font-bold">Dự bị</h3>
+      <h3 id="lineup-bench" className="mb-3 font-bold">Dự bị</h3>
       <div className="grid gap-6 md:grid-cols-2">
         {home && <BenchList team={match.homeClub} side="home" lineup={home} marks={homeMarks} best={best} />}
         {away && <BenchList team={match.awayClub} side="away" lineup={away} marks={awayMarks} best={best} />}

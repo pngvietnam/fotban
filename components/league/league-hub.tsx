@@ -23,7 +23,7 @@ export function LeagueHeader({ league, active, from }: { league: LeagueInfo; act
 
 export function FormChips({ form }: { form: ("W" | "D" | "L")[] }) {
   if (!form.length) return <span className="text-xs text-slate-600">—</span>;
-  const tone = { W: "bg-emerald-600", D: "bg-slate-400", L: "bg-rose-600" } as const;
+  const tone = { W: "bg-emerald-700", D: "bg-slate-500", L: "bg-rose-700" } as const;
   return <ul aria-label={`Phong độ: ${form.map((result) => resultText[result]).join(", ")}`} className="flex gap-1">{form.map((result, index) => <li key={index} aria-hidden="true" className={`grid h-5 w-5 place-items-center rounded text-[10px] font-bold text-white ${tone[result]}`}>{resultLabel[result]}</li>)}</ul>;
 }
 export function StandingsTable({ data, league, limit, highlight = [] }: { data: StandingsData; league: LeagueInfo; limit?: number; /** Club IDs whose rows are emphasised, e.g. the two teams of a match. */ highlight?: string[] }) {
@@ -36,7 +36,7 @@ export function StandingsTable({ data, league, limit, highlight = [] }: { data: 
       <thead className="text-[11px] text-slate-500"><tr><th scope="col" className="w-8 py-2 text-left">#</th><th scope="col" className="py-2 text-left">Đội bóng</th><th scope="col" className="px-1 text-right">Trận</th><th scope="col" className="hidden px-1 text-right sm:table-cell">Thắng</th><th scope="col" className="hidden px-1 text-right sm:table-cell">Hòa</th><th scope="col" className="hidden px-1 text-right sm:table-cell">Thua</th><th scope="col" className="hidden px-1 text-right sm:table-cell">+/-</th><th scope="col" className="px-1 text-right">HS</th><th scope="col" className="px-2 text-right">Điểm</th><th scope="col" className="hidden py-2 pl-3 text-left md:table-cell">Trận gần nhất</th></tr></thead>
       <tbody>{rows.map((row) => <tr key={row.clubId} aria-current={highlight.includes(row.clubId) ? "true" : undefined} className={`border-t border-slate-100 ${highlight.includes(row.clubId) ? "bg-lime-50 font-semibold" : ""}`}>
         <td className="py-2.5 text-slate-500">{row.position}</td>
-        <td className="py-2.5"><span className="flex min-w-0 items-center gap-2"><TeamBadge name={row.name} tla={row.tla} crestUrl={row.crestUrl} /><Link href={clubPath(row.clubId)} className="min-w-0 break-words font-semibold hover:underline">{row.shortName?.trim() || row.name}</Link></span></td>
+        <td className="py-2.5"><span className="flex min-w-0 items-center gap-2"><TeamBadge name={row.name} tla={row.tla} crestUrl={row.crestUrl} /><Link href={clubPath(row.clubId)} className="inline-block min-h-6 min-w-0 break-words py-0.5 font-semibold hover:underline">{row.shortName?.trim() || row.name}</Link></span></td>
         <td className="px-1 text-right tabular-nums">{row.played ?? "—"}</td>
         <td className="hidden px-1 text-right tabular-nums sm:table-cell">{row.won ?? "—"}</td><td className="hidden px-1 text-right tabular-nums sm:table-cell">{row.drawn ?? "—"}</td><td className="hidden px-1 text-right tabular-nums sm:table-cell">{row.lost ?? "—"}</td>
         <td className="hidden px-1 text-right tabular-nums sm:table-cell">{row.goalsFor ?? "—"} - {row.goalsAgainst ?? "—"}</td>
@@ -51,8 +51,8 @@ export function StandingsTable({ data, league, limit, highlight = [] }: { data: 
 export function FixtureItem({ fixture }: { fixture: FixtureRow }) {
   const finished = fixture.status === "FINISHED" && fixture.homeScore !== null && fixture.awayScore !== null;
   const label = finished ? matchStatusLabels.FINISHED : fixture.status in matchStatusLabels ? matchStatusLabels[fixture.status as keyof typeof matchStatusLabels] : "Chưa rõ";
-  return <li><Link href={`/match/${encodeURIComponent(fixture.slug)}`} className="grid min-w-0 grid-cols-[4.5rem_minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 border-t border-slate-100 px-1 py-3 text-sm hover:bg-slate-50 sm:grid-cols-[6rem_minmax(0,1fr)_5rem_minmax(0,1fr)]" aria-label={`${fixture.home.name} gặp ${fixture.away.name}${finished ? `, kết quả ${fixture.homeScore} - ${fixture.awayScore}` : `, ${label}`}`}>
-    <span className="text-[11px] text-slate-500">{label}</span>
+  return <li><Link href={`/match/${encodeURIComponent(fixture.slug)}`} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 border-t border-slate-100 px-1 py-3 text-sm hover:bg-slate-50 sm:grid-cols-[8.5rem_minmax(0,1fr)_5rem_minmax(0,1fr)]" aria-label={`${fixture.home.name} gặp ${fixture.away.name}${finished ? `, kết quả ${fixture.homeScore} - ${fixture.awayScore}` : `, ${label}`}`}>
+    <span className="col-span-3 text-[11px] text-slate-600 sm:col-span-1">{formatMatchDate(fixture.kickoffAt)} · {label}</span>
     <span className="flex min-w-0 items-center justify-end gap-2 text-right font-semibold"><span className="min-w-0 break-words">{fixture.home.name}</span><TeamBadge name={fixture.home.name} tla={fixture.home.tla} crestUrl={fixture.home.crestUrl} /></span>
     <span className="text-center font-bold tabular-nums">{finished ? `${fixture.homeScore} - ${fixture.awayScore}` : ["POSTPONED", "CANCELLED", "SUSPENDED"].includes(fixture.status) ? "—" : formatMatchTime(fixture.kickoffAt)}</span>
     <span className="flex min-w-0 items-center gap-2 font-semibold"><TeamBadge name={fixture.away.name} tla={fixture.away.tla} crestUrl={fixture.away.crestUrl} /><span className="min-w-0 break-words">{fixture.away.name}</span></span>

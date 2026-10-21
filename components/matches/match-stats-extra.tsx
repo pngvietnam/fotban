@@ -74,7 +74,7 @@ function ShotList({ shots }: { shots: Shot[] }) {
     return <li key={index} className="flex items-center gap-2 py-1.5">
       <span className="w-12 shrink-0 text-xs font-semibold tabular-nums text-slate-500">{shot.minute === null ? "—" : `${shot.minute}${shot.addedMinute ? `+${shot.addedMinute}` : ""}′`}</span>
       <span aria-hidden="true" className={`h-2.5 w-2.5 shrink-0 rounded-full ring-2 ${outcomeDot[shot.outcome] ?? outcomeDot.OTHER}`} />
-      <span className="min-w-0 flex-1 truncate">{shot.player ? <Link href={playerPath(shot.player.id)} className="font-medium hover:underline">{name}</Link> : <span className="font-medium">{name}</span>}</span>
+      <span className="min-w-0 flex-1 truncate">{shot.player ? <Link href={playerPath(shot.player.id)} className="inline-block py-[3px] font-medium hover:underline">{name}</Link> : <span className="font-medium">{name}</span>}</span>
       <span className="shrink-0 text-right text-xs text-slate-500">{outcomeText[shot.outcome] ?? "Khác"}{target ? ` · ${target}` : ""}</span>
     </li>;
   })}</ol>;
@@ -96,7 +96,7 @@ export function ShotsView({ match }: { match: MatchDetail }) {
         <p className="mb-3 text-xs text-slate-500"><strong className="text-slate-800">{shots.length}</strong> cú sút · <strong className="text-slate-800">{count(["GOAL"])}</strong> bàn</p>
         <GoalFrame shots={shots} />
         {shots.length > 0 && <details className="mt-3 text-sm">
-          <summary className="cursor-pointer text-xs font-semibold text-slate-600">Danh sách {shots.length} cú sút</summary>
+          <summary className="flex min-h-6 cursor-pointer items-center text-xs font-semibold text-slate-600">Danh sách {shots.length} cú sút</summary>
           <ShotList shots={shots} />
         </details>}
       </div>;
@@ -202,7 +202,7 @@ export function PlayerStatsTable({ match, view, team = "all" }: { match: MatchDe
             <th scope="row" className="sticky left-0 z-10 bg-white py-1.5 pr-3 text-left font-medium">
               <span className="flex min-w-[10.5rem] items-center gap-2">
                 <PlayerPhoto photoUrl={row.player.photoUrl} round />
-                <span className="min-w-0 flex-1 truncate">{row.player.playerId ? <Link href={playerPath(row.player.playerId)} className="hover:underline">{name}</Link> : name}</span>
+                <span className="min-w-0 flex-1 truncate">{row.player.playerId ? <Link href={playerPath(row.player.playerId)} className="inline-block py-[3px] hover:underline">{name}</Link> : name}</span>
                 <span title={teamLabel(row.team, row.side)} className="shrink-0"><TeamBadge name={teamName(row.team, row.side, true)} tla={row.team?.tla} crestUrl={row.team?.externalCrestUrl} /></span>
               </span>
             </th>

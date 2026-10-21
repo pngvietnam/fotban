@@ -18,3 +18,9 @@
 .dp-hero-scorers{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:520px;margin:-12px auto 18px;font-size:var(--fb-type-meta-size);line-height:1.9;color:#b9d6a3}
 .dp-hero-scorers>ul{margin:0;padding:0;list-style:none}
 @media(max-width:650px){.dp-hero-monogram{height:49px;width:49px;font-size:13px}.dp-hero-scorers{gap:12px;font-size:var(--fb-type-caption-size)}}
+
+/* Hero: clubs, score and each side's scorers share one 3-column grid, so the scorers sit under their own club */
+.fb-app .dp-match-hero>div{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);column-gap:55px;row-gap:0;max-width:680px;margin-inline:auto;justify-items:center;align-items:center}
+.dp-hero-goals{grid-row:2;grid-column:1;align-self:start;margin:16px 0 0;padding:0;list-style:none;text-align:center;font-size:var(--fb-type-meta-size);line-height:1.9;color:#b9d6a3}
+.dp-hero-goals.away{grid-column:3}
+@media(max-width:650px){.fb-app .dp-match-hero>div{column-gap:14px}.dp-hero-goals{font-size:var(--fb-type-caption-size);margin-top:12px}}

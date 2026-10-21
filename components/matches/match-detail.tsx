@@ -43,7 +43,7 @@ export function MatchDetailView({ match, now, highlight, relatedVideos = [], tab
         <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
           {[["Giải đấu", match.league.name], ["Mùa giải", match.season.name], ["Vòng đấu", formatRound(match.round) || "Chưa có dữ liệu"], ["Giờ thi đấu", `${formatMatchTime(match.kickoffAt)} · ${formatMatchDate(match.kickoffAt, true)}`], ["Sân vận động", venueName ? [venueName, match.venueInfo?.city].filter(Boolean).join(", ") : "Chưa có dữ liệu"], ...(match.venueInfo?.capacity ? [["Sức chứa", match.venueInfo.capacity.toLocaleString("vi-VN")]] : []), ...(weather ? [["Thời tiết", weather]] : []), ["Trọng tài", formatPersonName(match.referee) || "Chưa có dữ liệu"], ["Cập nhật dữ liệu", updated || "Chưa có thời gian cập nhật"]].map(([label, value]) => <div key={label}><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1.5 font-medium leading-6 text-slate-900">{value}</dd></div>)}
         </dl>
-        <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-6 text-slate-500">Giờ Việt Nam · Asia/Ho_Chi_Minh (UTC+7).{isMatchStale(match, now) ? " Dữ liệu có thể đã cũ; trạng thái hiện tại có thể chưa được cập nhật." : ""}</p>
+        <p className="mt-5 border-t border-slate-100 pt-4 text-xs leading-6 text-slate-500">Giờ Việt Nam (UTC+7).{isMatchStale(match, now) ? " Dữ liệu có thể đã cũ; trạng thái hiện tại có thể chưa được cập nhật." : ""}</p>
       </section>
     </div>}
     {tab === "su-kien" && <div className="mt-6"><EventsList match={match} /></div>}

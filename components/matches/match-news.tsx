@@ -14,7 +14,7 @@ export function orderMatchNews(groups: FeedGroupView[], clubIds: string[], limit
 export function MatchNewsList({ groups, now }: { groups: FeedGroupView[]; now: Date }) {
   if (!groups.length) return null;
   return <section aria-labelledby="match-news" className="rounded-2xl border border-slate-200 bg-white px-5 py-4 sm:px-6">
-    <h2 id="match-news" className="mb-1 text-center font-bold">Tin tức</h2>
+    <h2 id="match-news" className="mb-1 font-bold">Tin tức</h2>
     <ul className="grid gap-x-8 md:grid-cols-2">{groups.map((group) => {
       const { lead } = group;
       const image = [lead, ...group.others].find((card) => card.image)?.image ?? null;

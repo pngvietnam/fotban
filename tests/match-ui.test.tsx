@@ -29,7 +29,7 @@ describe("Match UI", () => {
   });
   it("renders available detail fields and omits invented stats or related features", () => {
     const html = render(<MatchDetailView match={uiDetail()} now={uiNow} />);
-    for (const text of ["Chi tiết trận đấu", "Fixture Alpha FC", "Fixture Beta FC", "Fixture Ground", "2026/2027", "Vòng 8", "Asia/Ho_Chi_Minh"]) expect(html).toContain(text);
+    for (const text of ["Chi tiết trận đấu", "Fixture Alpha FC", "Fixture Beta FC", "Fixture Ground", "2026/2027", "Vòng 8", "Giờ Việt Nam (UTC+7)"]) expect(html).toContain(text);
     for (const text of ["Kiểm soát bóng", "Số cú sút", "AI Match", "Fan Pulse", "undefined", "<img"]) expect(html).not.toContain(text);
     expect(html).toContain("Chưa có highlight tiếng Việt từ kênh bản quyền.");
     expect(html).not.toContain("https://www.youtube.com/watch?v=");

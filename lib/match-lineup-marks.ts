@@ -49,7 +49,8 @@ export function lineupMarks(clubId: string, players: MarkPlayer[], events: MarkE
 
 /** Rating colour bands like FotMob's: 9+ blue, 7+ green, 6+ orange, below 6 red. */
 export function ratingTone(rating: number) {
-  return rating >= 9 ? "bg-sky-500 text-white" : rating >= 7 ? "bg-emerald-600 text-white" : rating >= 6 ? "bg-amber-500 text-white" : "bg-rose-600 text-white";
+  // White on 700 shades, dark text on amber: every pair is at least 4.5:1.
+  return rating >= 9 ? "bg-sky-700 text-white" : rating >= 7 ? "bg-emerald-700 text-white" : rating >= 6 ? "bg-amber-400 text-slate-950" : "bg-rose-700 text-white";
 }
 /** Average rating of the players who have one (starters and used substitutes), one decimal. */
 export function teamRating(ratings: (number | null | undefined)[]) {

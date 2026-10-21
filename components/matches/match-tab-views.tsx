@@ -9,6 +9,7 @@ import { FixtureItem, StandingsTable } from "../league/league-hub";
 import { NewsImage } from "../ui/news-image";
 import type { MatchReview } from "../../lib/match-review";
 import { newsRelativeTime } from "../../lib/news-presentation";
+import { safeCrestUrl } from "../../lib/crest";
 
 const eventLabels: Record<string, string> = { GOAL: "Bàn thắng", OWN_GOAL: "Phản lưới", PENALTY: "Phạt đền", YELLOW_CARD: "Thẻ vàng", RED_CARD: "Thẻ đỏ", SUBSTITUTION: "Thay người", OTHER: "Sự kiện" };
 const panel = "rounded-2xl border border-slate-200 bg-white p-5 sm:p-6";
@@ -35,13 +36,17 @@ function EventIcon({ type, detail }: { type: string; detail: string | null }) {
   if (isGoal(type)) return <span aria-hidden="true">⚽</span>;
   return <span aria-hidden="true" className="rounded bg-slate-200 px-1 text-[9px] font-bold text-slate-700">{detail?.startsWith("VAR") ? "VAR" : "!"}</span>;
 }
-function EventBody({ event, align }: { event: MatchEventView; align: "left" | "right" }) {
+function EventBody({ event, align, club }: { event: MatchEventView; align: "left" | "right"; club: { name: string; crestUrl: string | null } }) {
   const related = personName(event.relatedPlayer, event.relatedPlayerName);
   const secondary = event.type === "SUBSTITUTION" ? (related ? <>Ra: <PersonLink person={event.relatedPlayer} fallback={event.relatedPlayerName} /></> : null)
     : (event.type === "GOAL" || event.type === "PENALTY") && related ? <>Kiến tạo: <PersonLink person={event.relatedPlayer} fallback={event.relatedPlayerName} />{event.type === "PENALTY" ? " · Phạt đền" : ""}</>
     : event.type === "PENALTY" ? "Phạt đền" : event.type === "OWN_GOAL" ? "Phản lưới nhà" : event.type === "OTHER" ? event.detail : null;
   const hasPlayer = Boolean(personName(event.player, event.playerName));
-  return <div className={`flex min-w-0 items-start gap-2 ${align === "right" ? "flex-row-reverse text-right" : ""}`}>
+  const crest = safeCrestUrl(club.crestUrl);
+  return <div className={`flex min-w-0 items-start gap-2 ${align === "right" ? "sm:flex-row-reverse sm:text-right" : ""}`}>
+    <span className="sr-only">{club.name}: </span>
+    {/* eslint-disable-next-line @next/next/no-img-element -- hotlinked football-data crest */}
+    {crest && <img src={crest} alt="" referrerPolicy="no-referrer" className="mt-0.5 h-4 w-4 shrink-0 object-contain sm:hidden" />}
     <span className="mt-0.5 shrink-0"><EventIcon type={event.type} detail={event.detail} /></span>
     <div className="min-w-0">
       <p className="break-words font-semibold">{event.type === "SUBSTITUTION" && hasPlayer ? <>Vào: <PersonLink person={event.player} fallback={event.playerName} /></> : hasPlayer ? <PersonLink person={event.player} fallback={event.playerName} /> : eventLabels[event.type] ?? "Sự kiện"}</p>
@@ -53,6 +58,7 @@ function EventBody({ event, align }: { event: MatchEventView; align: "left" | "r
 export function EventsList({ match }: { match: MatchDetail }) {
   if (!match.events.length) return <Unavailable>Chưa có dữ liệu diễn biến (bàn thắng, thẻ phạt, thay người) cho trận này.</Unavailable>;
   const homeId = match.homeClub?.id;
+  const clubOf = (home: boolean) => { const club = home ? match.homeClub : match.awayClub; return { name: teamName(club, home ? "home" : "away", true), crestUrl: club?.externalCrestUrl ?? null }; };
   const firstSecondHalf = match.events.findIndex((event) => (event.minute ?? 0) > 45);
   return <section aria-labelledby="match-events" className={panel}>
     <h2 id="match-events" className="font-bold">Diễn biến trận đấu</h2>
@@ -60,10 +66,10 @@ export function EventsList({ match }: { match: MatchDetail }) {
       const home = Boolean(homeId && event.club?.id === homeId);
       return <li key={index}>
         {index === firstSecondHalf && index > 0 && <p className="my-2 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-600">Hết hiệp 1</p>}
-        <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] items-center gap-2 border-t border-slate-100 py-3 text-sm">
-          <div>{home && <EventBody event={event} align="right" />}</div>
-          <span className="justify-self-center rounded-full bg-slate-100 px-2 py-1 text-xs font-bold tabular-nums text-slate-700">{minuteText(event)}</span>
-          <div>{!home && <EventBody event={event} align="left" />}</div>
+        <div className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-center gap-2 border-t border-slate-100 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)]">
+          <div className={home ? "" : "max-sm:hidden"}>{home && <EventBody event={event} align="right" club={clubOf(true)} />}</div>
+          <span className="justify-self-center rounded-full bg-slate-100 px-2 py-1 text-xs font-bold tabular-nums text-slate-700 max-sm:order-first">{minuteText(event)}</span>
+          <div className={home ? "max-sm:hidden" : ""}>{!home && <EventBody event={event} align="left" club={clubOf(false)} />}</div>
         </div>
       </li>;
     })}</ol>
@@ -71,13 +77,18 @@ export function EventsList({ match }: { match: MatchDetail }) {
 }
 /** Goal scorers under the scoreboard, per side. */
 /** Goal scorers under the score; `className` restyles the strip (the match hero uses its own). */
-export function Scorers({ match, className = "grid grid-cols-2 gap-6 border-t border-slate-100 px-5 py-3 text-xs leading-6 text-slate-600" }: { match: MatchDetail; className?: string }) {
+export function scorerLines(match: MatchDetail) {
   const goals = match.events.filter((event) => isGoal(event.type));
   if (!goals.length) return null;
   const side = (home: boolean) => goals.filter((event) => Boolean(match.homeClub?.id && event.club?.id === match.homeClub.id) === home)
-    .map((event, index) => <li key={index}>{personName(event.player, event.playerName) ?? "Bàn thắng"} {minuteText(event)}{event.type === "PENALTY" ? " (pen)" : event.type === "OWN_GOAL" ? " (phản lưới)" : ""}</li>);
+    .map((event) => `${personName(event.player, event.playerName) ?? "Bàn thắng"} ${minuteText(event)}${event.type === "PENALTY" ? " (pen)" : event.type === "OWN_GOAL" ? " (phản lưới)" : ""}`);
+  return { home: side(true), away: side(false) };
+}
+export function Scorers({ match, className = "grid grid-cols-2 gap-6 border-t border-slate-100 px-5 py-3 text-xs leading-6 text-slate-600" }: { match: MatchDetail; className?: string }) {
+  const lines = scorerLines(match);
+  if (!lines) return null;
   return <div className={className}>
-    <ul aria-label="Bàn thắng đội nhà" className="text-right">{side(true)}</ul><ul aria-label="Bàn thắng đội khách">{side(false)}</ul>
+    <ul aria-label="Bàn thắng đội nhà" className="text-right">{lines.home.map((line, index) => <li key={index}>{line}</li>)}</ul><ul aria-label="Bàn thắng đội khách">{lines.away.map((line, index) => <li key={index}>{line}</li>)}</ul>
   </div>;
 }
 
@@ -251,7 +262,7 @@ function resultFor(fixture: FixtureRow, clubName: string) {
 }
 function FormColumn({ name, clubName, fixtures }: { name: string; clubName: string; fixtures: FixtureRow[] }) {
   const results = [...fixtures].reverse().map((fixture) => resultFor(fixture, clubName)).filter((result) => result !== null);
-  const tone = { W: "bg-emerald-600", D: "bg-slate-400", L: "bg-rose-600" } as const;
+  const tone = { W: "bg-emerald-700", D: "bg-slate-500", L: "bg-rose-700" } as const;
   return <div className="min-w-0"><p className="mb-2 break-words text-xs font-semibold text-slate-500">{name}</p>
     {results.length ? <ul aria-label={`Phong độ ${name}: ${results.map((result) => resultText[result]).join(", ")}`} className="flex gap-1">{results.map((result, index) => <li key={index} aria-hidden="true" className={`grid h-7 w-7 place-items-center rounded text-xs font-bold text-white ${tone[result]}`}>{resultLabel[result]}</li>)}</ul> : <p className="text-xs text-slate-400">Chưa có kết quả</p>}</div>;
 }
