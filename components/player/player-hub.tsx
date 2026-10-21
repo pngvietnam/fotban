@@ -23,7 +23,7 @@ export function PlayerHeader({ player, fixtures, active, now }: { player: Player
       <FollowLink type="PLAYER" entityId={player.playerId} name={player.name} />
     </div>
     <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4"><Fact label="Vị trí" value={positionGroup(player.position)} /><Fact label="Quốc tịch" value={player.nationality ?? "Chưa rõ"} /><Fact label="Tuổi" value={age === null ? "Chưa rõ" : String(age)} /><Fact label="CLB hiện tại" value={player.club.tla ?? player.club.name} /></dl>
-    <p className="mt-3 text-[11px] text-slate-500">Thông tin cầu thủ theo dữ liệu football-data.org, cập nhật {formatUpdated(player.dataAsOf) ?? "chưa rõ"}. Football data provided by the Football-Data.org API.</p>
+    <p className="mt-3 text-[11px] text-slate-600">Thông tin cầu thủ theo dữ liệu football-data.org, cập nhật {formatUpdated(player.dataAsOf) ?? "chưa rõ"}. Football data provided by the Football-Data.org API.</p>
     {next && <p className="mt-3 text-sm text-slate-700"><span className="font-semibold">Trận tới của {player.club.tla ?? player.club.name}:</span> <Link href={`/match/${encodeURIComponent(next.slug)}`} className="underline underline-offset-4">{next.home.name} – {next.away.name}</Link> · {formatMatchDate(next.kickoffAt)} · {formatMatchTime(next.kickoffAt)}</p>}
     <nav aria-label="Mục của cầu thủ" className="-mx-1 mt-5 flex gap-1 overflow-x-auto pb-px">{playerTabs.map((tab) => <Link key={tab} href={playerHref(player.slug, { tab })} aria-current={tab === active ? "page" : undefined} className={`shrink-0 border-b-2 px-3 py-3 text-sm font-semibold ${tab === active ? "border-teal-600 text-teal-700" : "border-transparent text-slate-500 hover:text-slate-900"}`}>{playerTabLabels[tab]}</Link>)}</nav>
   </header>;

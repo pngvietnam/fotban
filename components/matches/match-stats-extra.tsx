@@ -226,7 +226,7 @@ function StatsHeader({ match, hasShots, hasPlayers }: { match: MatchDetail; hasS
     <span className="truncate text-sm font-bold">{club?.shortName?.trim() || teamName(club, key, true)}</span></span>;
   const links = [["#thong-ke-tong-quan", "Tổng quan"], ...(hasShots ? [["#thong-ke-cu-sut", "Cú sút"]] : []), ["#thong-ke-doi", "Chỉ số đội"], ...(hasPlayers ? [["#thong-ke-cau-thu", "Cầu thủ"]] : [])];
   return <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-    <div className="flex items-center justify-between gap-3">{side(match.homeClub, "home", "bg-slate-900")}<span className="text-xs text-slate-400">vs</span>{side(match.awayClub, "away", "bg-lime-500")}</div>
+    <div className="flex items-center justify-between gap-3">{side(match.homeClub, "home", "bg-slate-900")}<span className="text-xs text-slate-600">vs</span>{side(match.awayClub, "away", "bg-lime-500")}</div>
     <nav aria-label="Phần của tab thống kê" className="mt-3 flex gap-1.5 overflow-x-auto border-t border-slate-100 pt-3">{links.map(([href, label]) => <a key={href} href={href} className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200">{label}</a>)}</nav>
   </div>;
 }

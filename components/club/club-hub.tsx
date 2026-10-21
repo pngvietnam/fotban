@@ -31,7 +31,7 @@ export function ClubHeader({ club, standing, next, active }: { club: ClubProfile
 export function ClubFixtureLists({ fixtures }: { fixtures: ClubFixtures }) {
   const block = (title: string, id: string, items: ClubFixtures["recent"], empty: string) => <section aria-labelledby={id} className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5"><h2 id={id} className="mb-2 text-sm font-bold">{title}</h2>{items.length ? <ul>{items.map((fixture) => <FixtureItem key={fixture.slug} fixture={fixture} />)}</ul> : <p className="py-4 text-sm text-slate-600">{empty}</p>}</section>;
   return <div className="space-y-6">{block("Lịch thi đấu sắp tới", "club-upcoming", fixtures.upcoming, "Chưa có lịch thi đấu sắp tới.")}{block("Kết quả gần đây", "club-recent", fixtures.recent, "Chưa có kết quả đã lưu.")}
-    <p className="text-[11px] text-slate-500">Giờ Việt Nam (UTC+7). Football data provided by the Football-Data.org API.</p></div>;
+    <p className="text-[11px] text-slate-600">Giờ Việt Nam (UTC+7). Football data provided by the Football-Data.org API.</p></div>;
 }
 export function Squad({ players }: { players: SquadPlayer[] }) {
   if (!players.length) return <p role="status" className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-8 text-center text-sm text-slate-600">Chưa có danh sách cầu thủ.</p>;

@@ -57,6 +57,6 @@ export function MatchDetailView({ match, now, highlight, relatedVideos = [], tab
       {match.league.id && <FollowLink type="COMPETITION" entityId={match.league.id} name={match.league.name} />}
     </div>
     <MatchAttribution matches={[match]} />
-    {(match.detailAttributions ?? []).map((source) => <p key={source.url} className="mt-1 text-xs text-slate-500"><a href={source.url} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-slate-900">{source.text}<span className="sr-only"> (mở trong thẻ mới)</span></a></p>)}
+    {(match.detailAttributions ?? []).map((source) => <p key={source.url} className="mt-1 text-xs text-slate-600"><a href={source.url} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-slate-900">{source.text}<span className="sr-only"> (mở trong thẻ mới)</span></a></p>)}
   </>;
 }

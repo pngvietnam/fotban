@@ -64,7 +64,7 @@ export function HighlightGallery({ videos }: { videos: GalleryVideo[] }) {
               : null}
             {position === index && <span className="absolute inset-0 grid place-items-center bg-black/45 text-[10px] font-bold uppercase text-white">Đang xem</span>}
           </span>
-          <span className="min-w-0"><span className="line-clamp-2 text-xs font-semibold leading-snug text-slate-900">{video.title}</span><span className="mt-1 block text-[11px] text-slate-500">{video.kind}</span></span>
+          <span className="min-w-0"><span className="line-clamp-2 text-xs font-semibold leading-snug text-slate-900">{video.title}</span><span className="mt-1 block text-[11px] text-slate-600">{video.kind}</span></span>
         </button>
       </li>)}</ul>
     </div>}

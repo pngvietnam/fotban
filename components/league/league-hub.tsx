@@ -7,7 +7,7 @@ import { formatMatchDate, formatMatchTime, formatUpdated, matchDayKey, matchStat
 import { FollowLink } from "../account/follow-link";
 import { TeamBadge } from "../ui/team-badge";
 
-const attribution = <p className="mt-3 text-[11px] text-slate-500">Football data provided by the Football-Data.org API.</p>;
+const attribution = <p className="mt-3 text-[11px] text-slate-600">Football data provided by the Football-Data.org API.</p>;
 
 /** Header with the league switcher and the six tabs. No crests or logos: only licensed text/initials. */
 export function LeagueHeader({ league, active, from }: { league: LeagueInfo; active: LeagueTab; from?: string }) {
@@ -22,7 +22,7 @@ export function LeagueHeader({ league, active, from }: { league: LeagueInfo; act
 }
 
 export function FormChips({ form }: { form: ("W" | "D" | "L")[] }) {
-  if (!form.length) return <span className="text-xs text-slate-400">—</span>;
+  if (!form.length) return <span className="text-xs text-slate-600">—</span>;
   const tone = { W: "bg-emerald-600", D: "bg-slate-400", L: "bg-rose-600" } as const;
   return <ul aria-label={`Phong độ: ${form.map((result) => resultText[result]).join(", ")}`} className="flex gap-1">{form.map((result, index) => <li key={index} aria-hidden="true" className={`grid h-5 w-5 place-items-center rounded text-[10px] font-bold text-white ${tone[result]}`}>{resultLabel[result]}</li>)}</ul>;
 }

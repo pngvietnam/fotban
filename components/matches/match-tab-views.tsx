@@ -26,7 +26,7 @@ const isGoal = (type: string) => ["GOAL", "PENALTY", "OWN_GOAL"].includes(type);
 function PersonLink({ person, fallback }: { person: Person; fallback?: string | null }) {
   const name = personName(person, fallback);
   if (!name) return null;
-  return person?.id ? <Link href={playerPath(person.id)} className="hover:underline">{name}</Link> : <>{name}</>;
+  return person?.id ? <Link href={playerPath(person.id)} className="inline-block py-[5px] hover:underline">{name}</Link> : <>{name}</>;
 }
 function EventIcon({ type, detail }: { type: string; detail: string | null }) {
   if (type === "YELLOW_CARD") return <span aria-hidden="true" className="inline-block h-4 w-3 rounded-sm bg-yellow-400" />;
@@ -59,7 +59,7 @@ export function EventsList({ match }: { match: MatchDetail }) {
     <ol className="mt-4">{match.events.map((event, index) => {
       const home = Boolean(homeId && event.club?.id === homeId);
       return <li key={index}>
-        {index === firstSecondHalf && index > 0 && <p className="my-2 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-400">Hết hiệp 1</p>}
+        {index === firstSecondHalf && index > 0 && <p className="my-2 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-600">Hết hiệp 1</p>}
         <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] items-center gap-2 border-t border-slate-100 py-3 text-sm">
           <div>{home && <EventBody event={event} align="right" />}</div>
           <span className="justify-self-center rounded-full bg-slate-100 px-2 py-1 text-xs font-bold tabular-nums text-slate-700">{minuteText(event)}</span>
@@ -233,7 +233,7 @@ export function MatchReviewCard({ review, now }: { review: MatchReview; now: Dat
   return <section aria-labelledby="match-review" className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
     <h2 id="match-review" className="px-5 pt-4 text-xs font-bold uppercase tracking-wide text-slate-500 sm:px-6">{review.kind === "review" ? "Tường thuật trận đấu" : "Trước trận đấu"}</h2>
     <Link href={`/news/${lead.slug}`} className="group flex flex-col gap-4 p-5 sm:flex-row sm:p-6">
-      {pictured && <span className="shrink-0 sm:w-56"><NewsImage src={pictured.image} className="aspect-video rounded-xl" /><span className="mt-1 block text-[10px] text-slate-400">Ảnh: {pictured.publisher}</span></span>}
+      {pictured && <span className="shrink-0 sm:w-56"><NewsImage src={pictured.image} className="aspect-video rounded-xl" /><span className="mt-1 block text-[11px] text-slate-600">Ảnh: {pictured.publisher}</span></span>}
       <span className="min-w-0">
         <span className="block break-words text-lg font-bold leading-snug group-hover:underline">{lead.title}</span>
         {lead.description && <span className="mt-2 line-clamp-3 block break-words text-sm leading-6 text-slate-600">{lead.description}</span>}
