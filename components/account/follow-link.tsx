@@ -14,8 +14,9 @@ export function FollowLink({ type, entityId, name, crestUrl, variant = "text" }:
   const [busy, setBusy] = useState(false); const [failed, setFailed] = useState(false);
   const on = ready && isFollowing(type, entityId);
   const onClick = async () => { setBusy(true); setFailed(false); const ok = await toggle({ type, entityId, name, crestUrl }, router.refresh); setFailed(!ok); setBusy(false); };
-  const label = `${on ? "Bỏ theo dõi" : "Theo dõi"} ${name}`;
-  const hint = failed ? <span role="status" className="sr-only">Chưa thể cập nhật theo dõi.</span> : null;
+  // The name stays fixed; aria-pressed carries the state, so a screen reader says "Theo dõi X, nút bật" rather than a changing label.
+  const label = `Theo dõi ${name}`;
+  const hint = <span role="status" className={failed ? "dp-follow-slot-error" : "sr-only"}>{failed ? "Chưa thể cập nhật theo dõi. Vui lòng thử lại." : ""}</span>;
   if (variant === "button") return <><button type="button" onClick={onClick} disabled={busy} aria-pressed={on} aria-label={label} className={`dp-primary dp-follow-slot ${on ? "following" : ""}`}>{on ? "Đang theo dõi ✓" : "+ Theo dõi"}</button>{hint}</>;
   return <><button type="button" onClick={onClick} disabled={busy} aria-pressed={on} aria-label={label} className={`inline-flex min-h-10 items-center rounded-lg border px-3 py-2 text-xs font-semibold ${on ? "border-emerald-300 bg-emerald-50 text-emerald-900" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"}`}>{on ? "Đang theo dõi" : "Theo dõi"} {name}</button>{hint}</>;
 }

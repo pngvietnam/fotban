@@ -263,3 +263,17 @@ a.dp-primary{color:#fff}
 .dp-login>.dp-panel>h2{font-size:var(--fb-type-section-size);margin:0}
 .dp-login .dp-muted{margin:0}
 @media(max-width:950px){.dp-login{grid-template-columns:1fr}.dp-login-art{min-height:260px;padding:var(--fb-space-24)}.dp-login-art h1{margin-top:var(--fb-space-24)}}
+
+/* Readable sizes: the prototype's 6–10px helper text is raised to the shared meta/caption tokens */
+.fb-app .dp-muted,.fb-app .dp-note{font-size:var(--fb-type-meta-size);line-height:1.7}
+.fb-app .dp-kicker{font-size:var(--fb-type-caption-size);line-height:1.6}
+.fb-app .dp-saved-row small{font-size:var(--fb-type-caption-size)}
+.fb-app .dp-saved-row h3{font-size:var(--fb-type-title-size)}
+.fb-app .dp-saved-row>a>span,.fb-app .dp-follow-row>a small{font-size:var(--fb-type-meta-size)}
+.fb-app .dp-search{font-size:16px;min-height:var(--fb-touch-target)}
+.fb-app .dp-follow-row>a{font-size:var(--fb-type-body-size);min-height:var(--fb-touch-target)}
+.fb-app .dp-follow-row>.dp-primary,.fb-app .dp-follow-row>.dp-secondary{font-size:var(--fb-type-meta-size);padding:var(--fb-space-8) var(--fb-space-12)}
+.dp-follow-slot-error{color:var(--fb-color-warning);font-size:var(--fb-type-meta-size);margin:var(--fb-space-4) 0 0}
+.fb-app .dp-muted,.fb-app .dp-pagehead>p,.fb-app .dp-section-heading>span,.fb-app .dp-note{color:#5b6e50}
+.fb-app .dp-section-heading>span,.fb-app .dp-pagehead>p{font-size:var(--fb-type-meta-size)}
+.fb-app .dp-kicker,.fb-app .dp-saved-row small{color:#5f7d49}

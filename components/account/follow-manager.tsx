@@ -14,8 +14,8 @@ function Row({ item, on, busy, onToggle }: { item: CatalogItem; on: boolean; bus
     <Link href={item.href}>{crest
       // eslint-disable-next-line @next/next/no-img-element -- hotlinked football-data crest
       ? <img src={crest} alt="" loading="lazy" referrerPolicy="no-referrer" />
-      : <span className="dp-follow-mark" aria-hidden="true">{item.type === "COMPETITION" ? "🏆" : item.name.slice(0, 1)}</span>}<span>{item.name}{item.detail && <small>{item.detail}</small>}</span></Link>
-    <button type="button" className={on ? "dp-secondary" : "dp-primary"} aria-pressed={on} aria-label={`${on ? "Bỏ theo dõi" : "Theo dõi"} ${item.name}`} disabled={busy} onClick={onToggle}>{on ? "Đang theo dõi ✓" : "+ Theo dõi"}</button>
+      : <span className="dp-follow-mark" aria-hidden="true">{item.type === "COMPETITION" ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M7 3h10v6a5 5 0 0 1-10 0z M7 5H3v3a4 4 0 0 0 4 4 M17 5h4v3a4 4 0 0 1-4 4 M12 14v7 M8 21h8" /></svg> : item.name.slice(0, 1)}</span>}<span>{item.name}{item.detail && <small>{item.detail}</small>}</span></Link>
+    <button type="button" className={on ? "dp-secondary" : "dp-primary"} aria-pressed={on} aria-label={`Theo dõi ${item.name}`} disabled={busy} onClick={onToggle}>{on ? "Đang theo dõi ✓" : "+ Theo dõi"}</button>
   </div>;
 }
 
