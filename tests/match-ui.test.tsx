@@ -1,6 +1,8 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 import { MatchDetailView } from "../components/matches/match-detail";
 import { MatchState } from "../components/matches/match-state";
 import { MatchShell } from "../components/matches/match-shell";

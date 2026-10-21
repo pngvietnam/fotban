@@ -87,7 +87,7 @@ describe("league, club and player blocks", () => {
   });
   it("offers a follow button that keeps the account link and names what is followed", () => {
     const $ = load(renderToStaticMarkup(<FollowLink type="CLUB" entityId="c1" name="PSG" variant="button" />));
-    expect($("a").attr("href")).toBe("/account?type=CLUB&entityId=c1"); expect($("a").text()).toBe("+ Theo dõi"); expect($("a").attr("aria-label")).toBe("Theo dõi PSG");
-    expect(load(renderToStaticMarkup(<FollowLink type="CLUB" entityId="c1" name="PSG" />))("a").text()).toBe("Theo dõi PSG");
+    expect($("button").text()).toBe("+ Theo dõi"); expect($("button").attr("aria-label")).toBe("Theo dõi PSG");
+    expect(load(renderToStaticMarkup(<FollowLink type="CLUB" entityId="c1" name="PSG" />))("button").text()).toBe("Theo dõi PSG");
   });
 });

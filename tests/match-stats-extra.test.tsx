@@ -1,7 +1,9 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { load } from "cheerio";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 import { MatchDetailView } from "../components/matches/match-detail";
 import { displayName, goalTargetText, parseGoalTarget, parsePlayerStatView } from "../components/matches/match-stats-extra";
 import type { MatchDetail } from "../types/match-ui";

@@ -23,6 +23,10 @@ function write(key: string, value: unknown) {
 const isString = (item: unknown): item is string => typeof item === "string";
 const isSaved = (item: unknown): item is SavedStory => !!item && typeof item === "object" && typeof (item as SavedStory).slug === "string" && typeof (item as SavedStory).title === "string";
 
+/** The stories saved in this browser, newest first. */
+export function useSavedStories() { return parseList(useSyncExternalStore(subscribe, () => read(savedKey), () => null), isSaved); }
+export const removeSavedStory = (slug: string) => write(savedKey, parseList(read(savedKey), isSaved).filter((item) => item.slug !== slug));
+
 const Glyph = ({ name, size = 18 }: { name: "heart" | "share" | "bookmark"; size?: number }) => {
   const paths = { heart: "M12 20s-7-4.4-9-9.2C1.6 7.3 4 4 7.3 4c2 0 3.6 1.1 4.7 2.6C13.1 5.1 14.7 4 16.7 4 20 4 22.4 7.3 21 10.8 19 15.6 12 20 12 20z", share: "M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7 M16 6l-4-4-4 4 M12 2v13", bookmark: "M6 3h12v18l-6-4-6 4z" };
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>;
