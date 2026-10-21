@@ -61,6 +61,37 @@ export class YouTubeFeedReader {
     return { channelId, author, videos };
   }
   /**
+   * A channel's whole upload history through the Data API (playlistItems.list on the channel's uploads
+   * playlist): 1 quota unit per page of 50, no search calls. The key stays in the request URL only and
+   * is never logged. Used for the one-off backfill of matches older than the ~15 videos the feed lists.
+   */
+  async uploads(channelId: string, apiKey: string, maxPages = 80): Promise<ChannelFeed> {
+    if (!channelPattern.test(channelId) || !apiKey) throw new VideoProviderError(apiKey ? "MALFORMED" : "NOT_CONFIGURED");
+    const playlist = `UU${channelId.slice(2)}`;
+    const videos: VideoCandidate[] = []; let author = ""; let pageToken = "";
+    for (let page = 0; page < maxPages; page++) {
+      const response = await this.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlist}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}&key=${encodeURIComponent(apiKey)}`);
+      if (response.status === 403 || response.status === 429) throw new VideoProviderError("QUOTA");
+      if (response.status === 400 || response.status === 401) throw new VideoProviderError("UNAUTHORIZED");
+      if (!response.ok) throw new VideoProviderError(response.status >= 500 ? "UPSTREAM" : "MALFORMED");
+      const body = (await response.json()) as { items?: { snippet?: Record<string, unknown> }[]; nextPageToken?: string };
+      for (const item of body.items ?? []) {
+        const snippet = item.snippet ?? {}; const resource = (snippet.resourceId ?? {}) as Record<string, unknown>;
+        if (text(snippet.videoOwnerChannelId) !== channelId) continue; // a playlist entry from another channel
+        author ||= text(snippet.videoOwnerChannelTitle);
+        const parsed = videoCandidateSchema.safeParse({
+          externalId: text(resource.videoId), channelId, channelName: text(snippet.videoOwnerChannelTitle) || author, title: text(snippet.title).slice(0, 500) || "-",
+          description: text(snippet.description).slice(0, 6000) || null, publishedAt: new Date(text(snippet.publishedAt)).toISOString(),
+          durationSeconds: null, language: null, availability: "AVAILABLE", vietnamAvailability: "UNKNOWN", embedAllowed: null,
+        });
+        if (parsed.success && videoPattern.test(parsed.data.externalId) && parsed.data.title !== "Private video" && parsed.data.title !== "Deleted video") videos.push(parsed.data);
+      }
+      if (!body.nextPageToken) break; pageToken = body.nextPageToken;
+    }
+    if (!author) throw new VideoProviderError("MALFORMED");
+    return { channelId, author, videos };
+  }
+  /**
    * What YouTube's public oEmbed endpoint says about a video: 200 from the expected channel means
    * public and embeddable; 401/403 means the owner turned embedding off (or made it private), so
    * it is shown as a link only; 404, or another channel, means it is gone.

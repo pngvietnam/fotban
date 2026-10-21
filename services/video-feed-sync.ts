@@ -16,7 +16,8 @@ const recheckAfterMs = 24 * 3600_000;
  * Costs no API quota, so the worker can run it often and catch every upload.
  */
 export class VideoFeedSync {
-  constructor(private reader: Pick<YouTubeFeedReader, "feed" | "embedStatus">, private store: VideoStore, private log?: Log) {}
+  /** backfill: read whole upload histories with the Data API and match every finished match of the last `days` days (one-off; the worker runs the keyless feed). */
+  constructor(private reader: Pick<YouTubeFeedReader, "feed" | "embedStatus"> & Partial<Pick<YouTubeFeedReader, "uploads">>, private store: VideoStore, private log?: Log, private backfill?: { apiKey: string; days: number }) {}
   async run(now = new Date()): Promise<FeedSyncReport> {
     const db = this.store.db; const owner = randomUUID();
     const report: FeedSyncReport = { sources: 0, feeds: 0, feedVideos: 0, matches: 0, stored: 0, primary: 0, rechecked: 0, removed: 0, errors: 0, skipped: "" };
@@ -35,7 +36,7 @@ export class VideoFeedSync {
         const channelId = source.channelId ?? registered?.channelId;
         if (!channelId || (registered && registered.channelId !== channelId)) { report.errors++; code = "CHANNEL_NOT_PINNED"; continue; }
         try {
-          const feed = await this.reader.feed(channelId);
+          const feed = this.backfill ? await this.reader.uploads!(channelId, this.backfill.apiKey) : await this.reader.feed(channelId);
           if (registered && normalizedVideoText(feed.author) !== normalizedVideoText(registered.feedAuthor)) { report.errors++; code = "CHANNEL_AUTHOR_MISMATCH"; continue; }
           await this.store.resolve(source, channelId);
           // The feed carries no language; a reviewed rights holder's uploads are in its registered language.
@@ -44,7 +45,7 @@ export class VideoFeedSync {
         } catch (error) { report.errors++; code = error instanceof VideoProviderError ? error.code : "FEED_ERROR"; }
       }
       // 2. Match feed videos to recently finished matches; only videos that pass the policy are stored.
-      for (const match of await this.store.recentFinished(now)) {
+      for (const match of this.backfill ? await this.store.recentFinished(now, this.backfill.days, 800) : await this.store.recentFinished(now)) {
         report.matches++;
         // One match failing to store must not stop the others; it is counted and retried next run.
         try {

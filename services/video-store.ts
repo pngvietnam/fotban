@@ -43,7 +43,7 @@ export class VideoStore {
   /** Stored videos of recent matches last checked before `before`, for the keyless availability re-check. */
   async dueForRecheck(now: Date, before: Date, limit = 40) {
     return this.db.query<{ matchId: string; externalId: string; channelName: string; validationReason: string | null }>(`SELECT v."matchId",v."externalId",v."channelName",v."validationReason" FROM "Video" v JOIN "Match" m ON m.id=v."matchId"
-      WHERE v.provider='YOUTUBE' AND v."validationStatus"='VALIDATED' AND v."lastCheckedAt"<$2::timestamptz AND m."kickoffAt">=$1::timestamptz-interval '30 days' ORDER BY v."lastCheckedAt" LIMIT $3`, [now, before, limit]);
+      WHERE v.provider='YOUTUBE' AND v."validationStatus"='VALIDATED' AND v."lastCheckedAt"<$2::timestamptz AND m."kickoffAt">=$1::timestamptz-interval '200 days' ORDER BY v."lastCheckedAt" LIMIT $3`, [now, before, limit]);
   }
   async stored(matchId: string): Promise<StoredVideo[]> {
     const rows = await this.db.query<{ id: string; row: Record<string, unknown>; source: VideoSource; mapping: VideoMapping }>(`SELECT v.id,to_jsonb(v) AS row,to_jsonb(s) AS source,to_jsonb(c) AS mapping FROM "Video" v JOIN "VideoSource" s ON s.id=v."videoSourceId" JOIN "VideoSourceCompetition" c ON c.id=v."sourceMappingId" WHERE v."matchId"=$1::uuid AND v.provider='YOUTUBE' ORDER BY v.id LIMIT 50`, [matchId]);
