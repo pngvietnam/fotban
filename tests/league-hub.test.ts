@@ -9,10 +9,12 @@ import { leagueClubs, leagueFixtures, leagueInfo, leagueStandings, leagueUpcomin
 const now = new Date("2026-10-19T03:00:00Z");
 describe("league query parsing and windows", () => {
   it("accepts known tabs and valid dates and rejects everything else", () => {
-    expect(parseLeagueQuery({}, now)).toEqual({ tab: "tong-quan", offset: 0, from: "2026-10-16", round: null });
-    expect(parseLeagueQuery({ tab: "lich-thi-dau", tu: "2026-10-20", bao: "24" }, now)).toEqual({ tab: "lich-thi-dau", offset: 24, from: "2026-10-20", round: null });
+    expect(parseLeagueQuery({}, now)).toEqual({ tab: "tong-quan", offset: 0, from: "2026-10-16", round: null, view: "vong", day: null, club: null });
+    expect(parseLeagueQuery({ tab: "lich-thi-dau", tu: "2026-10-20", bao: "24" }, now)).toEqual({ tab: "lich-thi-dau", offset: 24, from: "2026-10-20", round: null, view: "vong", day: null, club: null });
     expect(parseLeagueQuery({ vong: "3" }, now)?.round).toBe(3);
     for (const vong of ["0", "100", "x", "03"]) expect(parseLeagueQuery({ vong }, now)).toBeNull();
+    expect(parseLeagueQuery({ tab: "lich-thi-dau", xem: "doi", doi: "349C2EDB-58DB-4109-9529-6CA0FC270FEA" }, now)).toMatchObject({ view: "doi", club: "349c2edb-58db-4109-9529-6ca0fc270fea" });
+    for (const bad of [{ xem: "tuan" }, { ngay: "21-10-2026" }, { doi: "arsenal" }]) expect(parseLeagueQuery(bad, now)).toBeNull();
     for (const bad of [{ tab: "admin" }, { tab: ["a", "b"] }, { bao: "-1" }, { bao: "99999" }, { tu: "2026-02-31" }, { tu: "2026-13-01" }, { tu: "2030-01-01" }, { tu: "abc" }]) expect(parseLeagueQuery(bad, now)).toBeNull();
   });
   it("builds a 7-day Vietnam window with bounded neighbours and clean links", () => {

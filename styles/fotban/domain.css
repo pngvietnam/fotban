@@ -433,3 +433,13 @@ a.dp-primary{color:#fff}
 .lg-table thead th:nth-child(2){text-align:left}
 .dp-standing[class*="zone-"]>:first-child{padding-left:8px}
 .lg-table tr[class*="zone-"]>td:first-child{padding-left:10px}
+
+/* Fixtures tab: view switch, match-day chips, club picker */
+.lg-fixtures{display:flex;flex-direction:column;gap:var(--fb-space-16);margin-top:var(--fb-space-20)}
+.lg-views{display:inline-flex;align-self:flex-start;gap:4px;padding:4px;border:var(--fb-border-width) solid var(--fb-color-border);border-radius:999px;background:#fff}
+.lg-views>a{display:inline-flex;align-items:center;min-height:36px;padding:0 16px;border-radius:999px;font-size:var(--fb-type-meta-size);font-weight:600;color:var(--fb-color-ink);text-decoration:none}
+.lg-views>a.active{background:var(--fb-color-ink);color:#fff}
+.lg-list{list-style:none;margin:0;padding:0}
+.lg-picker{display:flex;align-items:center;gap:var(--fb-space-12);margin-bottom:var(--fb-space-12)}
+.lg-picker>label{font-size:var(--fb-type-meta-size);font-weight:600;color:var(--fb-color-muted)}
+.lg-picker>select{min-height:40px;min-width:220px;max-width:100%;padding:0 12px;border:var(--fb-border-width) solid var(--fb-color-border);border-radius:8px;background:#fff;font:inherit;font-size:16px;color:var(--fb-color-ink)}

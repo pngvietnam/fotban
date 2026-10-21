@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { FeedListResult } from "../../types/feed-card";
-import type { FixtureRow, LeagueInfo, LeagueSlug, StandingsData } from "../../types/league-hub";
+import type { ClubRow, FixtureRow, LeagueInfo, LeagueSlug, StandingsData } from "../../types/league-hub";
 import type { LeagueRounds } from "../../services/league-hub";
 import type { LeagueLeaders } from "../../services/league-leaders";
-import { leagueHref } from "../../lib/league-presentation";
-import { timelineLeague } from "../../lib/match-timeline";
+import { fixtureViews, leagueHref, type FixtureView } from "../../lib/league-presentation";
+import { dayNumbers, timelineLeague } from "../../lib/match-timeline";
 import { formatMatchDate, formatMatchTime, matchDayKey, matchStatusLabels } from "../../lib/match-presentation";
 import { newsAbsoluteTime, newsRelativeTime } from "../../lib/news-presentation";
 import { clubPath } from "../../lib/club-presentation";
@@ -14,6 +14,7 @@ import { zoneOf, type TableZone } from "../../lib/league-zones";
 import { Crest } from "../domain/domain-ui";
 import { NewsImage } from "../ui/news-image";
 import { PlayerPhoto } from "../ui/player-photo";
+import { ClubPicker } from "./club-picker";
 
 const roundWord = (slug: LeagueSlug) => timelineLeague(slug)?.roundWord ?? "Vòng";
 const shortSeason = (name: string | null) => name?.replace(/^(\d{4})\/(\d{4})$/, (_, a: string, b: string) => `${a}/${b.slice(2)}`) ?? null;
@@ -35,15 +36,18 @@ export function LeagueHeader({ league, leaders, rounds, action }: { league: Leag
   </header>;
 }
 
-function FixtureLine({ fixture }: { fixture: FixtureRow }) {
+/** `dated`: also show the day (lists that span several days, such as one club's season). */
+function FixtureLine({ fixture, dated = false }: { fixture: FixtureRow; dated?: boolean }) {
   const finished = fixture.status === "FINISHED" && fixture.homeScore !== null && fixture.awayScore !== null;
   const live = ["LIVE", "IN_PLAY", "HALFTIME", "PAUSED"].includes(fixture.status) && fixture.homeScore !== null;
   const off = ["POSTPONED", "CANCELLED", "SUSPENDED"].includes(fixture.status);
   const status = fixture.status in matchStatusLabels ? matchStatusLabels[fixture.status as keyof typeof matchStatusLabels] : "";
   const centre = finished || live ? `${fixture.homeScore} – ${fixture.awayScore}` : off ? "—" : formatMatchTime(fixture.kickoffAt);
-  return <li><Link className={`lg-fx ${finished ? "done" : ""} ${live ? "live" : ""}`} href={`/match/${encodeURIComponent(fixture.slug)}`} aria-label={`${fixture.home.name} gặp ${fixture.away.name}, ${finished || live ? `${fixture.homeScore} - ${fixture.awayScore}` : off ? status : formatMatchTime(fixture.kickoffAt)}${status && !off ? `, ${status}` : ""}`}>
+  const day = dayNumbers(matchDayKey(fixture.kickoffAt)).slice(0, 5);
+  const note = [dated ? day : null, finished ? "KT" : live || off ? status : null].filter(Boolean).join(" · ");
+  return <li><Link className={`lg-fx ${finished ? "done" : ""} ${live ? "live" : ""}`} href={`/match/${encodeURIComponent(fixture.slug)}`} aria-label={`${fixture.home.name} gặp ${fixture.away.name}${dated ? `, ngày ${day}` : ""}, ${finished || live ? `${fixture.homeScore} - ${fixture.awayScore}` : off ? status : formatMatchTime(fixture.kickoffAt)}${status && !off ? `, ${status}` : ""}`}>
     <span className="lg-fx-team home"><span>{fixture.home.name}</span><Crest url={fixture.home.crestUrl} name={fixture.home.name} /></span>
-    <span className="lg-fx-mid"><b>{centre}</b>{(finished || live || off) && <small>{finished ? "KT" : status}</small>}</span>
+    <span className="lg-fx-mid"><b>{centre}</b>{note && <small>{note}</small>}</span>
     <span className="lg-fx-team away"><Crest url={fixture.away.crestUrl} name={fixture.away.name} /><span>{fixture.away.name}</span></span>
   </Link></li>;
 }
@@ -71,6 +75,47 @@ export function RoundCard({ slug, rounds, round, tab, more }: { slug: LeagueSlug
     {!days.length && <p className="dp-muted">Chưa có trận nào trong {title.toLowerCase()}.</p>}
     {days.map((items) => <div key={items[0].kickoffAt} className="lg-day"><h3>{formatMatchDate(items[0].kickoffAt)}</h3><ul>{items.map((fixture) => <FixtureLine key={fixture.slug} fixture={fixture} />)}</ul></div>)}
     {more && <Link className="lg-more" href={more.href}>{more.label}</Link>}
+  </section>;
+}
+
+/** The three ways to list fixtures, as a segmented control of links. */
+export function FixtureViewSwitch({ slug, view }: { slug: LeagueSlug; view: FixtureView }) {
+  return <nav className="lg-views" aria-label="Cách xem lịch thi đấu">{fixtureViews.map(([key, label]) => <Link key={key} href={leagueHref(slug, { tab: "lich-thi-dau", view: key })} aria-current={key === view ? "page" : undefined} className={key === view ? "active" : undefined}>{label}</Link>)}</nav>;
+}
+
+/** One match day, with the neighbouring match days a step away and the days around it as chips. */
+export function DayCard({ slug, days }: { slug: LeagueSlug; days: { days: string[]; day: string | null; fixtures: FixtureRow[] } | undefined }) {
+  if (!days?.day) return <section className="dp-panel lg-card"><p className="dp-muted">Chưa có lịch thi đấu của mùa này.</p></section>;
+  const index = days.days.indexOf(days.day);
+  const href = (day: string) => leagueHref(slug, { tab: "lich-thi-dau", view: "ngay", day });
+  const prev = index > 0 ? days.days[index - 1] : null; const next = index < days.days.length - 1 ? days.days[index + 1] : null;
+  const near = days.days.slice(Math.max(0, index - 3), index + 4);
+  const label = (day: string) => formatMatchDate(new Date(`${day}T12:00:00+07:00`));
+  return <section className="dp-panel lg-card" aria-labelledby="lg-day">
+    <div className="lg-card-head">
+      <h2 id="lg-day">{label(days.day)}</h2>
+      <nav className="lg-round-nav" aria-label="Chuyển ngày thi đấu">
+        {prev ? <Link href={href(prev)} aria-label={`Ngày thi đấu trước: ${label(prev)}`}>‹</Link> : <span aria-hidden="true">‹</span>}
+        {next ? <Link href={href(next)} aria-label={`Ngày thi đấu sau: ${label(next)}`}>›</Link> : <span aria-hidden="true">›</span>}
+      </nav>
+    </div>
+    <nav className="lg-round-chips" aria-label="Các ngày thi đấu gần đó">{near.map((day) => <Link key={day} href={href(day)} aria-current={day === days.day ? "page" : undefined} className={day === days.day ? "active" : undefined}>{day.slice(8, 10)}/{day.slice(5, 7)}</Link>)}</nav>
+    {days.fixtures.length ? <ul className="lg-list">{days.fixtures.map((fixture) => <FixtureLine key={fixture.slug} fixture={fixture} />)}</ul> : <p className="dp-muted">Không có trận nào trong ngày này.</p>}
+  </section>;
+}
+
+/** One club's season in this competition: results so far, then the matches to come. */
+export function ClubSeasonCard({ slug, clubs, club }: { slug: LeagueSlug; clubs: ClubRow[]; club: { clubId: string | null; fixtures: FixtureRow[] } | undefined }) {
+  const picked = clubs.find((item) => item.clubId === club?.clubId);
+  const played = club?.fixtures.filter((fixture) => fixture.status === "FINISHED") ?? [];
+  const coming = club?.fixtures.filter((fixture) => fixture.status !== "FINISHED") ?? [];
+  return <section className="dp-panel lg-card" aria-labelledby="lg-club">
+    <div className="lg-card-head"><h2 id="lg-club">{picked ? picked.shortName?.trim() || picked.name : "Lịch thi đấu theo đội"}</h2>{picked && <Link href={clubPath(picked.clubId)}>Trang CLB →</Link>}</div>
+    <ClubPicker slug={slug} clubs={clubs} selected={club?.clubId ?? null} />
+    {!picked && <p className="dp-muted">Chọn một đội để xem toàn bộ lịch và kết quả của đội trong mùa này.</p>}
+    {picked && coming.length > 0 && <div className="lg-day"><h3>Sắp tới</h3><ul>{coming.map((fixture) => <FixtureLine key={fixture.slug} fixture={fixture} dated />)}</ul></div>}
+    {picked && played.length > 0 && <div className="lg-day"><h3>Đã đá</h3><ul>{[...played].reverse().map((fixture) => <FixtureLine key={fixture.slug} fixture={fixture} dated />)}</ul></div>}
+    {picked && !club?.fixtures.length && <p className="dp-muted">Chưa có trận nào của đội này trong mùa.</p>}
   </section>;
 }
 
