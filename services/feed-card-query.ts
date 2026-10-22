@@ -2,7 +2,7 @@ import type { SqlExecutor, SyncDatabase } from "../lib/sync-database";
 import { permittedFeedSnapshot } from "../lib/publisher-feed-permission";
 import { headlineClaimsOfficial, type FeedCertainty, type FeedLabel, type FeedTransferStage } from "../lib/feed-card-policy";
 import { feedSlug, stripPublisherPrefix } from "../lib/feed-card-presentation";
-import { clubContexts } from "./feed-context";
+import { clubContexts, storyMatch } from "./feed-context";
 import { rankFeedGroups } from "../lib/feed-card-ranking";
 import { safeNewsUrl } from "../lib/news-presentation";
 import { vietnameseSource } from "../providers/news/vietnamese-sources";
@@ -107,7 +107,7 @@ export class FeedCardQueryService {
       const related = entityIds.length ? await publicCards(tx, 'a."publishedAt">=$2::timestamptz AND c."groupKey"<>$3::uuid AND EXISTS (SELECT 1 FROM "ArticleEntity" e WHERE e."articleId"=a.id AND (e."clubId"=ANY($4::uuid[]) OR e."playerId"=ANY($4::uuid[])))', [new Date(now.getTime() - 72 * 3600000), card.groupKey, entityIds], now) : [];
       const seen = new Set<string>();
       const relatedViews = related.sort(leadOrder).filter((item) => !seen.has(item.groupKey) && seen.add(item.groupKey)).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 6).map(publicView);
-      return { card: publicView(card), others: others.map(publicView), related: relatedViews, context: await clubContexts(tx, publicView(card), now) };
+      return { card: publicView(card), others: others.map(publicView), related: relatedViews, context: await clubContexts(tx, publicView(card), now), matchCard: await storyMatch(tx, publicView(card)) };
     });
   }
 }

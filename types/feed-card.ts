@@ -1,5 +1,5 @@
 import type { FeedCertainty, FeedLabel, FeedTransferStage } from "../lib/feed-card-policy";
-import type { ClubContext } from "../services/feed-context";
+import type { ClubContext, StoryMatch } from "../services/feed-context";
 import type { NewsEntity, NewsFilters } from "./news-ui";
 
 /** Public projection of an attributed publisher card: original headline/description, never rewritten. */
@@ -17,4 +17,4 @@ export type FeedGroupView = { key: string; lead: FeedCardView; others: FeedCardV
 export type FeedFilters = Pick<NewsFilters, "league"> & { offset: number; /** "latest" orders groups strictly by their newest card instead of by editorial importance; "buzz" keeps the last 48 hours, most publishers and likes first. */ sort?: "latest" | "buzz"; /** Keep only groups with a card of this story type (e.g. TRANSFER). */ storyType?: string; /** Keep only groups with a card of any of these story types. */ storyTypes?: string[]; /** Keep only groups with a card linked to this club. */ clubId?: string; /** Personal feed: keep groups linked to any of these club/player IDs or leagues. */ follow?: { entityIds: string[]; leagueSlugs: string[] } };
 export type FeedListData = { groups: FeedGroupView[]; nextOffset: number | null };
 export type FeedListResult = { kind: "ready"; data: FeedListData } | { kind: "error" };
-export type FeedDetailResult = { kind: "ready"; card: FeedCardView; others: FeedCardView[]; related: FeedCardView[]; context: ClubContext[] } | { kind: "not-found" } | { kind: "error" };
+export type FeedDetailResult = { kind: "ready"; card: FeedCardView; others: FeedCardView[]; related: FeedCardView[]; context: ClubContext[]; matchCard: StoryMatch | null } | { kind: "not-found" } | { kind: "error" };

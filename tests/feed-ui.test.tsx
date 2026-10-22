@@ -27,16 +27,25 @@ describe("publisher card UI", () => {
     expect(text).not.toContain("Đã xác nhận"); expect(text).toContain("chưa đối chiếu với thông báo chính thức");
     expect(text).toContain("Theo Thethao247.vn"); expect(text).toContain("dẫn lại Fabrizio Romano"); expect(text).toContain("Cùng đưa tin: VnExpress Sport");
   });
-  it("keeps readers on FotBan: card links are internal; the original link is a small footer credit", () => {
+  it("keeps readers on FotBan: card links are internal; the detail page has one prominent link to the original", () => {
     const list = load(render(<FeedGroupCard group={{ key: "k", lead: card(), others: [], latestAt: card().publishedAt }} now={now} />));
     const hrefs = list("a").map((_, a) => list(a).attr("href")).get();
     expect(hrefs.every((href) => href.startsWith("/news/bao-") || href.startsWith("/club/club-"))).toBe(true);
     expect(hrefs).toContain("/club/club-c1");
     const detail = load(render(<FeedDetailView card={card()} others={[other]} now={now} />));
     const external = detail("a[target=_blank]");
-    expect(external).toHaveLength(1); expect(external.attr("rel")).toBe("noopener noreferrer nofollow"); expect(external.closest("footer")).toHaveLength(1);
+    expect(external).toHaveLength(1); expect(external.attr("rel")).toBe("noopener noreferrer nofollow"); expect(external.hasClass("fd-cta")).toBe(true); expect(external.text()).toContain("Đọc bài đầy đủ trên Thể Thao 247");
     expect(detail("h2").text()).toContain("Các báo khác cùng đưa tin (1)");
     expect(detail("blockquote").text()).toBe(card().description);
+  });
+  it("shows the match strip, other papers as rows and only this story's own tags", () => {
+    const matchCard = { slug: "match-1", status: "FINISHED", kickoffAt: "2026-10-18T19:00:00.000Z", leagueSlug: "premier-league", home: { name: "Arsenal", crestUrl: null, score: 2 }, away: { name: "Bayern", crestUrl: null, score: 2 } };
+    const side = card({ slug: "bao-4f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", articleId: "4f1c5a8e-7c43-4d36-9a7e-1f2d3c4b5a69", publisher: "VnExpress Sport", entities: [{ id: "c9", kind: "club", name: "Chelsea FC", initials: "CHE" }] });
+    const detail = load(render(<FeedDetailView card={card({ match: { slug: "match-1", home: "Arsenal", away: "Bayern", kickoffAt: matchCard.kickoffAt } })} others={[side]} matchCard={matchCard} now={now} />));
+    expect(detail(".fd-match .fd-score").text()).toBe("2–2"); expect(detail(".fd-match a[href='/match/match-1?tab=doi-dau']")).toHaveLength(1);
+    expect(detail(".fd-sources li")).toHaveLength(1); expect(detail(".fd-sources").text()).toContain("VnExpress Sport");
+    expect(detail(".fd-chip").text()).toContain("Manchester United FC"); expect(detail(".fd-chip").text()).not.toContain("Chelsea");
+    expect(detail("a[href='#other-coverage']").text()).toBe("2 báo cùng đưa tin");
   });
   it("renders an error state and nothing when there are no cards", () => {
     expect(render(<FeedSection result={{ kind: "ready", data: { groups: [], nextOffset: null } }} filters={{ league: "all", offset: 0 }} now={now} />)).toBe("");

@@ -31,7 +31,7 @@ export default async function NewsDetailPage({ params }: Props) {
     const result = await readFeedPage(feedId);
     if (result.kind === "not-found") notFound();
     const likes = result.kind === "ready" ? await viewerStoryLikes([{ key: result.card.articleId, lead: result.card, others: result.others, latestAt: result.card.publishedAt }]) : undefined;
-    return <NewsShell back={back}>{result.kind === "ready" ? <FeedDetailView card={result.card} others={result.others} related={result.related} context={result.context} now={new Date()} likes={likes} /> : <><h1 className="sr-only">Tin tức chưa khả dụng</h1><NewsState kind="error" /></>}</NewsShell>;
+    return <NewsShell back={back}>{result.kind === "ready" ? <FeedDetailView card={result.card} others={result.others} related={result.related} context={result.context} matchCard={result.matchCard} now={new Date()} likes={likes} /> : <><h1 className="sr-only">Tin tức chưa khả dụng</h1><NewsState kind="error" /></>}</NewsShell>;
   }
   const result = await readNewsPage(slug);
   if (result.kind === "not-found") notFound();
