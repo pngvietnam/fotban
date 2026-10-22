@@ -34,10 +34,19 @@ export function parseCoachList(html: string): CoachRecord[] {
     const rows = $(table).find("tr").toArray();
     const headerRow = rows.find((row) => $(row).find("th").length >= 4 && $(row).find("th").map((__, cell) => headerKey($(cell).text()) ?? "").get().includes("from"));
     if (!headerRow) return;
-    const keys = $(headerRow).find("th").map((__, cell) => headerKey($(cell).text()) ?? "").get() as string[];
+    // A two-row header ("Record" spanning P W D L ..., "Honours" spanning the trophies): the spanning cells are filled from the second row.
+    const first = $(headerRow).find("th").toArray();
+    const next = rows[rows.indexOf(headerRow) + 1];
+    const second = next && $(next).children("td").length === 0 && first.some((cell) => Number($(cell).attr("colspan") ?? 1) > 1) ? $(next).children("th").toArray() : [];
+    const sub = second.map((cell) => headerKey($(cell).text()) ?? "");
+    const keys: string[] = [];
+    for (const cell of first) {
+      const span = Number($(cell).attr("colspan") ?? 1);
+      if (span > 1 && sub.length) { for (let index = 0; index < span; index++) keys.push(sub.shift() ?? ""); } else keys.push(headerKey($(cell).text()) ?? "");
+    }
     if (!keys.includes("name") || !keys.includes("won") || !keys.includes("lost")) return;
     const coaches: CoachRecord[] = [];
-    for (const row of rows.slice(rows.indexOf(headerRow) + 1)) {
+    for (const row of rows.slice(rows.indexOf(headerRow) + 1 + (second.length ? 1 : 0))) {
       const cells = $(row).children("td,th").toArray();
       if (cells.length !== keys.length) continue;
       const read: Record<string, string> = {};

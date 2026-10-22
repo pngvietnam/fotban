@@ -12,7 +12,6 @@ const userAgent = "FotbanCoaches/1.0 (Vietnamese football site; data from Wikipe
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 /** Settled by hand: the DB club name -> the Wikipedia page, where the search cannot find it. */
 const PAGES: Record<string, string> = {};
-const fold = (text: string) => text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9 ]+/g, " ").replace(/\b(fc|cf|afc|sc|ac|club|de|the|f c|c f)\b/g, " ").replace(/\s+/g, " ").trim();
 
 async function wikipedia(url: string) {
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -22,14 +21,25 @@ async function wikipedia(url: string) {
   }
   throw new Error("still rate limited");
 }
-/** The "List of <club> managers" page: the search hit whose title names the club (every word of its folded name). */
-async function findPage(clubName: string) {
-  if (PAGES[clubName]) return PAGES[clubName];
-  const words = fold(clubName).split(" ").filter(Boolean);
-  const response = await wikipedia(`https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=8&format=json&srsearch=${encodeURIComponent(`List of ${clubName.replace(/\b(FC|CF|AFC)\b/g, "").trim()} managers head coaches`)}`);
-  const body = await response.json() as { query?: { search?: { title: string }[] } };
-  const hits = (body.query?.search ?? []).map((item) => item.title).filter((title) => /^List of .*\b(managers|head coaches|coaches|trainers)\b/i.test(title));
-  return hits.find((title) => { const folded = fold(title); return words.every((word) => folded.includes(word)); }) ?? null;
+/** The club's Wikipedia title: the summary endpoint follows redirects ("Manchester City FC" -> "Manchester City F.C."). */
+async function canonicalTitle(clubName: string) {
+  for (const guess of [clubName, clubName.replace(/s+(FC|CF|AFC)$/i, "")]) {
+    const response = await wikipedia(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(guess.replace(/ /g, "_"))}?redirect=true`); await sleep(700);
+    if (!response.ok) continue;
+    const body = await response.json() as { title?: string; type?: string };
+    if (body.title && body.type !== "disambiguation") return body.title;
+  }
+  return null;
+}
+/** The "List of <club> managers" page and its HTML: tries the usual names for it, stopping at the first that exists. */
+async function findList(clubName: string): Promise<{ title: string; html: string } | null> {
+  const club = PAGES[clubName] ? null : await canonicalTitle(clubName);
+  const titles = PAGES[clubName] ? [PAGES[clubName]] : club ? ["managers", "head coaches", "coaches"].map((word) => `List of ${club} ${word}`) : [];
+  for (const title of titles) {
+    const response = await wikipedia(`https://en.wikipedia.org/api/rest_v1/page/html/${encodeURIComponent(title.replace(/ /g, "_"))}`); await sleep(700);
+    if (response.ok) return { title, html: await response.text() };
+  }
+  return null;
 }
 
 async function main() {
@@ -40,13 +50,14 @@ async function main() {
   const missing: string[] = [];
   for (const name of clubs) {
     try {
-      const title = await findPage(name); await sleep(900);
-      if (!title) { missing.push(`${name} (no page)`); continue; }
-      const response = await wikipedia(`https://en.wikipedia.org/api/rest_v1/page/html/${encodeURIComponent(title.replace(/ /g, "_"))}`); await sleep(900);
-      if (!response.ok) { missing.push(`${name} (${title}: ${response.status})`); continue; }
-      const coaches = parseCoachList(await response.text());
+      const found = await findList(name);
+      if (!found) { missing.push(`${name} (no page)`); continue; }
+      const title = found.title;
+      const coaches = parseCoachList(found.html);
       if (coaches.length < 3) { missing.push(`${name} (${title}: no usable table)`); continue; }
       coaches.sort((a, b) => (b.from ?? "").localeCompare(a.from ?? ""));
+      // A table whose newest coach left years ago and has no current coach is a partial one (a record table, a list of captains…), not the coach history.
+      const newest = coaches[0]; if (newest.to !== null && Number(newest.to.slice(0, 4)) < 2015) { missing.push(`${name} (${title}: newest coach left ${newest.to}, table looks partial)`); continue; }
       result[name] = { source: `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`, coaches };
       console.log(`${name}: ${title} -> ${coaches.length} coaches, newest ${coaches[0].name} (${coaches[0].from})`);
     } catch (error) { missing.push(`${name} (${error instanceof Error ? error.message : "error"})`); }
