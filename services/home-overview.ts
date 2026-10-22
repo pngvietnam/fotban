@@ -15,7 +15,7 @@ const ribbonSelect = `SELECT m.slug,m."kickoffAt"::text AS "kickoffAt",m.status:
  * "Trên sân cỏ": the latest results (last three days, newest first) and then the next fixtures
  * (live ones included) of every supported competition.
  */
-export async function readRibbon(tx: SqlExecutor, now: Date, finishedLimit = 6, upcomingLimit = 8): Promise<RibbonMatch[]> {
+export async function readRibbon(tx: SqlExecutor, now: Date, finishedLimit = 14, upcomingLimit = 8): Promise<RibbonMatch[]> {
   const leagues = timelineLeagues.map((league) => league.slug);
   const [finished, upcoming] = await Promise.all([
     tx.query<RibbonRow>(`${ribbonSelect} AND m.status='FINISHED' AND m."homeScore" IS NOT NULL AND m."awayScore" IS NOT NULL AND m."kickoffAt"<=$2::timestamptz AND m."kickoffAt">$2::timestamptz-interval '3 days' ORDER BY m."kickoffAt" DESC,m.id LIMIT $3`, [leagues, now, finishedLimit]),
