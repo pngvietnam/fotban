@@ -22,6 +22,9 @@ async function linkedMatch(tx: SqlExecutor, clubIds: string[], publishedAt: stri
   return rows[0]?.id ?? null;
 }
 
+/** Rows handled per pass, new articles first: the pass runs in one transaction (30s limit), so it must stay small and drain a backlog over several passes. */
+const batchLimit = 250;
+
 /**
  * Turns permitted Vietnamese publisher feed articles into attributed cards. New cards publish
  * automatically unless a sensitive term holds them; an operator decision is never overwritten.
@@ -33,7 +36,7 @@ export async function publishFeedCards(db: SyncDatabase, now = new Date(), windo
     const since = new Date(now.getTime() - windowHours * 3600000);
     const rows = await tx.query<CandidateRow>(`SELECT a.id,a."sourceId",a."sourceUrl",a."titleOriginal",a."excerptOriginal",a."publishedAt",a."contentOriginal",s.slug,s."sourceTier",to_jsonb(s) AS source,to_jsonb(f) AS snapshot,c.status AS "cardStatus",c."decidedById"
       FROM "Article" a JOIN "NewsSource" s ON s.id=a."sourceId" JOIN "ArticleFeedSnapshot" f ON f."articleId"=a.id LEFT JOIN "FeedCard" c ON c."articleId"=a.id
-      WHERE a."publishedAt" BETWEEN $1::timestamptz AND $2::timestamptz ORDER BY a."publishedAt",a.id LIMIT 2000`, [since, now]);
+      WHERE a."publishedAt" BETWEEN $1::timestamptz AND $2::timestamptz ORDER BY (c."articleId" IS NOT NULL),a."publishedAt",a.id LIMIT ${batchLimit}`, [since, now]);
     const catalog = await vietnameseCatalogFrom(tx);
     const counts = { examined: rows.length, published: 0, held: 0, kept: 0, notPermitted: 0, groups: 0 };
     for (const row of rows) {
