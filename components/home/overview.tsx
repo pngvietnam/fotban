@@ -143,7 +143,7 @@ function Bites({ groups, now }: { groups: FeedGroupView[]; now: Date }) {
       {groups.map((group, index) => <Link key={group.key} className={`bite-card bite-${biteColors[index % biteColors.length]}`} href={storyHref(group)}>
         <div className="bite-top"><span>{typeOf(group.lead).toUpperCase()}</span><small>{String(index + 1).padStart(2, "0")}</small></div>
         <Crest url={clubsOf(group)[0]?.crestUrl} />
-        <h3>{group.lead.title}</h3>{group.lead.description && <p>{group.lead.description}</p>}
+        <h3>{group.lead.title}</h3>
         <div className="bite-bottom"><span>{group.lead.publisher} · <When group={group} now={now} /></span><span aria-hidden="true">→</span></div>
       </Link>)}
     </BiteRail>

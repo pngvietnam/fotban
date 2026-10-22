@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DragScroll } from "@/components/ui/drag-scroll";
 import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import "../styles/fotban/tokens.css";
@@ -19,5 +20,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="vi" className={beVietnam.variable}><body className="bg-[#f7f8fa] text-[#192920]">{children}</body></html>;
+  return <html lang="vi" className={beVietnam.variable}><body className="bg-[#f7f8fa] text-[#192920]">{children}<DragScroll /></body></html>;
 }

@@ -962,3 +962,15 @@ a.cb-hero-kicker:hover{text-decoration:underline}
 /* The fan block now sits in the main column: one column of cards under 1150px so they never get cramped. */
 .ov-main .fan-section{margin:var(--fb-space-24) 0 0}
 @media(max-width:1150px){.ov-main .fan-grid{grid-template-columns:1fr}}
+
+/* Mouse-draggable strips: a grab cursor where a mouse exists, no snapping and no text selection while dragging. */
+@media(hover:hover) and (pointer:fine){
+  .pitch-rail,.cinema-rail,.bite-rail,.hot-strip ul,.cb-bars,.lg-round-chips,.ov-leagues,.desk-filters,.social-leagues,.post-filters,.post-chips,.transfer-filter-list,.fan-drag{cursor:grab}
+  .pitch-rail a,.cinema-rail a,.bite-rail a,.hot-strip a,.cb-bars li{cursor:inherit}
+}
+.is-dragging{scroll-snap-type:none!important;scroll-behavior:auto!important;cursor:grabbing!important;user-select:none;-webkit-user-select:none}
+.is-dragging *{pointer-events:none}
+/* Bite cards show the headline alone: a bigger type size and a shorter card. */
+.bite-card{min-height:190px}
+.bite-card h3{margin-bottom:var(--fb-space-16)}
+.bite-card h3{max-width:none}
