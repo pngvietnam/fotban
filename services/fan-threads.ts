@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { crudeWords, fanKind, footballWords, notTalk, parseRedditAtom, parseVozRss, type FanItem } from "../lib/fan-feeds";
+import { crudeWords, fanKind, footballWords, notTalk, parseRedditAtom, parseVozRss, sensitiveEnglish, type FanItem } from "../lib/fan-feeds";
 import { holdReasons } from "../lib/feed-card-policy";
 import type { SqlExecutor, SyncDatabase } from "../lib/sync-database";
 import { resolveEntities } from "../providers/ai/rules";
@@ -49,7 +49,7 @@ export async function syncFanThreads(db: SyncDatabase, reader: FanReader, now = 
       const playerIds = entities.filter((entity) => entity.kind === "player").map((entity) => entity.id);
       const leagueIds = entities.filter((entity) => entity.kind === "league").map((entity) => entity.id);
       const kind = fanKind(item, clubIds.length);
-      const held = crudeWords.test(item.title) || holdReasons(item.title).length > 0;
+      const held = crudeWords.test(item.title) || sensitiveEnglish.test(item.title) || holdReasons(item.title).length > 0;
       const matchId = kind === "MATCH" || clubIds.length === 2 ? await matchBetween(tx, clubIds, item.lastActivityAt) : null;
       const [row] = await tx.query<{ id: string }>(`INSERT INTO "FanThread" (id,source,"externalId",url,title,community,kind,replies,"lastActivityAt","firstSeenAt","lastSeenAt","clubIds","playerIds","leagueIds","matchId",held)
         VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9::timestamptz,$10::timestamptz,$10::timestamptz,$11::uuid[],$12::uuid[],$13::uuid[],$14::uuid,$15)
@@ -59,6 +59,9 @@ export async function syncFanThreads(db: SyncDatabase, reader: FanReader, now = 
       if (item.replies !== null) await tx.query(`INSERT INTO "FanThreadSnapshot" ("threadId","takenAt",replies) VALUES ($1::uuid,date_trunc('hour',$2::timestamptz),$3) ON CONFLICT ("threadId","takenAt") DO UPDATE SET replies=EXCLUDED.replies`, [row.id, now, item.replies]);
       counts.kept++;
     }
+    const stored = await tx.query<{ id: string; title: string }>(`SELECT id,title FROM "FanThread" WHERE source='REDDIT'`);
+    const stale = stored.filter((row) => notTalk.test(row.title)).map((row) => row.id);
+    if (stale.length) await tx.query(`DELETE FROM "FanThread" WHERE id=ANY($1::uuid[])`, [stale]);
     await tx.query(`DELETE FROM "FanThread" WHERE "lastSeenAt"<$1::timestamptz`, [new Date(now.getTime() - 14 * 24 * hour)]);
   });
   return counts;
@@ -94,7 +97,7 @@ export async function trendingFanThreads(tx: SqlExecutor, now: Date, limits = { 
   return { voz: views.filter((item) => item.source === "VOZ").sort(livelier).slice(0, limits.voz).map(plain), reddit: views.filter((item) => item.source === "REDDIT").sort((a, b) => Number(b.ents > 0) - Number(a.ents > 0) || b.lastActivityAt.localeCompare(a.lastActivityAt)).slice(0, limits.reddit).map(plain) };
 }
 /** Threads about one club: its fan room on Voz and the recent posts that name it. */
-export async function fanThreadsForClub(tx: SqlExecutor, clubId: string, now: Date, limit = 5) {
+export async function fanThreadsForClub(tx: SqlExecutor, clubId: string, now: Date, limit = 6) {
   const rows = await tx.query<Row>(`${base} $2::uuid=ANY(t."clubIds") AND t."lastActivityAt">$1::timestamptz-interval '7 days' AND t."lastSeenAt">$1::timestamptz-interval '3 hours'`, [now, clubId]);
   return rows.map((row) => view(row, now)).sort((a, b) => Number(b.kind === "CLUB") - Number(a.kind === "CLUB") || livelier(a, b)).slice(0, limit);
 }

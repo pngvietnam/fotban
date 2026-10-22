@@ -9,12 +9,15 @@ import { feedCertaintyText, feedTransferText } from "../../lib/feed-card-present
 import { leagueHref } from "../../lib/league-presentation";
 import { clubPath } from "../../lib/club-presentation";
 import { safeCrestUrl } from "../../lib/crest";
-import { formatMatchTime, matchDayKey } from "../../lib/match-presentation";
-import { dayNumbers, timelineLeague, timelineLeagues } from "../../lib/match-timeline";
+import { formatMatchTime } from "../../lib/match-presentation";
+import { timelineLeague, timelineLeagues } from "../../lib/match-timeline";
 import { matchTabHref } from "../../lib/match-tabs";
 import { newsAbsoluteTime, newsRelativeTime, storyLabels } from "../../lib/news-presentation";
 import type { FanThreadView } from "../../services/fan-threads";
 import { FanTalkHome } from "../fan/fan-talk";
+import type { HotNow } from "../../services/hot-now";
+import { HotNowStrip, MySpacePanel, TopScorersPanel, type HomeScorers, type MineClub } from "./home-extras";
+import type { QuickClub } from "./quick-follow";
 import { PlayerPhoto } from "../ui/player-photo";
 import { BiteRail, CinemaRail, MatchRibbon, OvPhoto, StandingsLeagueSelect } from "./overview-client";
 
@@ -24,6 +27,7 @@ export type OverviewData = {
   updates: FeedGroupView[]; updateTab: UpdateTab;
   deepReads: FeedGroupView[]; bites: FeedGroupView[]; transfers: FeedGroupView[];
   standings: HomeStandings | null; highlights: ArchiveClip[]; fans: { voz: FanThreadView[]; reddit: FanThreadView[] };
+  hot: HotNow; scorers: HomeScorers | null; mine: MineClub[]; suggest: QuickClub[];
   viewer: { signedIn: boolean; clubs: { id: string; name: string }[]; next: FixtureRow | null };
   briefReady: boolean;
 };
@@ -99,27 +103,12 @@ function Updates({ groups, tab, now }: { groups: FeedGroupView[]; tab: UpdateTab
   </section>;
 }
 
-function MySpace({ viewer }: { viewer: OverviewData["viewer"] }) {
-  const next = viewer.next;
-  return <section className="fb-card followed-summary" aria-labelledby="ov-mine">
-    <div className="followed-summary-title"><h2 id="ov-mine" className="fb-text fb-text-title">Không gian của tôi</h2><Link className="fb-button fb-button-ghost" href={viewer.signedIn ? "/following" : "/login"}>Quản lý</Link></div>
-    {viewer.clubs.length ? <>
-      <p className="fb-text fb-text-meta">Đang theo dõi {viewer.clubs.map((club) => club.name).join(", ")}.</p>
-      {next && <div className="followed-next"><span className="fb-text fb-text-caption">TRẬN TIẾP THEO</span><Link className="fb-text fb-text-title" href={matchTabHref(next.slug, "du-kien")}>{next.home.name} – {next.away.name}</Link><span className="fb-text fb-text-meta">{dayNumbers(matchDayKey(next.kickoffAt))} · {formatMatchTime(next.kickoffAt)} UTC+7</span></div>}
-      <Link className="fb-button fb-button-primary" href="/following">Mở Bảng tin của tôi →</Link>
-    </> : <>
-      <p className="fb-text fb-text-meta">Theo dõi một màu áo để bắt đầu nhận tin và lịch phù hợp.</p>
-      <Link className="fb-button fb-button-primary" href={viewer.signedIn ? "/following" : "/login"}>Chọn đội yêu thích</Link>
-    </>}
-  </section>;
-}
-
 function StandingsRace({ standings }: { standings: HomeStandings }) {
   return <section className="ov-panel ov-table" id="bxh" aria-labelledby="ov-table">
     <div className="ov-section-heading"><h2 id="ov-table">Cuộc đua trên BXH</h2></div>
     <StandingsLeagueSelect value={standings.league.slug} options={timelineLeagues.map((league) => ({ slug: league.slug, label: league.label }))} />
-    <div className="ov-standing ov-standing-head"><span>#</span><span>Đội bóng</span><span>Trận</span><span>Điểm</span></div>
-    {standings.rows.slice(0, 4).map((row) => <Link key={row.clubId} className="ov-standing" href={clubPath(row.clubId)}><span>{row.position}</span><span><Crest url={row.crestUrl} />{row.shortName ?? row.name}</span><span>{row.played ?? "–"}</span><b>{row.points ?? "–"}</b></Link>)}
+    <div className="ov-standing ov-standing-head"><span>#</span><span>Đội bóng</span><span>Trận</span><span>HS</span><span title="Điểm">Đ</span></div>
+    {standings.rows.slice(0, 8).map((row) => <Link key={row.clubId} className="ov-standing" href={clubPath(row.clubId)}><span>{row.position}</span><span><Crest url={row.crestUrl} />{row.shortName ?? row.name}</span><span>{row.played ?? "–"}</span><span>{row.goalDifference === null ? "–" : row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference}</span><b>{row.points ?? "–"}</b></Link>)}
     <Link className="text-link" href={leagueHref(standings.league.slug, { tab: "bang-xep-hang" })}>Xem bảng xếp hạng <Arrow /></Link>
   </section>;
 }
@@ -190,13 +179,15 @@ export function Overview({ data, now }: { data: OverviewData; now: Date }) {
   return <div className="overview overview-energized">
     <h1 className="sr-only">Fotban – Bảng tin bóng đá</h1>
     <MatchRibbon matches={data.ribbon} leagueLabels={leagueLabels} />
+    <HotNowStrip hot={data.hot} />
     <QuickPoints groups={data.quick} briefReady={data.briefReady} />
     <div className="ov-columns"><div className="ov-main">
       <Focus cover={data.cover} followups={data.followups} now={now} />
       <Updates groups={data.updates} tab={data.updateTab} now={now} />
     </div><aside className="ov-right" aria-label="Không gian của tôi và bảng xếp hạng">
-      <MySpace viewer={data.viewer} />
+      <MySpacePanel signedIn={data.viewer.signedIn} mine={data.mine} suggest={data.suggest} />
       {data.standings && <StandingsRace standings={data.standings} />}
+      {data.scorers && <TopScorersPanel scorers={data.scorers} />}
       <DeepReads groups={data.deepReads} />
     </aside></div>
     <FanTalkHome voz={data.fans.voz} reddit={data.fans.reddit} now={now} />

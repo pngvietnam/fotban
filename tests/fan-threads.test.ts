@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { SyncDatabase } from "../lib/sync-database";
-import { crudeWords, fanKind, notTalk, parseRedditAtom, parseVozRss } from "../lib/fan-feeds";
+import { crudeWords, fanKind, notTalk, parseRedditAtom, parseVozRss, sensitiveEnglish } from "../lib/fan-feeds";
+import { hotNow } from "../services/hot-now";
 import { fanThreadsForClub, fanThreadsForMatch, syncFanThreads, trendingFanThreads, type FanReader } from "../services/fan-threads";
 
 const voz = (items: { title: string; id: string; at: string; comments: number }[]) => `<?xml version="1.0"?><rss xmlns:slash="http://purl.org/rss/1.0/modules/slash/" version="2.0"><channel><title>Thể dục thể thao</title>${items.map((item) => `<item><title>${item.title}</title><pubDate>${item.at}</pubDate><link>https://voz.vn/t/x.${item.id}/?utm_source=rss&amp;utm_medium=rss</link><guid isPermaLink="false">${item.id}</guid><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">someone</dc:creator><content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/"><![CDATA[<div>post text that must never be stored</div>]]></content:encoded><slash:comments>${item.comments}</slash:comments></item>`).join("")}</channel></rss>`;
@@ -28,6 +29,8 @@ describe("community feeds", () => {
     expect(notTalk.test("Como [4] - 0 Manchester Utd - Jacobo Ramón 76'")).toBe(true);
     expect(notTalk.test("Daily Discussion | October 21, 2026")).toBe(true);
     expect(notTalk.test("Harry Kane is one game away from matching Ronaldo's record")).toBe(false);
+    expect(sensitiveEnglish.test("[Bild] Kimmich will not be in the squad due to a death in his close family")).toBe(true);
+    expect(sensitiveEnglish.test("Kane scores twice as Bayern beat Arsenal")).toBe(false);
     expect(crudeWords.test("thằng này vcl thật")).toBe(true); expect(crudeWords.test("Arsenal thắng đậm")).toBe(false);
   });
 });
@@ -88,6 +91,21 @@ describe("fan threads (SQL)", () => {
     const forMatch = await fanThreadsForMatch(database, ids.match, ids.bayern, ids.arsenal, now);
     expect(forMatch.map((item) => item.source)).toContain("REDDIT");
     expect(await fanThreadsForClub(database, ids.bayern, now)).toHaveLength(1);
+  });
+
+  it("calls a day hot only from counted stories and threads, and a match only when fans opened threads about it", async () => {
+    await database.query('UPDATE "Match" SET "homeScore"=2,"awayScore"=2,"kickoffAt"=$2::timestamptz WHERE id=$1::uuid', [ids.match, new Date(now.getTime() - 8 * 3_600_000)]);
+    const r = reddit([
+      { title: "Post Match Thread: Bayern Munich 2 - 2 Arsenal | UEFA Champions League", id: "abc123", at: "2026-10-22T02:00:00+00:00" },
+      { title: "Arsenal fans react to the draw in Munich", id: "abc125", at: "2026-10-22T03:00:00+00:00" },
+      { title: "Arsenal captain speaks after the draw", id: "abc126", at: "2026-10-22T03:30:00+00:00" },
+    ]);
+    await syncFanThreads(database, reader(null, r), now);
+    const hot = await hotNow(database, now);
+    expect(hot.matches).toEqual([expect.objectContaining({ slug: "match-test", home: "FC Bayern München", away: "Arsenal FC", homeScore: 2, awayScore: 2, threads: 1 })]);
+    expect(hot.topics.map((topic) => [topic.name, topic.threads])).toEqual([["Arsenal FC", 3]]);
+    // Fewer than three mentions in a day is not hot.
+    expect((await hotNow(database, new Date(now.getTime() + 3 * 24 * 3_600_000))).topics).toEqual([]);
   });
 
   it("never stores post text, user names or tracking parameters", async () => {

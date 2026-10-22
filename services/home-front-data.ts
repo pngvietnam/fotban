@@ -3,7 +3,11 @@ import { getDatabase } from "../lib/db";
 import { logger } from "../lib/logger";
 import { prismaSyncDatabase } from "../lib/sync-database";
 import type { LeagueInfo, LeagueSlug, StandingRow } from "../types/league-hub";
-import { isLeagueSlug, leagueInfo, leagueStandings } from "./league-hub";
+import { isLeagueSlug, leagueInfo, leagueNames, leagueStandings } from "./league-hub";
+import { readLeagueLeaders } from "./league-leaders";
+import { hotNow, type HotNow } from "./hot-now";
+import type { HomeScorers } from "../components/home/home-extras";
+import { leagueHref } from "../lib/league-presentation";
 import { readRibbon, type RibbonMatch } from "./home-overview";
 import { latestHighlights, type ArchiveClip } from "./match-timeline";
 import { timelineLeagues } from "../lib/match-timeline";
@@ -39,4 +43,23 @@ export async function readHomeFans(now = new Date()): Promise<{ voz: FanThreadVi
   const db = getDatabase();
   if (!db) return { voz: [], reddit: [] };
   try { return await trendingFanThreads(prismaSyncDatabase(db), now); } catch { logger.warn({ event: "home_fans_unavailable" }); return { voz: [], reddit: [] }; }
+}
+
+/** "Đang nóng": matches and topics fans and papers are busy with; empty when it cannot be read. */
+export async function readHomeHot(now = new Date()): Promise<HotNow> {
+  const db = getDatabase();
+  if (!db) return { matches: [], topics: [] };
+  try { return await hotNow(prismaSyncDatabase(db), now); } catch { logger.warn({ event: "home_hot_unavailable" }); return { matches: [], topics: [] }; }
+}
+
+/** The top scorers of the league shown beside the homepage table, from the stored leaders; null when none are stored. */
+export async function readHomeScorers(slug: string | string[] | undefined, limit = 5): Promise<HomeScorers | null> {
+  const league: LeagueSlug = typeof slug === "string" && isLeagueSlug(slug) ? slug : "premier-league";
+  const db = getDatabase();
+  if (!db) return null;
+  try {
+    const leaders = await readLeagueLeaders(prismaSyncDatabase(db), league);
+    if (!leaders?.scorers.length) return null;
+    return { leagueName: leagueNames[league].name, leagueHref: leagueHref(league, { tab: "thong-ke" }), list: leaders.scorers.slice(0, limit).map((scorer) => ({ name: scorer.name, goals: scorer.goals, assists: scorer.assists ?? null, team: scorer.teamName, crestUrl: scorer.crestUrl, photoUrl: scorer.photoUrl, href: scorer.playerPath })) };
+  } catch { logger.warn({ event: "home_scorers_unavailable" }); return null; }
 }

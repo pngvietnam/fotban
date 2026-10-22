@@ -25,9 +25,9 @@ export function FanThreadCard({ thread, now }: { thread: FanThreadView; now: Dat
 const Note = () => <p className="fan-note">Ý kiến của người hâm mộ trên mạng, không phải tin đã kiểm chứng. Fotban chỉ dẫn tới tiêu đề và số liệu công khai; nội dung bình luận thuộc về cộng đồng.</p>;
 
 /** A short list of threads in a side panel (match and club pages). */
-export function FanTalkPanel({ title, threads, now }: { title: string; threads: FanThreadView[]; now: Date }) {
+export function FanTalkPanel({ title, threads, now, wide = false }: { title: string; threads: FanThreadView[]; now: Date; /** Cards side by side across the page instead of a narrow list. */ wide?: boolean }) {
   if (!threads.length) return null;
-  return <section className="dp-panel fan-panel" aria-labelledby="fan-panel-title"><div className="dp-section-heading"><h2 id="fan-panel-title">{title}</h2></div>
+  return <section className={`dp-panel fan-panel${wide ? " wide" : ""}`} aria-labelledby="fan-panel-title"><div className="dp-section-heading"><h2 id="fan-panel-title">{title}</h2></div>
     <div className="fan-list">{threads.map((thread) => <FanThreadCard key={thread.id} thread={thread} now={now} />)}</div><Note /></section>;
 }
 

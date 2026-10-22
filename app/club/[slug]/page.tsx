@@ -94,11 +94,11 @@ export default async function ClubPage({ params, searchParams }: Props) {
         <aside className="cb-side" aria-label="Bảng xếp hạng, ghi bàn và danh hiệu">
           {active && <MiniTable tables={tables} active={active} clubId={clubId} clubSlug={slug} />}
           <ClubScorers scorers={scorers} />
-          <FanTalkPanel title="Fan nói gì" threads={fans} now={now} />
           {!scorers.length && mentioned.length > 0 && <section className="dp-panel cb-panel" aria-label="Cầu thủ được nhắc nhiều"><div className="dp-section-heading"><h2>Cầu thủ được nhắc nhiều</h2></div>{mentioned.map((player) => <Link className="cb-scorer" key={player.playerId} href={playerPath(player.playerId)}><Mark url={player.photoUrl} name={player.name} size="md" round photo /><span><b>{player.name}</b><small>{[positionGroup(player.position), nationalityVi(player.nationality)].filter(Boolean).join(" · ")}</small></span></Link>)}<p className="dp-muted cb-note">Theo các tin báo chí trong 7 ngày qua.</p></section>}
           <HonoursSummary honours={honours} extras={extras} historyHref={clubHref(slug, { tab: "lich-su" })} />
         </aside>
       </div>
+      <FanTalkPanel title="Fan nói gì" threads={fans} now={now} wide />
       <StoryRows result={feed} now={now} limit={5} title="Tin mới về đội" more={{ href: clubHref(slug, { tab: "tin-tuc" }), label: "Tất cả tin →" }} />
       <StoryRows result={transfers} now={now} limit={4} title="Chuyển nhượng" more={{ href: clubHref(slug, { tab: "chuyen-nhuong" }), label: "Tất cả →" }} />
     </>}

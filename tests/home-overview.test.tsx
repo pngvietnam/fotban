@@ -21,7 +21,7 @@ const group = (key: string, lead: FeedCardView, others: FeedCardView[] = []): Fe
 const ranked = ["A", "B", "C", "D", "E", "F"].map((name) => group(name.toLowerCase(), card(`Tin ${name}`, name === "F" ? { image: "https://i.vnecdn.net/f.jpg" } : {})));
 const data = (overrides: Partial<OverviewData> = {}): OverviewData => {
   const front = splitFront(ranked);
-  return { ribbon: [], quick: front.quick, cover: front.cover, followups: front.followups, updates: [], updateTab: "tat-ca", deepReads: [], bites: [], transfers: [], standings: null, highlights: [], fans: { voz: [], reddit: [] },
+  return { ribbon: [], quick: front.quick, cover: front.cover, followups: front.followups, updates: [], updateTab: "tat-ca", deepReads: [], bites: [], transfers: [], standings: null, highlights: [], fans: { voz: [], reddit: [] }, hot: { matches: [], topics: [] }, scorers: null, mine: [], suggest: [],
     viewer: { signedIn: false, clubs: [], next: null }, briefReady: false, ...overrides };
 };
 const render = (value: OverviewData) => load(renderToStaticMarkup(<Overview data={value} now={now} />));
@@ -50,11 +50,25 @@ describe("homepage blocks", () => {
     expect($(".transfer-column-head span").map((_, node) => $(node).text()).get()).toEqual(["Cầu thủ", "CLB được nhắc tới", "Trạng thái"]);
     expect($.html()).not.toContain("Đã xác nhận"); expect($.html()).not.toContain("Phí");
   });
-  it("invites guests to follow a club and shows a follower's next match", () => {
-    expect(render(data())(".followed-summary a.fb-button-primary").attr("href")).toBe("/login");
+  it("lets a guest follow a club in one tap, and shows a follower's next match and latest story", () => {
+    const guest = render(data({ suggest: [{ id: "c1", name: "Arsenal", crestUrl: null }, { id: "c2", name: "Chelsea", crestUrl: null }] }));
+    expect(guest(".qf-grid button").map((_, node) => guest(node).attr("aria-label")).get()).toEqual(["Theo dõi Arsenal", "Theo dõi Chelsea"]);
+    expect(guest(".followed-summary a.fb-button-ghost").attr("href")).toBe("/following/manage");
     const next = { slug: "m1", kickoffAt: "2026-10-25T14:00:00.000Z", status: "SCHEDULED", round: null, home: { name: "Arsenal", tla: "ARS", crestUrl: null }, away: { name: "Chelsea", tla: "CHE", crestUrl: null }, homeScore: null, awayScore: null };
-    const $ = render(data({ viewer: { signedIn: true, clubs: [{ id: "c1", name: "Arsenal" }], next } }));
-    expect($(".followed-summary").text()).toContain("Đang theo dõi Arsenal."); expect($(".followed-next").text()).toContain("25/10/2026 · 21:00 UTC+7");
+    const $ = render(data({ viewer: { signedIn: true, clubs: [{ id: "c1", name: "Arsenal" }], next }, mine: [{ id: "c1", name: "Arsenal", next, story: { title: "Arsenal thắng đậm", href: "/news/bao-A" } }] }));
+    expect($(".ms-club").text()).toBe("Arsenal"); expect($(".ms-next").text()).toContain("Arsenal – Chelsea"); expect($(".ms-next").attr("href")).toBe("/match/m1");
+    expect($(".ms-story").attr("href")).toBe("/news/bao-A"); expect($(".qf-grid")).toHaveLength(0);
+  });
+  it("shows what is hot only when something is, and the top scorers beside the table", () => {
+    expect(render(data())(".hot-strip")).toHaveLength(0);
+    const $ = render(data({
+      hot: { matches: [{ slug: "m9", home: "Como", away: "Man United", homeScore: 4, awayScore: 1, threads: 3 }], topics: [{ kind: "club", id: "c1", name: "Man United", crestUrl: null, stories: 9, threads: 2 }] },
+      scorers: { leagueName: "Premier League", leagueHref: "/league/premier-league?tab=thong-ke", list: [{ name: "Erling Haaland", goals: 8, assists: 1, team: "Man City", crestUrl: null, photoUrl: null, href: "/player/player-1" }] },
+    }));
+    expect($(".hot-strip b").map((_, node) => $(node).text()).get()).toEqual(["Como 4–1 Man United", "Man United"]);
+    expect($(".hot-strip small").map((_, node) => $(node).text()).get()).toEqual(["3 chủ đề fan", "9 tin · 2 chủ đề fan"]);
+    expect($(".hot-strip a").first().attr("href")).toBe("/match/m9");
+    expect($(".ov-scorers").text()).toContain("Erling Haaland"); expect($(".ov-scorers strong").text()).toBe("8");
   });
   it("links highlights to the match page and keeps unsafe crests out of the match ribbon", () => {
     const $ = render(data({

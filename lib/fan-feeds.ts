@@ -57,3 +57,5 @@ export const footballWords = /bóng đá|ngoại hạng|champions league|c1\b|la
 export const crudeWords = /\b(đm|đ\.m|dm|đmm|cc|cl|vcl|vl|đéo|địt|đụ|cặc|lồn|buồi|ngu như|óc chó|súc vật)\b|\bfuck|\bshit\b|\bcunt\b|nigger|retard/iu;
 /** Live score updates ("Como [4] - 0 Man United - Nico Paz 2'") and housekeeping threads are not fans talking: they repeat the match data. */
 export const notTalk = /\[\d+\]\s*-\s*\d|\d\s*-\s*\[\d+\]|\b\d{1,3}\+?\d?'$|^daily discussion|^free talk|^weekly|^transfer (?:talk|discussion)|^\[mod\]|^reminder/i;
+/** The same heavy topics the Vietnamese feed cards are held for (death, crime, abuse, discrimination, self-harm), in English for r/soccer. */
+export const sensitiveEnglish = /\b(death|died|dies|dead|passed away|funeral|killed|murder(?:ed)?|suicide|self[- ]harm|rape[d]?|sexual(?:ly)? assault|abuse[d]?|arrest(?:ed)?|racis(?:m|t)|racial|cancer|tragedy|tragic|lawsuit|sued)\b/i;
