@@ -6,9 +6,9 @@ import { feedCertaintyText, feedTransferText, officialWordingNotice } from "../.
 import { clubPath } from "../../lib/club-presentation";
 import { playerPath } from "../../lib/player-presentation";
 import { leagueHref } from "../../lib/league-presentation";
-import { safeCrestUrl } from "../../lib/crest";
 import { newsAbsoluteTime, newsRelativeTime, safeNewsUrl } from "../../lib/news-presentation";
 import type { LeagueSlug } from "../../types/league-hub";
+import { Mark } from "../ui/crest-mark";
 import { PostActions, SaveButton } from "./feed-actions";
 import { StoryCard, storyKind, storyLeague } from "./story-card";
 
@@ -16,14 +16,6 @@ const matchLink = (slug: string, tab?: string) => `/match/${encodeURIComponent(s
 const initials = (name: string) => name.replace(/[^\p{L}\p{N} ]/gu, "").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => [...word][0]).join("").toUpperCase() || "F";
 const formWord = { W: "thắng", D: "hòa", L: "thua" } as const;
 const formLetter = { W: "T", D: "H", L: "B" } as const;
-
-/** A club crest or player photo, or the initials on a disc when none is stored. */
-function Mark({ url, name, size = "md", round = false }: { url?: string | null; name: string; size?: "sm" | "md" | "lg"; round?: boolean }) {
-  const safe = safeCrestUrl(url ?? null);
-  const className = `fd-mark ${size}${round ? " round" : ""}`;
-  // eslint-disable-next-line @next/next/no-img-element -- hotlinked football-data crest or free-licence photo
-  return safe ? <img className={className} src={safe} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <span className={`${className} fd-mark-text`} aria-hidden="true">{initials(name)}</span>;
-}
 
 /** The match the story is about: crests, score (or kick-off time) and the way into the match page. */
 function MatchStrip({ match, leagueLabel }: { match: StoryMatch; leagueLabel: string | null }) {
@@ -95,7 +87,7 @@ export function FeedDetailView({ card, others, related = [], context = [], match
           <ol className="fd-sources">{others.map((other) => <li key={other.articleId}><Link href={`/news/${other.slug}`}><b>{other.publisher}</b><span>{other.title}</span><time dateTime={other.publishedAt} title={newsAbsoluteTime(other.publishedAt)}>{newsRelativeTime(other.publishedAt, now)}</time></Link></li>)}</ol></section>}
         {contexts.length > 0 && <section aria-labelledby="club-context"><h2 id="club-context" className="fb-text fb-text-section">Bối cảnh từ dữ liệu Fotban</h2><div className="context-club-grid">{contexts.map((club) => <ClubContextCard key={club.clubId} club={club} skipMatch={skipMatch} />)}</div><p className="fb-text fb-text-caption">Football data provided by the Football-Data.org API.</p></section>}
         {(entities.length > 0 || league) && <section aria-labelledby="context-next"><h2 id="context-next" className="fb-text fb-text-section">Đi tiếp đúng ngữ cảnh</h2><div className="context-chips">
-          {entities.map((entity) => <Link key={`${entity.kind}:${entity.id}`} className="fd-chip" href={entity.kind === "club" ? clubPath(entity.id!) : playerPath(entity.id!)}><Mark url={entity.kind === "club" ? entity.crestUrl : entity.photoUrl} name={entity.name} size="sm" round={entity.kind === "player"} />{entity.name}</Link>)}
+          {entities.map((entity) => <Link key={`${entity.kind}:${entity.id}`} className="fd-chip" href={entity.kind === "club" ? clubPath(entity.id!) : playerPath(entity.id!)}><Mark url={entity.kind === "club" ? entity.crestUrl : entity.photoUrl} name={entity.name} size="sm" round={entity.kind === "player"} photo={entity.kind === "player"} />{entity.name}</Link>)}
           {league && <Link className="fd-chip" href={leagueHref(league.slug as LeagueSlug)}>{league.label}</Link>}
         </div></section>}
       </div>

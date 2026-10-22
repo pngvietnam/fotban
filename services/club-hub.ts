@@ -1,7 +1,8 @@
 import type { SqlExecutor } from "../lib/sync-database";
-import type { ClubFixtures, ClubProfile, ClubStanding, SquadPlayer } from "../types/club-hub";
+import type { ClubFixtures, ClubProfile, ClubScorer, ClubStanding, ClubTable, SquadPlayer } from "../types/club-hub";
 import type { LeagueSlug } from "../types/league-hub";
 import { isLeagueSlug, leagueNames, leagueStandings } from "./league-hub";
+import { readLeagueLeaders } from "./league-leaders";
 
 export const clubIdFromSlug = (slug: string) => /^club-([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/.exec(slug)?.[1] ?? null;
 export const clubSlug = (clubId: string) => `club-${clubId}`;
@@ -21,12 +22,12 @@ export async function clubStanding(tx: SqlExecutor, club: ClubProfile, now: Date
   return row ? { row, fetchedAt: table.fetchedAt } : null;
 }
 /** Last five finished matches and the next five (postponed ones stay visible with their real status). */
-export async function clubFixtures(tx: SqlExecutor, clubId: string, now: Date): Promise<ClubFixtures> {
+export async function clubFixtures(tx: SqlExecutor, clubId: string, now: Date, limit = 5): Promise<ClubFixtures> {
   type Row = { slug: string; kickoffAt: string; status: string; round: string | null; homeName: string; homeTla: string | null; homeCrest: string | null; awayName: string; awayTla: string | null; awayCrest: string | null; homeScore: number | null; awayScore: number | null; leagueName: string; leagueSlug: string };
   const select = `SELECT l.name AS "leagueName",l.slug AS "leagueSlug",m.slug,m."kickoffAt",m.status,m.round,hc.name AS "homeName",hc.tla AS "homeTla",hc."externalCrestUrl" AS "homeCrest",ac.name AS "awayName",ac.tla AS "awayTla",ac."externalCrestUrl" AS "awayCrest",m."homeScore",m."awayScore" FROM "Match" m JOIN "Club" hc ON hc.id=m."homeClubId" JOIN "Club" ac ON ac.id=m."awayClubId" JOIN "League" l ON l.id=m."leagueId" WHERE (m."homeClubId"=$1::uuid OR m."awayClubId"=$1::uuid)`;
   const map = (row: Row) => ({ slug: row.slug, kickoffAt: new Date(row.kickoffAt).toISOString(), status: row.status, round: row.round, home: { name: row.homeName, tla: row.homeTla, crestUrl: row.homeCrest }, away: { name: row.awayName, tla: row.awayTla, crestUrl: row.awayCrest }, homeScore: row.homeScore, awayScore: row.awayScore, competition: { name: row.leagueName, slug: row.leagueSlug } });
-  const recent = await tx.query<Row>(`${select} AND m.status='FINISHED' AND m."homeScore" IS NOT NULL AND m."awayScore" IS NOT NULL AND m."kickoffAt"<=$2::timestamptz ORDER BY m."kickoffAt" DESC,m.id LIMIT 5`, [clubId, now]);
-  const upcoming = await tx.query<Row>(`${select} AND m.status<>'FINISHED' AND m.status<>'CANCELLED' AND m."kickoffAt">$2::timestamptz-interval '3 hours' ORDER BY m."kickoffAt",m.id LIMIT 5`, [clubId, now]);
+  const recent = await tx.query<Row>(`${select} AND m.status='FINISHED' AND m."homeScore" IS NOT NULL AND m."awayScore" IS NOT NULL AND m."kickoffAt"<=$2::timestamptz ORDER BY m."kickoffAt" DESC,m.id LIMIT ${limit}`, [clubId, now]);
+  const upcoming = await tx.query<Row>(`${select} AND m.status<>'FINISHED' AND m.status<>'CANCELLED' AND m."kickoffAt">$2::timestamptz-interval '3 hours' ORDER BY m."kickoffAt",m.id LIMIT ${limit}`, [clubId, now]);
   return { recent: recent.map(map), upcoming: upcoming.map(map) };
 }
 const groups: [string, RegExp][] = [["Thủ môn", /goalkeeper/i], ["Hậu vệ", /defen|back/i], ["Tiền vệ", /midfield/i], ["Tiền đạo", /offence|forward|winger|striker/i]];
@@ -34,5 +35,27 @@ export const positionGroup = (position: string | null) => groups.find(([, patter
 export const positionOrder = [...groups.map(([name]) => name), "Khác"];
 /** Current squad: open PlayerClub memberships, as last listed by the data provider. */
 export async function clubSquad(tx: SqlExecutor, clubId: string): Promise<SquadPlayer[]> {
-  return tx.query<SquadPlayer>(`SELECT p.id AS "playerId",p.name,p.position,p.nationality,i."thumbUrl" AS "photoUrl" FROM "PlayerClub" pc JOIN "Player" p ON p.id=pc."playerId" LEFT JOIN "PlayerImage" i ON i."playerId"=p.id AND i.status='FOUND' WHERE pc."clubId"=$1::uuid AND pc."endsAt" IS NULL ORDER BY p.name,p.id LIMIT 80`, [clubId]);
+  return tx.query<SquadPlayer>(`SELECT p.id AS "playerId",p.name,p.position,p.nationality,i."thumbUrl" AS "photoUrl",p."birthDate"::text AS "birthDate" FROM "PlayerClub" pc JOIN "Player" p ON p.id=pc."playerId" LEFT JOIN "PlayerImage" i ON i."playerId"=p.id AND i.status='FOUND' WHERE pc."clubId"=$1::uuid AND pc."endsAt" IS NULL ORDER BY p.name,p.id LIMIT 80`, [clubId]);
+}
+
+/** The competitions the club plays in this season (domestic league first, Champions League last), each with its table. */
+export async function clubTables(tx: SqlExecutor, clubId: string, now: Date): Promise<ClubTable[]> {
+  const rows = await tx.query<{ slug: string }>(`SELECT l.slug FROM "ClubSeason" cs JOIN "League" l ON l.id=cs."leagueId" JOIN "Season" s ON s.id=cs."seasonId"
+    WHERE cs."clubId"=$1::uuid AND $2::timestamptz BETWEEN s."startsAt" AND s."endsAt" AND l.slug IN ('premier-league','la-liga','ligue-1','champions-league') GROUP BY l.slug ORDER BY (l.slug='champions-league'),l.slug`, [clubId, now]);
+  const tables: ClubTable[] = [];
+  for (const { slug } of rows) {
+    if (!isLeagueSlug(slug)) continue;
+    const data = await leagueStandings(tx, slug, now);
+    tables.push({ slug, name: leagueNames[slug].name, data, row: data.rows.find((item) => item.clubId === clubId) ?? null });
+  }
+  return tables;
+}
+/** The club's players among each competition's stored top scorers (the provider lists only the leaders, so most clubs have a few). */
+export async function clubScorers(tx: SqlExecutor, clubId: string, tables: ClubTable[]): Promise<ClubScorer[]> {
+  const found: ClubScorer[] = [];
+  for (const table of tables) {
+    const leaders = await readLeagueLeaders(tx, table.slug);
+    for (const scorer of leaders?.scorers ?? []) if (scorer.clubId === clubId) found.push({ name: scorer.name, goals: scorer.goals, assists: scorer.assists ?? null, penalties: scorer.penalties ?? null, playerPath: scorer.playerPath, photoUrl: scorer.photoUrl, competition: table.name });
+  }
+  return found.sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name));
 }

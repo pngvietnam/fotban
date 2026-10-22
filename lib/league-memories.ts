@@ -72,3 +72,19 @@ export function clubHistory(club: string, stories: SeasonStory[], finals: boolea
 
 /** Vietnamese phrase for a number of titles in the season list. */
 export const titleWord = (count: number) => count === 1 ? "1 lần vô địch" : `${count} lần vô địch`;
+
+/**
+ * A club page's name against a honours list's name. Stricter than sameClubName, which tolerates a name inside another
+ * ("Milan" inside "Inter Milan"): equal after folding, or one is the start of the other with at least six letters
+ * ("Bayern" / "Bayern Munich"), or a known alternative spelling.
+ */
+const aliasGroups = [["bayernmunchen", "bayernmunich"], ["internazionale", "intermilan", "inter"], ["acmilan", "milan"], ["atleticomadrid", "atleticodemadrid"], ["borussiadortmund", "dortmund"], ["olympiquedemarseille", "marseille", "olympiquemarseille"], ["parissaintgermain", "psg"], ["sportingcp", "sportingclubedeportugal"], ["fcportoporto", "porto"], ["slbenfica", "benfica"], ["ajax", "afcajax"], ["psveindhoven", "psv"], ["celticglasgow", "celtic"], ["rangersglasgow", "rangers"], ["lilleosc", "lille"], ["internazionalemilano", "intermilan"], ["olympiquelyonnais", "lyon"], ["asmonaco", "monaco"], ["racinglens", "lens"], ["rcstrasbourgalsace", "strasbourg"], ["ogcnice", "nice"], ["ajauxerre", "auxerre"], ["rcdeportivolacoruna", "deportivolacoruna"]];
+const strictFold = (name: string) => fold(name).replace(/(football|futbol|calcio)$/, "");
+export function sameClub(a: string, b: string) {
+  const x = strictFold(a); const y = strictFold(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  const short = x.length <= y.length ? x : y; const long = x.length <= y.length ? y : x;
+  if (short.length >= 6 && long.startsWith(short)) return true;
+  return aliasGroups.some((group) => group.includes(x) && group.includes(y));
+}
