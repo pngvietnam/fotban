@@ -1,15 +1,14 @@
 import Link from "next/link";
-import type { ClubFixtures, ClubProfile, ClubScorer, ClubTable } from "../../types/club-hub";
+import type { ClubFixtures, ClubScorer, ClubTable } from "../../types/club-hub";
 import type { FeedListResult } from "../../types/feed-card";
-import type { FixtureRow, StandingRow } from "../../types/league-hub";
+import type { FixtureRow } from "../../types/league-hub";
 import { clubHref } from "../../lib/club-presentation";
-import { countryVi } from "../../lib/country-vi";
 import { leagueHref } from "../../lib/league-presentation";
-import { matchTimeZone, formatMatchTime, matchStatusLabels } from "../../lib/match-presentation";
+import { matchTimeZone, formatMatchTime } from "../../lib/match-presentation";
 import { newsAbsoluteTime, newsRelativeTime } from "../../lib/news-presentation";
-import type { ClubHonour } from "../../services/club-honours";
+import type { ClubExtraHonour, ClubHonour } from "../../services/club-honours";
+import type { ClubCoaches, CoachStint } from "../../services/club-coaches";
 import { Mark } from "../ui/crest-mark";
-import { FormDots } from "../domain/domain-ui";
 
 type Outcome = "W" | "D" | "L";
 const outcomeWord = { W: "Thắng", D: "Hòa", L: "Thua" } as const;
@@ -25,55 +24,6 @@ function outcome(fixture: FixtureRow, clubName: string): Outcome | null {
 const matchHref = (slug: string, tab?: string) => `/match/${encodeURIComponent(slug)}${tab ? `?tab=${tab}` : ""}`;
 const dayLabel = (iso: string) => new Intl.DateTimeFormat("vi-VN", { timeZone: matchTimeZone, weekday: "short", day: "2-digit", month: "2-digit" }).format(new Date(iso));
 const pointsWord = (value: number | null) => value === null ? "–" : String(value);
-
-/** The club's own header: crest, name, league, venue, the next match and the ways to follow it. */
-export function ClubHero({ club, next, followAction, calendarHref }: { club: ClubProfile; next: FixtureRow | null; followAction: React.ReactNode; calendarHref: string | null }) {
-  const subtitle = [countryVi(club.country), club.venue].filter(Boolean).join(" · ");
-  return <header className="cb-hero">
-    <div className="cb-hero-main">
-      <Mark url={club.crestUrl} name={club.name} size="lg" />
-      <div className="cb-hero-title">
-        {club.league ? <Link className="dp-kicker" href={leagueHref(club.league.slug)}>{club.league.name}</Link> : <span className="dp-kicker">Hồ sơ CLB</span>}
-        <h1>{club.name}</h1>
-        {subtitle && <p>{subtitle}</p>}
-      </div>
-      <div className="cb-hero-actions">
-        {calendarHref && <a className="dp-secondary cb-calendar" href={calendarHref} download><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /></svg>Thêm vào lịch</a>}
-        {followAction}
-      </div>
-    </div>
-    {next && <p className="cb-hero-next"><b>Trận tới</b> <Link href={matchHref(next.slug)}>{next.home.name} – {next.away.name}</Link> · {dayLabel(next.kickoffAt)} {formatMatchTime(next.kickoffAt)}{next.competition ? ` · ${next.competition.name}` : ""}</p>}
-  </header>;
-}
-
-/** The next fixture, big: who, when, where (home or away) and which competition. */
-export function NextMatchCard({ fixture, clubName }: { fixture: FixtureRow; clubName: string }) {
-  const live = fixture.status === "LIVE" || fixture.status === "HALFTIME";
-  const label = fixture.status in matchStatusLabels ? matchStatusLabels[fixture.status as keyof typeof matchStatusLabels] : "";
-  return <section className="cb-next" aria-label="Trận kế tiếp">
-    <div className="cb-next-head"><span className="dp-kicker">{live ? "Đang diễn ra" : "Trận kế tiếp"}</span>{fixture.competition && <span>{fixture.competition.name}</span>}</div>
-    <Link className="cb-next-main" href={matchHref(fixture.slug)} aria-label={`${fixture.home.name} gặp ${fixture.away.name}, ${dayLabel(fixture.kickoffAt)} ${formatMatchTime(fixture.kickoffAt)}`}>
-      <span className="cb-next-team home"><span>{fixture.home.name}</span><Mark url={fixture.home.crestUrl} name={fixture.home.name} size="lg" /></span>
-      <span className="cb-next-when">{live && fixture.homeScore !== null ? <b>{fixture.homeScore} – {fixture.awayScore}</b> : <b>{formatMatchTime(fixture.kickoffAt)}</b>}<small>{live ? label : dayLabel(fixture.kickoffAt)}</small></span>
-      <span className="cb-next-team away"><Mark url={fixture.away.crestUrl} name={fixture.away.name} size="lg" /><span>{fixture.away.name}</span></span>
-    </Link>
-    <p className="cb-next-foot">{isHome(fixture, clubName) ? "Sân nhà" : "Sân khách"} · giờ Việt Nam (UTC+7)<Link href={matchHref(fixture.slug, "doi-dau")}>Đối đầu →</Link></p>
-  </section>;
-}
-
-/** Position, points, record and form in an even grid, with the way to the full table. */
-export function ClubStatStrip({ row, table, tableHref }: { row: StandingRow; table: ClubTable; tableHref: string }) {
-  const items: { value: React.ReactNode; label: string }[] = [
-    { value: row.position, label: "Hạng" }, { value: pointsWord(row.points), label: "Điểm" }, { value: pointsWord(row.played), label: "Trận" },
-    { value: row.won !== null && row.drawn !== null && row.lost !== null ? `${row.won}-${row.drawn}-${row.lost}` : "–", label: "Thắng-Hòa-Thua" },
-    { value: row.goalsFor !== null && row.goalsAgainst !== null ? `${row.goalsFor}:${row.goalsAgainst}` : "–", label: "Bàn thắng:thua" },
-    { value: row.goalDifference === null ? "–" : row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference, label: "Hiệu số" },
-  ];
-  return <section className="cb-strip" aria-label={`Thành tích ${table.name}`}>
-    <div className="cb-strip-head"><h2>{table.name}</h2><Link href={tableHref}>Bảng xếp hạng đầy đủ →</Link></div>
-    <dl>{items.map((item) => <div key={item.label}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}<div><dt>Phong độ</dt><dd><FormDots form={row.form} /></dd></div></dl>
-  </section>;
-}
 
 /** One fixture row from the club's point of view: the opponent, home or away, the competition, the result or kick-off. */
 function ClubFixtureItem({ fixture, clubName }: { fixture: FixtureRow; clubName: string }) {
@@ -154,20 +104,57 @@ export function ClubScorers({ scorers }: { scorers: ClubScorer[] }) {
   </section>;
 }
 
-/** The club's honours in a few lines, with the way to the full history. */
-export function HonoursSummary({ honours, historyHref }: { honours: ClubHonour[]; historyHref: string }) {
-  const won = honours.filter((item) => item.titles > 0);
-  if (!won.length) return null;
+/** The club's honours in a few lines (league titles and other trophies together), with the way to the full history. */
+export function HonoursSummary({ honours, extras = [], historyHref }: { honours: ClubHonour[]; extras?: ClubExtraHonour[]; historyHref: string }) {
+  const rows = [...honours.filter((item) => item.titles > 0).map((item) => ({ key: item.slug, label: item.label, titles: item.titles, lastTitle: item.lastTitle })), ...extras.map((item) => ({ key: item.key, label: item.label, titles: item.titles, lastTitle: item.lastTitle }))].sort((x, y) => y.titles - x.titles);
+  if (!rows.length) return null;
   return <section className="dp-panel cb-panel" aria-label="Danh hiệu">
     <div className="dp-section-heading"><h2>Danh hiệu</h2><Link href={historyHref}>Lịch sử →</Link></div>
-    <ul className="cb-honours">{won.slice(0, 3).map((item) => <li key={item.slug}><b>{item.titles}</b><span>{item.label}<small>Vô địch{item.lastTitle ? ` · gần nhất ${item.lastTitle}` : ""}</small></span></li>)}</ul>
+    <ul className="cb-honours">{rows.slice(0, 4).map((item) => <li key={item.key}><b>{item.titles}</b><span>{item.label}<small>Vô địch{item.lastTitle ? ` · gần nhất ${item.lastTitle}` : ""}</small></span></li>)}</ul>
+  </section>;
+}
+
+
+const rate = (value: number | null) => value === null ? "–" : `${Math.round(value * 100)}%`;
+const perMatch = (value: number | null) => value === null ? "–" : value.toLocaleString("vi-VN", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+const tenure = (coach: CoachStint) => `${(coach.from ?? "").slice(0, 4)} – ${coach.to ? coach.to.slice(0, 4) : "nay"}`;
+const dayText = (value: string | null) => { const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(value ?? ""); return m ? (m[3] ? `${Number(m[3])}/${Number(m[2])}/${m[1]}` : `${Number(m[2])}/${m[1]}`) : value; };
+const shortName = (name: string) => name.split(" ").slice(-1)[0];
+
+/** Head coaches: the current one, a win-rate bar per recent coach (newest on the right) and the whole list with records. */
+export function ClubCoachesPanel({ data }: { data: ClubCoaches }) {
+  const { coaches } = data;
+  const current = coaches.find((coach) => coach.current) ?? null;
+  const measured = coaches.filter((coach) => coach.winRate !== null && (coach.played ?? 0) >= 5).slice(0, 8).reverse();
+  const shown = coaches.slice(0, 10); const rest = coaches.slice(10);
+  const row = (coach: CoachStint) => <li key={`${coach.name}-${coach.from}`}>
+    <span><b>{coach.name}</b><small>{[coach.nationality, coach.honours].filter(Boolean).join(" · ")}</small></span>
+    <span>{tenure(coach)}</span>
+    <span>{coach.played ? `${coach.played} trận · ${coach.won}T ${coach.drawn}H ${coach.lost}B` : "Chưa có số liệu trận"}</span>
+    <span className="num">{rate(coach.winRate)}</span>
+  </li>;
+  return <section className="dp-panel cb-coaches" aria-labelledby="club-coaches">
+    <div className="dp-section-heading"><h2 id="club-coaches">Huấn luyện viên</h2><a href={data.source} target="_blank" rel="noopener noreferrer">Nguồn: Wikipedia ↗</a></div>
+    {current && <p className="cb-coach-now"><Mark name={current.name} size="md" round /><span><b>{current.name}</b><small>Đang dẫn dắt từ {dayText(current.from)}{current.nationality ? ` · ${current.nationality}` : ""}{current.played ? ` · ${current.played} trận, thắng ${rate(current.winRate)}` : ""}</small></span></p>}
+    {measured.length > 1 && <><h3 className="cb-subhead">Tỷ lệ thắng theo huấn luyện viên</h3>
+      <ul className="cb-bars" aria-label="Tỷ lệ thắng và điểm mỗi trận của các huấn luyện viên gần đây">{measured.map((coach) => <li key={`${coach.name}-${coach.from}`} className={coach.winRate! < 0.4 ? "low" : ""} aria-label={`${coach.name}, ${tenure(coach)}: thắng ${rate(coach.winRate)}, ${perMatch(coach.pointsPerMatch)} điểm mỗi trận`}>
+        <div className="cb-bar-track" aria-hidden="true"><div className="cb-bar" style={{ height: `${Math.max(coach.winRate! * 100, 18)}%` }}>{rate(coach.winRate)}</div></div>
+        <span className="cb-bar-ppg" aria-hidden="true">{perMatch(coach.pointsPerMatch)} Đ</span>
+        <span className="cb-bar-name" aria-hidden="true"><b>{shortName(coach.name)}</b><small>{tenure(coach)}</small></span></li>)}</ul>
+      <p className="dp-muted cb-note">Thắng % và điểm mỗi trận (Đ) tính trên mọi giải đấu trong thời gian dẫn dắt, theo số liệu Wikipedia; chỉ tính huấn luyện viên đã dẫn dắt từ 5 trận.</p></>}
+    <h3 className="cb-subhead">Tất cả huấn luyện viên</h3>
+    <ul className="cb-coach-list">{shown.map(row)}</ul>
+    {rest.length > 0 && <details className="cb-coach-more"><summary>Xem thêm {rest.length} huấn luyện viên trước đó</summary><ul className="cb-coach-list">{rest.map(row)}</ul></details>}
   </section>;
 }
 
 /** The history tab: every competition the club has won or finished second in, with the seasons. */
-export function ClubHistory({ honours, clubName }: { honours: ClubHonour[]; clubName: string }) {
-  if (!honours.length) return <div className="dp-empty" role="status"><span aria-hidden="true">f.</span><h3>Chưa có dữ liệu danh hiệu</h3><p>Fotban lưu bảng vàng của Ngoại hạng Anh, La Liga, Ligue 1 và Champions League; {clubName} chưa có mùa vô địch hay á quân nào trong các danh sách đó.</p></div>;
-  return <div className="cb-history">{honours.map((item) => <section className="dp-panel" key={item.slug} aria-labelledby={`honour-${item.slug}`}>
+export function ClubHistory({ honours, extras, coaches, clubName }: { honours: ClubHonour[]; extras: ClubExtraHonour[]; coaches: ClubCoaches | null; clubName: string }) {
+  const total = honours.reduce((sum, item) => sum + item.titles, 0) + extras.reduce((sum, item) => sum + item.titles, 0);
+  if (!honours.length && !extras.length && !coaches) return <div className="dp-empty" role="status"><span aria-hidden="true">f.</span><h3>Chưa có dữ liệu danh hiệu</h3><p>Fotban lưu bảng vàng của Ngoại hạng Anh, La Liga, Ligue 1 và Champions League; {clubName} chưa có mùa vô địch hay á quân nào trong các danh sách đó.</p></div>;
+  return <div className="cb-history">
+  {total > 0 && <p className="cb-total"><b>{total}</b>danh hiệu trong các giải Fotban lưu số liệu (giải quốc nội, cúp quốc gia và cúp châu Âu)</p>}
+  {honours.map((item) => <section className="dp-panel" key={item.slug} aria-labelledby={`honour-${item.slug}`}>
     <div className="dp-section-heading"><h2 id={`honour-${item.slug}`}>{item.label}</h2><Link href={`${leagueHref(item.slug, { tab: "mua-giai" })}&clb=${encodeURIComponent(clubName)}`}>Xem trong tab Mùa giải →</Link></div>
     <dl className="cb-facts">
       <div><dt>Vô địch</dt><dd>{item.titles}</dd></div><div><dt>Á quân</dt><dd>{item.runnerUps}</dd></div>
@@ -177,6 +164,9 @@ export function ClubHistory({ honours, clubName }: { honours: ClubHonour[]; club
     </dl>
     {item.seasons.length > 0 && <><h3>Các mùa vô địch</h3><ul className="cb-years">{item.seasons.map((season) => <li key={season.season}><b>{season.season}</b><span>{season.points != null ? `${season.points} điểm` : season.score ? `thắng ${season.runnerUp ?? ""} ${season.score}` : "vô địch"}{season.points != null && season.runnerUp ? ` · á quân ${season.runnerUp}` : ""}</span></li>)}</ul></>}
   </section>)}
+  {extras.length > 0 && <section className="dp-panel" aria-labelledby="honour-extra"><div className="dp-section-heading"><h2 id="honour-extra">Các giải khác</h2><span>Số lần vô địch</span></div>
+    <div className="cb-extra">{extras.map((item) => <div key={item.key}><b>{item.titles}</b><span>{item.label}</span><small>{item.country ? `${item.country} · ` : ""}gần nhất {item.lastTitle}{item.titles > 1 && item.firstTitle ? ` · lần đầu ${item.firstTitle}` : ""}</small></div>)}</div></section>}
+  {coaches && <ClubCoachesPanel data={coaches} />}
   <p className="dp-note">Tổng hợp từ các trang Wikipedia, đối chiếu Wikidata; điểm số có từ mùa 1995/96. Ngoại hạng Anh tính cả giải hạng nhất nước Anh từ 1888, Champions League tính cả Cúp C1 từ 1955.</p></div>;
 }
 

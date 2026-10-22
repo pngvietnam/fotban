@@ -1,5 +1,6 @@
 import { sameClub, seasonStories, type SeasonStory } from "../lib/league-memories";
 import type { LeagueSlug } from "../types/league-hub";
+import extraJson from "../data/club-honours-extra.json";
 import { seasonHonours } from "./league-honours";
 
 export type ClubHonour = {
@@ -29,6 +30,20 @@ export function clubHonours(clubName: string): ClubHonour[] {
     result.push({ slug, label, titles: won.length, runnerUps: second.length, firstTitle: oldest[0]?.season ?? null, lastTitle: won[0]?.season ?? null, longestStreak: longest,
       bestSeason: best ? { season: best.season, points: best.points } : null, lastRunnerUp: second[0]?.season ?? null,
       seasons: won.map((story) => ({ season: story.season, runnerUp: story.runnerUp, points: story.points ?? null, score: story.score ?? null })) });
+  }
+  return result.sort((a, b) => b.titles - a.titles || a.label.localeCompare(b.label));
+}
+
+type ExtraFile = { competitions: { key: string; label: string; country: string | null; seasons: { season: string; winner: string }[] }[] };
+export type ClubExtraHonour = { key: string; label: string; country: string | null; titles: number; firstTitle: string | null; lastTitle: string | null; seasons: string[] };
+/** Titles in the other competitions Fotban holds winners for (other leagues, domestic cups, UEFA Cup / Europa League, Cup Winners' Cup, Club World Cup). */
+export function clubExtraHonours(clubName: string): ClubExtraHonour[] {
+  const file = extraJson as ExtraFile;
+  const result: ClubExtraHonour[] = [];
+  for (const competition of file.competitions) {
+    const won = competition.seasons.filter((item) => sameClub(item.winner, clubName)).map((item) => item.season);
+    if (!won.length) continue;
+    result.push({ key: competition.key, label: competition.label, country: competition.country, titles: won.length, lastTitle: won[0], firstTitle: won[won.length - 1], seasons: won });
   }
   return result.sort((a, b) => b.titles - a.titles || a.label.localeCompare(b.label));
 }

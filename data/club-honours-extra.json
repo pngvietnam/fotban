@@ -1,0 +1,2937 @@
+{
+ "generatedAt": "2026-10-22T03:23:43.659Z",
+ "competitions": [
+  {
+   "key": "bundesliga",
+   "label": "Bundesliga",
+   "country": "Đức",
+   "source": "https://www.wikidata.org/wiki/Q82595",
+   "seasons": [
+    {
+     "season": "2025–26",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2024–25",
+     "winner": "FC Bayern München"
+    },
+    {
+     "season": "2023–24",
+     "winner": "Bayer 04 Leverkusen"
+    },
+    {
+     "season": "2022–23",
+     "winner": "FC Bayern München"
+    },
+    {
+     "season": "2021–22",
+     "winner": "FC Bayern München"
+    },
+    {
+     "season": "2020–21",
+     "winner": "FC Bayern München"
+    },
+    {
+     "season": "2019–20",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2018–19",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2017–18",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2016–17",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2015–16",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2014–15",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2013–14",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2012–13",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2011–12",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "2010–11",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "2009–10",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2008–09",
+     "winner": "VfL Wolfsburg"
+    },
+    {
+     "season": "2007–08",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2006–07",
+     "winner": "VfB Stuttgart"
+    },
+    {
+     "season": "2005–06",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2004–05",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2003–04",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "2002–03",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2001–02",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "2000–01",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1999–2000",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1998–99",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1997–98",
+     "winner": "1. FC Kaiserslautern"
+    },
+    {
+     "season": "1996–97",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1995–96",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "1994–95",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "1993–94",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1992–93",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "1991–92",
+     "winner": "VfB Stuttgart"
+    },
+    {
+     "season": "1990–91",
+     "winner": "1. FC Kaiserslautern"
+    },
+    {
+     "season": "1989–90",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1988–89",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1987–88",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "1986–87",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1985–86",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1984–85",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1983–84",
+     "winner": "VfB Stuttgart"
+    },
+    {
+     "season": "1982–83",
+     "winner": "Hamburger SV"
+    },
+    {
+     "season": "1981–82",
+     "winner": "Hamburger SV"
+    },
+    {
+     "season": "1980–81",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1979–80",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1978–79",
+     "winner": "Hamburger SV"
+    },
+    {
+     "season": "1977–78",
+     "winner": "1. FC Köln"
+    },
+    {
+     "season": "1976–77",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1975–76",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1974–75",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1973–74",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1972–73",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1971–72",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1970–71",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1969–70",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1968–69",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1967–68",
+     "winner": "1. FC Nürnberg"
+    },
+    {
+     "season": "1966–67",
+     "winner": "Eintracht Braunschweig"
+    },
+    {
+     "season": "1965–66",
+     "winner": "TSV 1860 München"
+    },
+    {
+     "season": "1964–65",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "1963–64",
+     "winner": "1. FC Köln"
+    }
+   ]
+  },
+  {
+   "key": "eredivisie",
+   "label": "Eredivisie",
+   "country": "Hà Lan",
+   "source": "https://www.wikidata.org/wiki/Q167541",
+   "seasons": [
+    {
+     "season": "2025–26",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2024–25",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2023–24",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2022–23",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "2021–22",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2020–21",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2018–19",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2017–18",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2016–17",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "2015–16",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2014–15",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2013–14",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2012–13",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2011–12",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2010–11",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2009–10",
+     "winner": "FC Twente"
+    },
+    {
+     "season": "2008–09",
+     "winner": "AZ Alkmaar"
+    },
+    {
+     "season": "2007–08",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2006–07",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2005–06",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2004–05",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2003–04",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2002–03",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "2001–02",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "2000–01",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1999–2000",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1998–99",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1997–98",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1996–97",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1995–96",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1994–95",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1993–94",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1992–93",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1991–92",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1990–91",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1989–90",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1988–89",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1987–88",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1986–87",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1985–86",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1984–85",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1983–84",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1982–83",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1981–82",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1980–81",
+     "winner": "AZ Alkmaar"
+    },
+    {
+     "season": "1979–80",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1978–79",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1977–78",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1976–77",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1975–76",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1974–75",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1973–74",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1972–73",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1971–72",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1970–71",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1969–70",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1968–69",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1967–68",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1966–67",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1965–66",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1964–65",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1963–64",
+     "winner": "AFC DWS"
+    },
+    {
+     "season": "1962–63",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1961–62",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1960–61",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1959–60",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1958–59",
+     "winner": "Sparta Rotterdam"
+    },
+    {
+     "season": "1957–58",
+     "winner": "FC Utrecht"
+    },
+    {
+     "season": "1956–57",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1955–56",
+     "winner": "Roda JC Kerkrade"
+    },
+    {
+     "season": "1954–55",
+     "winner": "Willem II"
+    },
+    {
+     "season": "1953–54",
+     "winner": "FC Eindhoven"
+    },
+    {
+     "season": "1952–53",
+     "winner": "RCH"
+    },
+    {
+     "season": "1951–52",
+     "winner": "Willem II"
+    },
+    {
+     "season": "1950–51",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1949–50",
+     "winner": "SV Limburgia"
+    },
+    {
+     "season": "1948–49",
+     "winner": "Schiedamse Voetbal Vereniging"
+    },
+    {
+     "season": "1947–48",
+     "winner": "FC Den Bosch"
+    },
+    {
+     "season": "1946–47",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1945–46",
+     "winner": "HFC Haarlem"
+    },
+    {
+     "season": "1943–44",
+     "winner": "A.V.V. De Volewijckers"
+    },
+    {
+     "season": "1942–43",
+     "winner": "ADO Den Haag"
+    },
+    {
+     "season": "1941–42",
+     "winner": "ADO Den Haag"
+    },
+    {
+     "season": "1940–41",
+     "winner": "Heracles Almelo"
+    },
+    {
+     "season": "1939–40",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1938–39",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1937–38",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1936–37",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1935–36",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1934–35",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1933–34",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1932–33",
+     "winner": "Go Ahead Eagles"
+    },
+    {
+     "season": "1931–32",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1930–31",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1929–30",
+     "winner": "Go Ahead Eagles"
+    },
+    {
+     "season": "1928–29",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1927–28",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1926–27",
+     "winner": "Heracles Almelo"
+    },
+    {
+     "season": "1925–26",
+     "winner": "Sportclub Enschede"
+    },
+    {
+     "season": "1924–25",
+     "winner": "HBS-Craeyenhout"
+    },
+    {
+     "season": "1923–24",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1922–23",
+     "winner": "RCH"
+    },
+    {
+     "season": "1921–22",
+     "winner": "Go Ahead Eagles"
+    },
+    {
+     "season": "1920–21",
+     "winner": "NAC Breda"
+    },
+    {
+     "season": "1919–20",
+     "winner": "Be Quick 1887"
+    },
+    {
+     "season": "1918–19",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1917–18",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1916–17",
+     "winner": "Go Ahead Eagles"
+    },
+    {
+     "season": "1915–16",
+     "winner": "Willem II"
+    },
+    {
+     "season": "1914–15",
+     "winner": "Sparta Rotterdam"
+    },
+    {
+     "season": "1913–14",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1912–13",
+     "winner": "Sparta Rotterdam"
+    },
+    {
+     "season": "1911–12",
+     "winner": "Sparta Rotterdam"
+    },
+    {
+     "season": "1910–11",
+     "winner": "Sparta Rotterdam"
+    },
+    {
+     "season": "1909–10",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1908–09",
+     "winner": "Sparta Rotterdam"
+    },
+    {
+     "season": "1906–07",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1905–06",
+     "winner": "HBS-Craeyenhout"
+    },
+    {
+     "season": "1904–05",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1903–04",
+     "winner": "HBS-Craeyenhout"
+    },
+    {
+     "season": "1902–03",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1901–02",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1900–01",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1899–1900",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1898–99",
+     "winner": "RAP Amsterdam"
+    },
+    {
+     "season": "1897–98",
+     "winner": "RAP Amsterdam"
+    },
+    {
+     "season": "1896–97",
+     "winner": "RAP Amsterdam"
+    },
+    {
+     "season": "1895–96",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1894–95",
+     "winner": "Koninklijke HFC"
+    },
+    {
+     "season": "1893–94",
+     "winner": "RAP Amsterdam"
+    },
+    {
+     "season": "1892–93",
+     "winner": "Koninklijke HFC"
+    },
+    {
+     "season": "1891–92",
+     "winner": "RAP Amsterdam"
+    },
+    {
+     "season": "1890–91",
+     "winner": "HVV Den Haag"
+    },
+    {
+     "season": "1889–90",
+     "winner": "Koninklijke HFC"
+    },
+    {
+     "season": "1888–89",
+     "winner": "VV Concordia"
+    }
+   ]
+  },
+  {
+   "key": "fa-cup",
+   "label": "FA Cup",
+   "country": "Anh",
+   "source": "https://www.wikidata.org/wiki/Q11151",
+   "seasons": [
+    {
+     "season": "2025–26",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2024–25",
+     "winner": "Crystal Palace F.C."
+    },
+    {
+     "season": "2023–24",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2022–23",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2021–22",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "2020–21",
+     "winner": "Leicester City F.C."
+    },
+    {
+     "season": "2019–20",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "2018–19",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2017–18",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2016–17",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "2015–16",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2014–15",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "2013–14",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "2012–13",
+     "winner": "Wigan Athletic F.C."
+    },
+    {
+     "season": "2011–12",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2010–11",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2009–10",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2008–09",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2007–08",
+     "winner": "Portsmouth F.C."
+    },
+    {
+     "season": "2006–07",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2005–06",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "2004–05",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "2003–04",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2002–03",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "2001–02",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "2000–01",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1999–2000",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "1998–99",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1997–98",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1996–97",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "1995–96",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1994–95",
+     "winner": "Everton F.C."
+    },
+    {
+     "season": "1993–94",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1992–93",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1991–92",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1990–91",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1989–90",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1988–89",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1987–88",
+     "winner": "Wimbledon F.C."
+    },
+    {
+     "season": "1986–87",
+     "winner": "Coventry City F.C."
+    },
+    {
+     "season": "1985–86",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1984–85",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1983–84",
+     "winner": "Everton F.C."
+    },
+    {
+     "season": "1982–83",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1981–82",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1980–81",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1979–80",
+     "winner": "West Ham United F.C."
+    },
+    {
+     "season": "1978–79",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1977–78",
+     "winner": "Ipswich Town F.C."
+    },
+    {
+     "season": "1976–77",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1975–76",
+     "winner": "Southampton F.C."
+    },
+    {
+     "season": "1974–75",
+     "winner": "West Ham United F.C."
+    },
+    {
+     "season": "1973–74",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1972–73",
+     "winner": "Sunderland A.F.C."
+    },
+    {
+     "season": "1971–72",
+     "winner": "Leeds United F.C."
+    },
+    {
+     "season": "1970–71",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1969–70",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "1968–69",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "1967–68",
+     "winner": "West Bromwich Albion F.C."
+    },
+    {
+     "season": "1966–67",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1965–66",
+     "winner": "Everton F.C."
+    },
+    {
+     "season": "1964–65",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1963–64",
+     "winner": "West Ham United F.C."
+    },
+    {
+     "season": "1962–63",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1961–62",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1960–61",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1959–60",
+     "winner": "Wolverhampton Wanderers F.C."
+    },
+    {
+     "season": "1958–59",
+     "winner": "Nottingham Forest F.C."
+    },
+    {
+     "season": "1957–58",
+     "winner": "Bolton Wanderers F.C."
+    },
+    {
+     "season": "1956–57",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1955–56",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "1954–55",
+     "winner": "Newcastle United F.C."
+    },
+    {
+     "season": "1953–54",
+     "winner": "West Bromwich Albion F.C."
+    },
+    {
+     "season": "1952–53",
+     "winner": "Blackpool F.C."
+    },
+    {
+     "season": "1951–52",
+     "winner": "Newcastle United F.C."
+    },
+    {
+     "season": "1950–51",
+     "winner": "Newcastle United F.C."
+    },
+    {
+     "season": "1949–50",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1948–49",
+     "winner": "Wolverhampton Wanderers F.C."
+    },
+    {
+     "season": "1947–48",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1946–47",
+     "winner": "Charlton Athletic F.C."
+    },
+    {
+     "season": "1945–46",
+     "winner": "Derby County F.C."
+    },
+    {
+     "season": "1938–39",
+     "winner": "Portsmouth F.C."
+    },
+    {
+     "season": "1937–38",
+     "winner": "Preston North End F.C."
+    },
+    {
+     "season": "1936–37",
+     "winner": "Sunderland A.F.C."
+    },
+    {
+     "season": "1935–36",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1934–35",
+     "winner": "Sheffield Wednesday F.C."
+    },
+    {
+     "season": "1933–34",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "1932–33",
+     "winner": "Everton F.C."
+    },
+    {
+     "season": "1931–32",
+     "winner": "Newcastle United F.C."
+    },
+    {
+     "season": "1930–31",
+     "winner": "West Bromwich Albion F.C."
+    },
+    {
+     "season": "1929–30",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1928–29",
+     "winner": "Bolton Wanderers F.C."
+    },
+    {
+     "season": "1927–28",
+     "winner": "Blackburn Rovers F.C."
+    },
+    {
+     "season": "1926–27",
+     "winner": "Cardiff City F.C."
+    },
+    {
+     "season": "1925–26",
+     "winner": "Bolton Wanderers F.C."
+    },
+    {
+     "season": "1924–25",
+     "winner": "Sheffield United F.C."
+    },
+    {
+     "season": "1923–24",
+     "winner": "Newcastle United F.C."
+    },
+    {
+     "season": "1922–23",
+     "winner": "Bolton Wanderers F.C."
+    },
+    {
+     "season": "1921–22",
+     "winner": "Huddersfield Town A.F.C."
+    },
+    {
+     "season": "1920–21",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1919–20",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1914–15",
+     "winner": "Sheffield United F.C."
+    },
+    {
+     "season": "1913–14",
+     "winner": "Burnley F.C."
+    },
+    {
+     "season": "1912–13",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1911–12",
+     "winner": "Barnsley F.C."
+    },
+    {
+     "season": "1910–11",
+     "winner": "Bradford City A.F.C."
+    },
+    {
+     "season": "1909–10",
+     "winner": "Newcastle United F.C."
+    },
+    {
+     "season": "1908–09",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1907–08",
+     "winner": "Wolverhampton Wanderers F.C."
+    },
+    {
+     "season": "1906–07",
+     "winner": "Sheffield Wednesday F.C."
+    },
+    {
+     "season": "1905–06",
+     "winner": "Everton F.C."
+    },
+    {
+     "season": "1904–05",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1903–04",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "1902–03",
+     "winner": "Bury F.C."
+    },
+    {
+     "season": "1901–02",
+     "winner": "Sheffield United F.C."
+    },
+    {
+     "season": "1900–01",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1899–1900",
+     "winner": "Bury F.C."
+    },
+    {
+     "season": "1898–99",
+     "winner": "Sheffield United F.C."
+    },
+    {
+     "season": "1897–98",
+     "winner": "Nottingham Forest F.C."
+    },
+    {
+     "season": "1896–97",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1895–96",
+     "winner": "Sheffield Wednesday F.C."
+    },
+    {
+     "season": "1894–95",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1893–94",
+     "winner": "Notts County F.C."
+    },
+    {
+     "season": "1892–93",
+     "winner": "Wolverhampton Wanderers F.C."
+    },
+    {
+     "season": "1891–92",
+     "winner": "West Bromwich Albion F.C."
+    },
+    {
+     "season": "1890–91",
+     "winner": "Blackburn Rovers F.C."
+    },
+    {
+     "season": "1889–90",
+     "winner": "Blackburn Rovers F.C."
+    },
+    {
+     "season": "1888–89",
+     "winner": "Preston North End F.C."
+    },
+    {
+     "season": "1887–88",
+     "winner": "West Bromwich Albion F.C."
+    },
+    {
+     "season": "1886–87",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1885–86",
+     "winner": "Blackburn Rovers F.C."
+    },
+    {
+     "season": "1884–85",
+     "winner": "Blackburn Rovers F.C."
+    },
+    {
+     "season": "1883–84",
+     "winner": "Blackburn Rovers F.C."
+    },
+    {
+     "season": "1882–83",
+     "winner": "Blackburn Olympic F.C."
+    },
+    {
+     "season": "1881–82",
+     "winner": "Old Etonians F.C."
+    },
+    {
+     "season": "1880–81",
+     "winner": "Old Carthusians F.C."
+    },
+    {
+     "season": "1879–80",
+     "winner": "Clapham Rovers F.C."
+    },
+    {
+     "season": "1878–79",
+     "winner": "Old Etonians F.C."
+    },
+    {
+     "season": "1877–78",
+     "winner": "Wanderers F.C."
+    },
+    {
+     "season": "1876–77",
+     "winner": "Wanderers F.C."
+    },
+    {
+     "season": "1875–76",
+     "winner": "Wanderers F.C."
+    },
+    {
+     "season": "1874–75",
+     "winner": "Royal Engineers A.F.C."
+    },
+    {
+     "season": "1873–74",
+     "winner": "Oxford University A.F.C."
+    },
+    {
+     "season": "1872–73",
+     "winner": "Wanderers F.C."
+    },
+    {
+     "season": "1871–72",
+     "winner": "Wanderers F.C."
+    }
+   ]
+  },
+  {
+   "key": "efl-cup",
+   "label": "EFL Cup",
+   "country": "Anh",
+   "source": "https://www.wikidata.org/wiki/Q11152",
+   "seasons": [
+    {
+     "season": "2025–26",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2024–25",
+     "winner": "Newcastle United F.C."
+    },
+    {
+     "season": "2023–24",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "2022–23",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2021–22",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "2020–21",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2019–20",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2018–19",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2017–18",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2016–17",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2015–16",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2014–15",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2013–14",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2012–13",
+     "winner": "Swansea City A.F.C."
+    },
+    {
+     "season": "2011–12",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "2010–11",
+     "winner": "Birmingham City F.C."
+    },
+    {
+     "season": "2009–10",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2008–09",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2007–08",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "2006–07",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2005–06",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2004–05",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2003–04",
+     "winner": "Middlesbrough F.C."
+    },
+    {
+     "season": "2002–03",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "2001–02",
+     "winner": "Blackburn Rovers F.C."
+    },
+    {
+     "season": "2000–01",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1999–2000",
+     "winner": "Leicester City F.C."
+    },
+    {
+     "season": "1998–99",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1997–98",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "1996–97",
+     "winner": "Leicester City F.C."
+    },
+    {
+     "season": "1995–96",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1994–95",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1993–94",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1992–93",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1991–92",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1990–91",
+     "winner": "Sheffield Wednesday F.C."
+    },
+    {
+     "season": "1989–90",
+     "winner": "Nottingham Forest F.C."
+    },
+    {
+     "season": "1988–89",
+     "winner": "Nottingham Forest F.C."
+    },
+    {
+     "season": "1987–88",
+     "winner": "Luton Town F.C."
+    },
+    {
+     "season": "1986–87",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1985–86",
+     "winner": "Oxford United F.C."
+    },
+    {
+     "season": "1984–85",
+     "winner": "Norwich City F.C."
+    },
+    {
+     "season": "1983–84",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1982–83",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1981–82",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1980–81",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1979–80",
+     "winner": "Wolverhampton Wanderers F.C."
+    },
+    {
+     "season": "1978–79",
+     "winner": "Nottingham Forest F.C."
+    },
+    {
+     "season": "1977–78",
+     "winner": "Nottingham Forest F.C."
+    },
+    {
+     "season": "1976–77",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1975–76",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "1974–75",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "1973–74",
+     "winner": "Wolverhampton Wanderers F.C."
+    },
+    {
+     "season": "1972–73",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1971–72",
+     "winner": "Stoke City F.C."
+    },
+    {
+     "season": "1970–71",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1969–70",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "1968–69",
+     "winner": "Swindon Town F.C."
+    },
+    {
+     "season": "1967–68",
+     "winner": "Leeds United F.C."
+    },
+    {
+     "season": "1966–67",
+     "winner": "Queens Park Rangers F.C."
+    },
+    {
+     "season": "1965–66",
+     "winner": "West Bromwich Albion F.C."
+    },
+    {
+     "season": "1964–65",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "1963–64",
+     "winner": "Leicester City F.C."
+    },
+    {
+     "season": "1962–63",
+     "winner": "Birmingham City F.C."
+    },
+    {
+     "season": "1961–62",
+     "winner": "Norwich City F.C."
+    },
+    {
+     "season": "1960–61",
+     "winner": "Aston Villa F.C."
+    }
+   ]
+  },
+  {
+   "key": "coupe-de-france",
+   "label": "Coupe de France",
+   "country": "Pháp",
+   "source": "https://www.wikidata.org/wiki/Q212412",
+   "seasons": [
+    {
+     "season": "2025–26",
+     "winner": "R.C. Lens"
+    },
+    {
+     "season": "2024–25",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2023–24",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2022–23",
+     "winner": "Toulouse FC"
+    },
+    {
+     "season": "2021–22",
+     "winner": "FC Nantes"
+    },
+    {
+     "season": "2020–21",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2019–20",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2018–19",
+     "winner": "Stade Rennais F.C."
+    },
+    {
+     "season": "2017–18",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2016–17",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2015–16",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2014–15",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2013–14",
+     "winner": "En Avant de Guingamp"
+    },
+    {
+     "season": "2012–13",
+     "winner": "FC Girondins de Bordeaux"
+    },
+    {
+     "season": "2011–12",
+     "winner": "Olympique Lyonnais"
+    },
+    {
+     "season": "2010–11",
+     "winner": "Lille OSC"
+    },
+    {
+     "season": "2009–2010",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2008–2009",
+     "winner": "En Avant de Guingamp"
+    },
+    {
+     "season": "2007–08",
+     "winner": "Olympique Lyonnais"
+    },
+    {
+     "season": "2006–07",
+     "winner": "FC Sochaux-Montbéliard"
+    },
+    {
+     "season": "2005–06",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2004–05",
+     "winner": "AJ Auxerre"
+    },
+    {
+     "season": "2003–04",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "2002–03",
+     "winner": "AJ Auxerre"
+    },
+    {
+     "season": "2001–02",
+     "winner": "F.C. Lorient"
+    },
+    {
+     "season": "2000–01",
+     "winner": "RC Strasbourg Alsace"
+    },
+    {
+     "season": "1999–2000",
+     "winner": "FC Nantes"
+    },
+    {
+     "season": "1998–99",
+     "winner": "FC Nantes"
+    },
+    {
+     "season": "1997–98",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "1996–97",
+     "winner": "OGC Nice"
+    },
+    {
+     "season": "1995–96",
+     "winner": "AJ Auxerre"
+    },
+    {
+     "season": "1994–95",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "1993–94",
+     "winner": "AJ Auxerre"
+    },
+    {
+     "season": "1992–93",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "1990–91",
+     "winner": "AS Monaco FC"
+    },
+    {
+     "season": "1989–90",
+     "winner": "Montpellier Hérault Sport Club"
+    },
+    {
+     "season": "1988–89",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1987–88",
+     "winner": "FC Metz"
+    },
+    {
+     "season": "1986–87",
+     "winner": "FC Girondins de Bordeaux"
+    },
+    {
+     "season": "1985–86",
+     "winner": "FC Girondins de Bordeaux"
+    },
+    {
+     "season": "1984–85",
+     "winner": "AS Monaco FC"
+    },
+    {
+     "season": "1983–84",
+     "winner": "FC Metz"
+    },
+    {
+     "season": "1982–83",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "1981–82",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "1980–81",
+     "winner": "SC Bastia"
+    },
+    {
+     "season": "1979–80",
+     "winner": "AS Monaco FC"
+    },
+    {
+     "season": "1978–79",
+     "winner": "FC Nantes"
+    },
+    {
+     "season": "1977–78",
+     "winner": "A.S. Nancy-Lorraine"
+    },
+    {
+     "season": "1976–77",
+     "winner": "AS Saint-Étienne"
+    },
+    {
+     "season": "1975–76",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1974–75",
+     "winner": "AS Saint-Étienne"
+    },
+    {
+     "season": "1973–74",
+     "winner": "AS Saint-Étienne"
+    },
+    {
+     "season": "1972–73",
+     "winner": "Olympique Lyonnais"
+    },
+    {
+     "season": "1971–72",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1970–71",
+     "winner": "Stade Rennais F.C."
+    },
+    {
+     "season": "1969–70",
+     "winner": "AS Saint-Étienne"
+    },
+    {
+     "season": "1968–69",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1967–68",
+     "winner": "AS Saint-Étienne"
+    },
+    {
+     "season": "1966–67",
+     "winner": "Olympique Lyonnais"
+    },
+    {
+     "season": "1965–66",
+     "winner": "RC Strasbourg Alsace"
+    },
+    {
+     "season": "1964–65",
+     "winner": "Stade Rennais F.C."
+    },
+    {
+     "season": "1963–64",
+     "winner": "Olympique Lyonnais"
+    },
+    {
+     "season": "1962–63",
+     "winner": "AS Monaco FC"
+    },
+    {
+     "season": "1961–62",
+     "winner": "AS Saint-Étienne"
+    },
+    {
+     "season": "1960–61",
+     "winner": "CS Sedan Ardennes"
+    },
+    {
+     "season": "1959–60",
+     "winner": "AS Monaco FC"
+    },
+    {
+     "season": "1958–59",
+     "winner": "Le Havre AC"
+    },
+    {
+     "season": "1957–58",
+     "winner": "Stade de Reims"
+    },
+    {
+     "season": "1956–57",
+     "winner": "Toulouse FC"
+    },
+    {
+     "season": "1955–56",
+     "winner": "CS Sedan Ardennes"
+    },
+    {
+     "season": "1954–55",
+     "winner": "Lille OSC"
+    },
+    {
+     "season": "1953–54",
+     "winner": "OGC Nice"
+    },
+    {
+     "season": "1952–53",
+     "winner": "Lille OSC"
+    },
+    {
+     "season": "1951–52",
+     "winner": "OGC Nice"
+    },
+    {
+     "season": "1950–51",
+     "winner": "RC Strasbourg Alsace"
+    },
+    {
+     "season": "1949–50",
+     "winner": "Stade de Reims"
+    },
+    {
+     "season": "1948–49",
+     "winner": "Racing Club de France"
+    },
+    {
+     "season": "1947–48",
+     "winner": "Lille OSC"
+    },
+    {
+     "season": "1946–47",
+     "winner": "Lille OSC"
+    },
+    {
+     "season": "1945–46",
+     "winner": "Lille OSC"
+    },
+    {
+     "season": "1944–45",
+     "winner": "Racing Club de France"
+    },
+    {
+     "season": "1943–44",
+     "winner": "Équipe fédérale Nancy-Lorraine"
+    },
+    {
+     "season": "1942–43",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1941–42",
+     "winner": "Red Star F.C."
+    },
+    {
+     "season": "1940–41",
+     "winner": "FC Girondins de Bordeaux"
+    },
+    {
+     "season": "1939–40",
+     "winner": "Racing Club de France"
+    },
+    {
+     "season": "1938–39",
+     "winner": "Racing Club de France"
+    },
+    {
+     "season": "1937–38",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1936–37",
+     "winner": "FC Sochaux-Montbéliard"
+    },
+    {
+     "season": "1935–36",
+     "winner": "Racing Club de France"
+    },
+    {
+     "season": "1934–35",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1933–34",
+     "winner": "FC Sète"
+    },
+    {
+     "season": "1932–33",
+     "winner": "Excelsior AC Roubaix"
+    },
+    {
+     "season": "1931–32",
+     "winner": "AS Cannes"
+    },
+    {
+     "season": "1930–31",
+     "winner": "Club Français"
+    },
+    {
+     "season": "1929–30",
+     "winner": "FC Sète"
+    },
+    {
+     "season": "1928–29",
+     "winner": "Montpellier Hérault Sport Club"
+    },
+    {
+     "season": "1927–28",
+     "winner": "Red Star F.C."
+    },
+    {
+     "season": "1926–27",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1925–26",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1924–25",
+     "winner": "CASG Paris"
+    },
+    {
+     "season": "1923–24",
+     "winner": "Olympique de Marseille"
+    },
+    {
+     "season": "1922–23",
+     "winner": "Red Star F.C."
+    },
+    {
+     "season": "1921–22",
+     "winner": "Red Star F.C."
+    },
+    {
+     "season": "1920–21",
+     "winner": "Red Star F.C."
+    },
+    {
+     "season": "1919–20",
+     "winner": "CA Paris-Charenton"
+    },
+    {
+     "season": "1918–19",
+     "winner": "CASG Paris"
+    },
+    {
+     "season": "1917–18",
+     "winner": "Olympique de Paris"
+    }
+   ]
+  },
+  {
+   "key": "dfb-pokal",
+   "label": "DFB-Pokal",
+   "country": "Đức",
+   "source": "https://www.wikidata.org/wiki/Q150880",
+   "seasons": [
+    {
+     "season": "2025–26",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2024–25",
+     "winner": "VfB Stuttgart"
+    },
+    {
+     "season": "2023–24",
+     "winner": "Bayer 04 Leverkusen"
+    },
+    {
+     "season": "2022–23",
+     "winner": "RB Leipzig"
+    },
+    {
+     "season": "2021–22",
+     "winner": "RB Leipzig"
+    },
+    {
+     "season": "2020–21",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "2019–20",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2018–19",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2017–18",
+     "winner": "Eintracht Frankfurt"
+    },
+    {
+     "season": "2016–17",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "2015–16",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2014–15",
+     "winner": "VfL Wolfsburg"
+    },
+    {
+     "season": "2013–14",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2012–13",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2011–12",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "2010–11",
+     "winner": "Schalke 04"
+    },
+    {
+     "season": "2009–10",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2008–09",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "2007–08",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2006–07",
+     "winner": "1. FC Nürnberg"
+    },
+    {
+     "season": "2005–06",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2004–05",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2003–04",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "2002–03",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2001–02",
+     "winner": "Schalke 04"
+    },
+    {
+     "season": "2000–01",
+     "winner": "Schalke 04"
+    },
+    {
+     "season": "1999–2000",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1998–99",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "1997–98",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1996–97",
+     "winner": "VfB Stuttgart"
+    },
+    {
+     "season": "1995–96",
+     "winner": "1. FC Kaiserslautern"
+    },
+    {
+     "season": "1994–95",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1993–94",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "1992–93",
+     "winner": "Bayer 04 Leverkusen"
+    },
+    {
+     "season": "1991–92",
+     "winner": "Hannover 96"
+    },
+    {
+     "season": "1990–91",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "1989–90",
+     "winner": "1. FC Kaiserslautern"
+    },
+    {
+     "season": "1988–89",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "1987–88",
+     "winner": "Eintracht Frankfurt"
+    },
+    {
+     "season": "1986–87",
+     "winner": "Hamburger SV"
+    },
+    {
+     "season": "1985–86",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1984–85",
+     "winner": "KFC Uerdingen 05"
+    },
+    {
+     "season": "1983–84",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1982–83",
+     "winner": "1. FC Köln"
+    },
+    {
+     "season": "1981–82",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1980–81",
+     "winner": "Eintracht Frankfurt"
+    },
+    {
+     "season": "1979–80",
+     "winner": "Fortuna Düsseldorf"
+    },
+    {
+     "season": "1978–79",
+     "winner": "Fortuna Düsseldorf"
+    },
+    {
+     "season": "1977–78",
+     "winner": "1. FC Köln"
+    },
+    {
+     "season": "1976–77",
+     "winner": "1. FC Köln"
+    },
+    {
+     "season": "1975–76",
+     "winner": "Hamburger SV"
+    },
+    {
+     "season": "1974–75",
+     "winner": "Eintracht Frankfurt"
+    },
+    {
+     "season": "1973–74",
+     "winner": "Eintracht Frankfurt"
+    },
+    {
+     "season": "1972–73",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1971–72",
+     "winner": "Schalke 04"
+    },
+    {
+     "season": "1970–71",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1969–70",
+     "winner": "Kickers Offenbach"
+    },
+    {
+     "season": "1968–69",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1967–68",
+     "winner": "1. FC Köln"
+    },
+    {
+     "season": "1966–67",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1965–66",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1964–65",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "1963–64",
+     "winner": "TSV 1860 München"
+    },
+    {
+     "season": "1962–63",
+     "winner": "Hamburger SV"
+    },
+    {
+     "season": "1961–62",
+     "winner": "1. FC Nürnberg"
+    },
+    {
+     "season": "1960–61",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "1959–60",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1958–59",
+     "winner": "Schwarz-Weiß Essen"
+    },
+    {
+     "season": "1957–58",
+     "winner": "VfB Stuttgart"
+    },
+    {
+     "season": "1956–57",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1955–56",
+     "winner": "Karlsruher SC"
+    },
+    {
+     "season": "1954–55",
+     "winner": "Karlsruher SC"
+    },
+    {
+     "season": "1953–54",
+     "winner": "VfB Stuttgart"
+    },
+    {
+     "season": "1952–53",
+     "winner": "Rot-Weiss Essen"
+    },
+    {
+     "season": "1943",
+     "winner": "First Vienna FC"
+    },
+    {
+     "season": "1942",
+     "winner": "TSV 1860 München"
+    },
+    {
+     "season": "1941",
+     "winner": "Dresdner SC"
+    },
+    {
+     "season": "1940",
+     "winner": "Dresdner SC"
+    },
+    {
+     "season": "1939",
+     "winner": "1. FC Nürnberg"
+    },
+    {
+     "season": "1938",
+     "winner": "SK Rapid Wien"
+    },
+    {
+     "season": "1937",
+     "winner": "Schalke 04"
+    },
+    {
+     "season": "1936",
+     "winner": "1. FC Lokomotive Leipzig"
+    },
+    {
+     "season": "1935",
+     "winner": "1. FC Nürnberg"
+    }
+   ]
+  },
+  {
+   "key": "uefa-cup",
+   "label": "Cúp UEFA / Europa League",
+   "country": "Châu Âu",
+   "source": "https://www.wikidata.org/wiki/Q715496",
+   "seasons": [
+    {
+     "season": "2025–26",
+     "winner": "Aston Villa F.C."
+    },
+    {
+     "season": "2024–25",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "2023–24",
+     "winner": "Atalanta BC"
+    },
+    {
+     "season": "2022–23",
+     "winner": "Sevilla FC"
+    },
+    {
+     "season": "2021–22",
+     "winner": "Eintracht Frankfurt"
+    },
+    {
+     "season": "2020–21",
+     "winner": "Villarreal CF"
+    },
+    {
+     "season": "2019–20",
+     "winner": "Sevilla FC"
+    },
+    {
+     "season": "2018–19",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2017–18",
+     "winner": "Atlético Madrid"
+    },
+    {
+     "season": "2016–17",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2015–16",
+     "winner": "Sevilla FC"
+    },
+    {
+     "season": "2014–15",
+     "winner": "Sevilla FC"
+    },
+    {
+     "season": "2013–14",
+     "winner": "Sevilla FC"
+    },
+    {
+     "season": "2012–13",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2011–12",
+     "winner": "Atlético Madrid"
+    },
+    {
+     "season": "2010–11",
+     "winner": "FC Porto"
+    },
+    {
+     "season": "2009–10",
+     "winner": "Atlético Madrid"
+    },
+    {
+     "season": "2008–09",
+     "winner": "FC Shakhtar Donetsk"
+    },
+    {
+     "season": "2007–08",
+     "winner": "FC Zenit Saint Petersburg"
+    },
+    {
+     "season": "2006–07",
+     "winner": "Sevilla FC"
+    },
+    {
+     "season": "2005–06",
+     "winner": "Sevilla FC"
+    },
+    {
+     "season": "2004–05",
+     "winner": "PFC CSKA Moscow"
+    },
+    {
+     "season": "2003–04",
+     "winner": "Valencia CF"
+    },
+    {
+     "season": "2002–03",
+     "winner": "FC Porto"
+    },
+    {
+     "season": "2001–02",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "2000–01",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1999–2000",
+     "winner": "Galatasaray S.K."
+    },
+    {
+     "season": "1998–99",
+     "winner": "Parma Calcio 1913"
+    },
+    {
+     "season": "1997–98",
+     "winner": "Inter Milan"
+    },
+    {
+     "season": "1996–97",
+     "winner": "Schalke 04"
+    },
+    {
+     "season": "1995–96",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1994–95",
+     "winner": "Parma Calcio 1913"
+    },
+    {
+     "season": "1993–94",
+     "winner": "Inter Milan"
+    },
+    {
+     "season": "1992–93",
+     "winner": "Juventus FC"
+    },
+    {
+     "season": "1991–92",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1990–91",
+     "winner": "Inter Milan"
+    },
+    {
+     "season": "1989–90",
+     "winner": "Juventus FC"
+    },
+    {
+     "season": "1988–89",
+     "winner": "SSC Napoli"
+    },
+    {
+     "season": "1987–88",
+     "winner": "Bayer 04 Leverkusen"
+    },
+    {
+     "season": "1986–87",
+     "winner": "IFK Göteborg"
+    },
+    {
+     "season": "1985–86",
+     "winner": "Real Madrid Club de Fútbol"
+    },
+    {
+     "season": "1984–85",
+     "winner": "Real Madrid Club de Fútbol"
+    },
+    {
+     "season": "1983–84",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1982–83",
+     "winner": "R.S.C. Anderlecht"
+    },
+    {
+     "season": "1981–82",
+     "winner": "IFK Göteborg"
+    },
+    {
+     "season": "1980–81",
+     "winner": "Ipswich Town F.C."
+    },
+    {
+     "season": "1979–80",
+     "winner": "Eintracht Frankfurt"
+    },
+    {
+     "season": "1978–79",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1977–78",
+     "winner": "PSV Eindhoven"
+    },
+    {
+     "season": "1976–77",
+     "winner": "Juventus FC"
+    },
+    {
+     "season": "1975–76",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1974–75",
+     "winner": "Borussia Mönchengladbach"
+    },
+    {
+     "season": "1973–74",
+     "winner": "Feyenoord Rotterdam"
+    },
+    {
+     "season": "1972–73",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "1971–72",
+     "winner": "Tottenham Hotspur F.C."
+    }
+   ]
+  },
+  {
+   "key": "cup-winners-cup",
+   "label": "Cúp C2 (Cup Winners' Cup)",
+   "country": "Châu Âu",
+   "source": "https://www.wikidata.org/wiki/Q40241",
+   "seasons": [
+    {
+     "season": "1998–99",
+     "winner": "SS Lazio"
+    },
+    {
+     "season": "1997–98",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "1996–97",
+     "winner": "FC Barcelona"
+    },
+    {
+     "season": "1995–96",
+     "winner": "Paris Saint-Germain FC"
+    },
+    {
+     "season": "1994–95",
+     "winner": "Real Zaragoza"
+    },
+    {
+     "season": "1993–94",
+     "winner": "Arsenal F.C."
+    },
+    {
+     "season": "1992–93",
+     "winner": "Parma Calcio 1913"
+    },
+    {
+     "season": "1991–92",
+     "winner": "SV Werder Bremen"
+    },
+    {
+     "season": "1990–91",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "1989–90",
+     "winner": "U.C. Sampdoria"
+    },
+    {
+     "season": "1988–89",
+     "winner": "FC Barcelona"
+    },
+    {
+     "season": "1987–88",
+     "winner": "KV Mechelen"
+    },
+    {
+     "season": "1986–87",
+     "winner": "AFC Ajax"
+    },
+    {
+     "season": "1985–86",
+     "winner": "FC Dynamo Kyiv"
+    },
+    {
+     "season": "1984–85",
+     "winner": "Everton F.C."
+    },
+    {
+     "season": "1983–84",
+     "winner": "Juventus FC"
+    },
+    {
+     "season": "1982–83",
+     "winner": "Aberdeen F.C."
+    },
+    {
+     "season": "1981–82",
+     "winner": "FC Barcelona"
+    },
+    {
+     "season": "1980–81",
+     "winner": "FC Dinamo Tbilisi"
+    },
+    {
+     "season": "1979–80",
+     "winner": "Valencia CF"
+    },
+    {
+     "season": "1978–79",
+     "winner": "FC Barcelona"
+    },
+    {
+     "season": "1977–78",
+     "winner": "R.S.C. Anderlecht"
+    },
+    {
+     "season": "1976–77",
+     "winner": "Hamburger SV"
+    },
+    {
+     "season": "1975–76",
+     "winner": "R.S.C. Anderlecht"
+    },
+    {
+     "season": "1974–75",
+     "winner": "FC Dynamo Kyiv"
+    },
+    {
+     "season": "1973–74",
+     "winner": "1. FC Magdeburg"
+    },
+    {
+     "season": "1972–73",
+     "winner": "AC Milan"
+    },
+    {
+     "season": "1971–72",
+     "winner": "Rangers F.C."
+    },
+    {
+     "season": "1970–71",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "1969–70",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "1968–69",
+     "winner": "ŠK Slovan Bratislava"
+    },
+    {
+     "season": "1967–68",
+     "winner": "AC Milan"
+    },
+    {
+     "season": "1966–67",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "1965–66",
+     "winner": "Borussia Dortmund"
+    },
+    {
+     "season": "1964–65",
+     "winner": "West Ham United F.C."
+    },
+    {
+     "season": "1963–64",
+     "winner": "Sporting CP"
+    },
+    {
+     "season": "1962–63",
+     "winner": "Tottenham Hotspur F.C."
+    },
+    {
+     "season": "1961–62",
+     "winner": "Atlético Madrid"
+    },
+    {
+     "season": "1960–61",
+     "winner": "ACF Fiorentina"
+    }
+   ]
+  },
+  {
+   "key": "club-world-cup",
+   "label": "FIFA Club World Cup",
+   "country": "Thế giới",
+   "source": "https://www.wikidata.org/wiki/Q223366",
+   "seasons": [
+    {
+     "season": "2025",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2023",
+     "winner": "Manchester City F.C."
+    },
+    {
+     "season": "2022",
+     "winner": "Real Madrid Club de Fútbol"
+    },
+    {
+     "season": "2021",
+     "winner": "Chelsea F.C."
+    },
+    {
+     "season": "2020",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2019",
+     "winner": "Liverpool F.C."
+    },
+    {
+     "season": "2018",
+     "winner": "Real Madrid Club de Fútbol"
+    },
+    {
+     "season": "2017",
+     "winner": "Real Madrid Club de Fútbol"
+    },
+    {
+     "season": "2016",
+     "winner": "Real Madrid Club de Fútbol"
+    },
+    {
+     "season": "2015",
+     "winner": "FC Barcelona"
+    },
+    {
+     "season": "2014",
+     "winner": "Real Madrid Club de Fútbol"
+    },
+    {
+     "season": "2013",
+     "winner": "FC Bayern Munich"
+    },
+    {
+     "season": "2012",
+     "winner": "S.C. Corinthians Paulista"
+    },
+    {
+     "season": "2011",
+     "winner": "FC Barcelona"
+    },
+    {
+     "season": "2010",
+     "winner": "Inter Milan"
+    },
+    {
+     "season": "2009",
+     "winner": "FC Barcelona"
+    },
+    {
+     "season": "2008",
+     "winner": "Manchester United F.C."
+    },
+    {
+     "season": "2007",
+     "winner": "AC Milan"
+    },
+    {
+     "season": "2006",
+     "winner": "S.C. Internacional"
+    },
+    {
+     "season": "2005",
+     "winner": "São Paulo FC"
+    },
+    {
+     "season": "2000",
+     "winner": "S.C. Corinthians Paulista"
+    }
+   ]
+  }
+ ]
+}

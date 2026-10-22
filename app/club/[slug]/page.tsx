@@ -9,7 +9,8 @@ import { nationalityVi } from "@/lib/country-vi";
 import { playerPath } from "@/lib/player-presentation";
 import { clubTabs } from "@/types/club-hub";
 import { clubIdFromSlug, positionGroup, positionOrder } from "@/services/club-hub";
-import { clubHonours } from "@/services/club-honours";
+import { clubExtraHonours, clubHonours } from "@/services/club-honours";
+import { clubCoaches } from "@/services/club-coaches";
 import { readClub } from "@/services/club-page-data";
 import { readFeedList } from "@/services/feed-page-data";
 import { NewsShell } from "@/components/news/news-shell";
@@ -18,7 +19,9 @@ import { FollowLink } from "@/components/account/follow-link";
 import { BackLink } from "@/components/shell/back-link";
 import { Mark } from "@/components/ui/crest-mark";
 import { DomainTabs, Empty, StandingsPanel, StoryGrid } from "@/components/domain/domain-ui";
-import { ClubFixtureList, ClubHero, ClubHistory, ClubScorers, ClubStatStrip, FormAndDifficulty, HonoursSummary, MiniTable, NextMatchCard, StoryRows } from "@/components/club/club-overview";
+import { ClubFixtureList, ClubHistory, ClubScorers, FormAndDifficulty, HonoursSummary, MiniTable, StoryRows } from "@/components/club/club-overview";
+import { ClubHero, ClubStatStrip, NextMatchCard } from "@/components/club/club-hero";
+import { clubTheme } from "@/lib/club-colors";
 import { SquadGrid, type SquadCard } from "@/components/club/squad-grid";
 
 export const dynamic = "force-dynamic";
@@ -65,15 +68,21 @@ export default async function ClubPage({ params, searchParams }: Props) {
   const bySquad = new Map((squad ?? []).map((player) => [player.playerId, player]));
   const mentioned = feed?.kind === "ready" ? [...new Map(feed.data.groups.flatMap((group) => [group.lead, ...group.others]).flatMap((card) => card.entities).filter((entity) => entity.kind === "player" && entity.id && bySquad.has(entity.id)).map((entity) => [entity.id!, bySquad.get(entity.id!)!])).values()].slice(0, 5) : [];
   const honours = query.tab === "tong-quan" || query.tab === "lich-su" ? clubHonours(club.name) : [];
+  const extras = query.tab === "tong-quan" || query.tab === "lich-su" ? clubExtraHonours(club.name) : [];
+  const coaches = clubCoaches(club.name);
+  const theme = clubTheme(club.name);
+  const currentCoach = coaches?.coaches.find((coach) => coach.current)?.name ?? null;
   const squadCards: SquadCard[] = (squad ?? []).map((player) => ({ playerId: player.playerId, name: player.name, group: positionGroup(player.position), nationality: nationalityVi(player.nationality), age: ageOf(player.birthDate, now), photoUrl: player.photoUrl, href: playerPath(player.playerId) }));
   const squadGroups = positionOrder.filter((name) => squadCards.some((player) => player.group === name));
   const emptyTexts: Record<string, string> = { "tin-tuc": `Chưa có tin về ${club.name} trong 7 ngày gần đây.`, "chuyen-nhuong": `Chưa có tin chuyển nhượng về ${club.name} trong 7 ngày gần đây.`, vui: `Chưa có bài vui về ${club.name} trong 7 ngày gần đây.` };
-  return <NewsShell section="league" back={<BackLink fallback={club.league ? leagueHref(club.league.slug) : "/leagues"}>Quay lại</BackLink>}><div className="domain-page cb-page">
-    <ClubHero club={club} next={next} calendarHref={scheduled.length ? `/club/${slug}/calendar` : null} followAction={<FollowLink type="CLUB" entityId={clubId} name={display} variant="button" />} />
+  return <NewsShell section="league" back={<BackLink fallback={club.league ? leagueHref(club.league.slug) : "/leagues"}>Quay lại</BackLink>}><div className="domain-page cb-page" style={{ "--club": theme.color, "--club-on": theme.on, "--club-ink": theme.ink } as React.CSSProperties}>
+    <ClubHero club={club} table={active} recent={fixtures.recent} coach={currentCoach} calendarHref={scheduled.length ? `/club/${slug}/calendar` : null} followAction={<FollowLink type="CLUB" entityId={clubId} name={display} variant="button" />} />
     <DomainTabs label="Mục của câu lạc bộ" active={query.tab} tabs={clubTabs.filter((tab) => tab !== "vui" || query.tab === "vui").map((tab) => ({ key: tab, label: clubTabLabels[tab], href: clubHref(slug, { tab }) }))} />
     {query.tab === "tong-quan" && <>
-      {next && <NextMatchCard fixture={next} clubName={club.name} />}
-      {active?.row && <ClubStatStrip row={active.row} table={active} tableHref={clubHref(slug, { tab: "bang-xep-hang" })} />}
+      {(next || active?.row) && <div className="cb-top">
+        {next && <NextMatchCard fixture={next} clubName={club.name} now={now.getTime()} />}
+        {active?.row && <ClubStatStrip row={active.row} table={active} tableHref={clubHref(slug, { tab: "bang-xep-hang" })} />}
+      </div>}
       <div className="cb-grid">
         <div className="cb-main">
           <ClubFixtureList title="Kết quả gần đây" fixtures={fixtures.recent} clubName={club.name} action={{ href: clubHref(slug, { tab: "lich-thi-dau" }), label: "Tất cả →" }} empty="Chưa có kết quả đã lưu." />
@@ -84,7 +93,7 @@ export default async function ClubPage({ params, searchParams }: Props) {
           {active && <MiniTable tables={tables} active={active} clubId={clubId} clubSlug={slug} />}
           <ClubScorers scorers={scorers} />
           {!scorers.length && mentioned.length > 0 && <section className="dp-panel cb-panel" aria-label="Cầu thủ được nhắc nhiều"><div className="dp-section-heading"><h2>Cầu thủ được nhắc nhiều</h2></div>{mentioned.map((player) => <Link className="cb-scorer" key={player.playerId} href={playerPath(player.playerId)}><Mark url={player.photoUrl} name={player.name} size="md" round photo /><span><b>{player.name}</b><small>{[positionGroup(player.position), nationalityVi(player.nationality)].filter(Boolean).join(" · ")}</small></span></Link>)}<p className="dp-muted cb-note">Theo các tin báo chí trong 7 ngày qua.</p></section>}
-          <HonoursSummary honours={honours} historyHref={clubHref(slug, { tab: "lich-su" })} />
+          <HonoursSummary honours={honours} extras={extras} historyHref={clubHref(slug, { tab: "lich-su" })} />
         </aside>
       </div>
       <StoryRows result={feed} now={now} limit={5} title="Tin mới về đội" more={{ href: clubHref(slug, { tab: "tin-tuc" }), label: "Tất cả tin →" }} />
@@ -102,6 +111,6 @@ export default async function ClubPage({ params, searchParams }: Props) {
       <SquadGrid players={squadCards} groups={squadGroups} />
       <p className="dp-note">Danh sách theo lần đồng bộ gần nhất của nhà cung cấp dữ liệu; có thể chưa phản ánh chuyển nhượng mới. Ảnh cầu thủ từ Wikimedia Commons, <Link href="/ghi-cong-anh">xem ghi công ảnh</Link>.</p>
     </> : <Empty title="Đội hình đang cập nhật" text="Chưa có danh sách cầu thủ hợp lệ cho đội này." />)}
-    {query.tab === "lich-su" && <ClubHistory honours={honours} clubName={club.name} />}
+    {query.tab === "lich-su" && <ClubHistory honours={honours} extras={extras} coaches={coaches} clubName={club.name} />}
   </div></NewsShell>;
 }

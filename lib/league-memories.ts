@@ -7,7 +7,7 @@ export const startsAtBeginning = (list: SeasonHonour[]) => Math.min(...list.map(
 
 const startYear = (season: string) => Number(season.slice(0, 4));
 /** Club names compared loosely: no accents, no "FC"/"CF" and similar, no punctuation. */
-const fold = (name: string) => name.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\b(fc|cf|afc|sc|ac|club|de|futbol|football)\b/g, "").replace(/[^a-z0-9]+/g, "");
+const fold = (name: string) => name.replace(/\./g, "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\b(fc|cf|afc|sc|ac|club|de|futbol|football)\b/g, "").replace(/[^a-z0-9]+/g, "");
 export const sameClubName = (a: string, b: string) => { const x = fold(a); const y = fold(b); return x.length > 2 && y.length > 2 && (x === y || x.includes(y) || y.includes(x)); };
 export const clubKey = (name: string) => fold(name);
 
