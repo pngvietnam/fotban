@@ -15,6 +15,7 @@ import { syncHeadToHead } from "../services/head-to-head";
 import { syncLeagueLeaders } from "../services/league-leaders";
 import { isLeagueSlug } from "../services/league-hub";
 import { VideoFeedSync } from "../services/video-feed-sync";
+import { liveFanReader, syncFanThreads } from "../services/fan-threads";
 import { VideoStore } from "../services/video-store";
 import { YouTubeFeedReader } from "../providers/youtube/rss";
 import { syncNews } from "../services/news-sync";
@@ -56,6 +57,8 @@ async function main() {
   // Highlights from the reviewed channels' public feeds: keyless, so a 20-minute cadence costs nothing.
   const videoFeeds = new VideoFeedSync(new YouTubeFeedReader(), new VideoStore(database), logger);
   let videosDueAt = 0;
+  // What fans say: titles and reply counts of public Voz and r/soccer threads, every ten minutes (both ask for gentle readers).
+  let fansDueAt = 0;
   logger.info({ matches: Boolean(match), details: Boolean(details), photos: Boolean(photoApi) }, "worker.started");
   try {
     await runLoop(async () => {
@@ -101,6 +104,10 @@ async function main() {
       if (Date.now() >= videosDueAt) {
         videosDueAt = Date.now() + 20 * 60_000;
         try { const videos = await videoFeeds.run(); if (videos.stored || videos.removed || videos.errors) logger.info({ ...videos }, "worker.videos"); } catch { /* Logged by the sync; retried next window. */ }
+      }
+      if (Date.now() >= fansDueAt) {
+        fansDueAt = Date.now() + 10 * 60_000;
+        try { const fans = await syncFanThreads(database, liveFanReader); if (fans.kept) logger.info({ ...fans }, "worker.fan_threads"); } catch { /* Retried next window. */ }
       }
       // Free-licence player photos: a small, time-boxed batch per pass; pauses for 30 minutes when Wikimedia pushes back.
       if (photoApi && Date.now() >= photosPausedUntil) {

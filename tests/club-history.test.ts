@@ -13,16 +13,26 @@ const html = `<table class="wikitable"><tbody>
 describe("coach list parsing", () => {
   it("reads names, tenure and record from the table with From, To and win/draw/loss columns", () => {
     const coaches = parseCoachList(html);
-    expect(coaches.map((coach) => coach.name)).toEqual(["Frederick Hopkinson", "Pep Guardiola", "Enzo Maresca"]);
+    expect(coaches.map((coach) => coach.name)).toEqual(["Enzo Maresca", "Pep Guardiola", "Frederick Hopkinson"]);
     expect(coaches[1]).toMatchObject({ nationality: "Spain", from: "2016-07-01", to: "2026-05-24", played: 593, won: 416, drawn: 87, lost: 90, goalsFor: 1423, goalsAgainst: 522, honours: "6 Premier League titles" });
-    expect(coaches[0]).toMatchObject({ from: "1880", to: "1882", played: null, honours: null });
-    expect(coaches[2]).toMatchObject({ to: null, played: 12 });
+    expect(coaches[2]).toMatchObject({ from: "1880", to: "1882", played: null, honours: null });
+    expect(coaches[0]).toMatchObject({ to: null, played: 12 });
   });
   it("reads a two-row header where Record spans the match columns", () => {
     const twoRows = `<table class="wikitable"><tr><th>Manager</th><th>Nat.</th><th>From</th><th>To</th><th colspan="4">Record</th><th colspan="2">Honours</th><th>Ref.</th></tr>
 <tr><th>Pld</th><th>W</th><th>D</th><th>L</th><th>L1</th><th>Total</th></tr>
 <tr><td><a>Tom Watson</a></td><td>ENG</td><td>17 August 1896</td><td>6 May 1915</td><td>742</td><td>329</td><td>141</td><td>272</td><td>2</td><td>3</td><td>[47]</td></tr></table>`;
     expect(parseCoachList(twoRows)).toEqual([expect.objectContaining({ name: "Tom Watson", nationality: "ENG", from: "1896-08-17", to: "1915-05-06", played: 742, won: 329, drawn: 141, lost: 272 })]);
+  });
+  it("reads a years column, drops birth years from names, and ends a coach when the next one starts", () => {
+    const table = `<table class="wikitable"><tr><th>Name</th><th>Years</th></tr>
+<tr><td>Ignacio Eizaguirre(1920–)</td><td>1964–65</td></tr><tr><td>Otto Bumbel</td><td>1963</td></tr><tr><td>Nico Kovac</td><td>2023–</td></tr><tr><td>Sven Nielsen</td><td>1960–1962</td></tr><tr><td>X</td><td>1955–56</td></tr></table>`;
+    const coaches = parseCoachList(table, { requireRecord: false });
+    expect(coaches.map((coach) => [coach.name, coach.from, coach.to])).toEqual([["Nico Kovac", "2023", null], ["Ignacio Eizaguirre", "1964", "1965"], ["Otto Bumbel", "1963", "1963"], ["Sven Nielsen", "1960", "1962"], ["X", "1955", "1956"]]);
+  });
+  it("treats an empty Until cell as still in charge", () => {
+    const table = `<table class="wikitable"><tr><th>No.</th><th>Nationality</th><th>Head coach</th><th>From</th><th>Until</th></tr><tr><td>1</td><td></td><td>A</td><td>July 1935</td><td>Aug 1935</td></tr><tr><td>2</td><td></td><td>B</td><td>2 February 2025</td><td></td></tr></table>`;
+    expect(parseCoachList(table, { requireRecord: false }).map((coach) => [coach.name, coach.to])).toEqual([["B", null], ["A", "1935-08"]]);
   });
   it("returns nothing when no table has the coach columns", () => {
     expect(parseCoachList("<table class='wikitable'><tr><th>Name</th><th>Year</th></tr></table>")).toEqual([]);

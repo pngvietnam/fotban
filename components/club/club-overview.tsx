@@ -117,7 +117,7 @@ export function HonoursSummary({ honours, extras = [], historyHref }: { honours:
 
 const rate = (value: number | null) => value === null ? "–" : `${Math.round(value * 100)}%`;
 const perMatch = (value: number | null) => value === null ? "–" : value.toLocaleString("vi-VN", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
-const tenure = (coach: CoachStint) => `${(coach.from ?? "").slice(0, 4)} – ${coach.to ? coach.to.slice(0, 4) : "nay"}`;
+const tenure = (coach: CoachStint) => coach.from ? `${coach.from.slice(0, 4)} – ${coach.to ? coach.to.slice(0, 4) : "nay"}` : "Hiện tại";
 const dayText = (value: string | null) => { const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(value ?? ""); return m ? (m[3] ? `${Number(m[3])}/${Number(m[2])}/${m[1]}` : `${Number(m[2])}/${m[1]}`) : value; };
 const shortName = (name: string) => name.split(" ").slice(-1)[0];
 
@@ -134,14 +134,15 @@ export function ClubCoachesPanel({ data }: { data: ClubCoaches }) {
     <span className="num">{rate(coach.winRate)}</span>
   </li>;
   return <section className="dp-panel cb-coaches" aria-labelledby="club-coaches">
-    <div className="dp-section-heading"><h2 id="club-coaches">Huấn luyện viên</h2><a href={data.source} target="_blank" rel="noopener noreferrer">Nguồn: Wikipedia ↗</a></div>
-    {current && <p className="cb-coach-now"><Mark name={current.name} size="md" round /><span><b>{current.name}</b><small>Đang dẫn dắt từ {dayText(current.from)}{current.nationality ? ` · ${current.nationality}` : ""}{current.played ? ` · ${current.played} trận, thắng ${rate(current.winRate)}` : ""}</small></span></p>}
+    <div className="dp-section-heading"><h2 id="club-coaches">Huấn luyện viên</h2><span className="cb-sources">Nguồn: {data.sources.map((source, index) => <span key={source.url}>{index > 0 ? " · " : ""}<a href={source.url} target="_blank" rel="noopener noreferrer">{source.label.replace(" (danh sách HLV)", "").replace(" (bài về CLB)", "")}</a></span>)}</span></div>
+    {current && <p className="cb-coach-now"><Mark name={current.name} size="md" round /><span><b>{current.name}</b><small>Đang dẫn dắt{current.from ? ` từ ${dayText(current.from)}` : ""}{current.nationality ? ` · ${current.nationality}` : ""}{current.played ? ` · ${current.played} trận, thắng ${rate(current.winRate)}` : ""}</small></span></p>}
     {measured.length > 1 && <><h3 className="cb-subhead">Tỷ lệ thắng theo huấn luyện viên</h3>
       <ul className="cb-bars" aria-label="Tỷ lệ thắng và điểm mỗi trận của các huấn luyện viên gần đây">{measured.map((coach) => <li key={`${coach.name}-${coach.from}`} className={coach.winRate! < 0.4 ? "low" : ""} aria-label={`${coach.name}, ${tenure(coach)}: thắng ${rate(coach.winRate)}, ${perMatch(coach.pointsPerMatch)} điểm mỗi trận`}>
         <div className="cb-bar-track" aria-hidden="true"><div className="cb-bar" style={{ height: `${Math.max(coach.winRate! * 100, 18)}%` }}>{rate(coach.winRate)}</div></div>
         <span className="cb-bar-ppg" aria-hidden="true">{perMatch(coach.pointsPerMatch)} Đ</span>
         <span className="cb-bar-name" aria-hidden="true"><b>{shortName(coach.name)}</b><small>{tenure(coach)}</small></span></li>)}</ul>
       <p className="dp-muted cb-note">Thắng % và điểm mỗi trận (Đ) tính trên mọi giải đấu trong thời gian dẫn dắt, theo số liệu Wikipedia; chỉ tính huấn luyện viên đã dẫn dắt từ 5 trận.</p></>}
+    {measured.length <= 1 && coaches.length > 0 && <p className="dp-muted cb-note">Nguồn dữ liệu của CLB này chỉ có thời gian dẫn dắt, chưa có số trận thắng/hòa/thua của từng huấn luyện viên.</p>}
     <h3 className="cb-subhead">Tất cả huấn luyện viên</h3>
     <ul className="cb-coach-list">{shown.map(row)}</ul>
     {rest.length > 0 && <details className="cb-coach-more"><summary>Xem thêm {rest.length} huấn luyện viên trước đó</summary><ul className="cb-coach-list">{rest.map(row)}</ul></details>}

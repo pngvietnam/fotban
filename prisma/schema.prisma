@@ -1382,3 +1382,38 @@ model MatchShot {
   @@index([clubId])
   @@index([playerId])
 }
+
+/// A community discussion the site links to (a forum thread, a subreddit post): title and public counts only, never post text or user names.
+model FanThread {
+  id             String              @id @default(uuid()) @db.Uuid
+  source         String
+  externalId     String
+  url            String
+  title          String
+  community      String
+  kind           String
+  replies        Int?
+  lastActivityAt DateTime            @db.Timestamptz(3)
+  firstSeenAt    DateTime            @db.Timestamptz(3)
+  lastSeenAt     DateTime            @db.Timestamptz(3)
+  clubIds        String[]            @default([]) @db.Uuid
+  playerIds      String[]            @default([]) @db.Uuid
+  leagueIds      String[]            @default([]) @db.Uuid
+  matchId        String?             @db.Uuid
+  held           Boolean             @default(false)
+  snapshots      FanThreadSnapshot[]
+
+  @@unique([source, externalId])
+  @@index([lastActivityAt])
+  @@index([matchId])
+}
+
+/// One reading of a thread's reply count (at most one an hour).
+model FanThreadSnapshot {
+  threadId String    @db.Uuid
+  takenAt  DateTime  @db.Timestamptz(3)
+  replies  Int
+  thread   FanThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@id([threadId, takenAt])
+}

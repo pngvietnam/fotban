@@ -27,7 +27,7 @@ function formatWeather(info: MatchDetail["venueInfo"]) {
  * press review) beside the facts (match info, form, table, earlier meetings); the full event list, lineups and
  * statistics live on their own tabs.
  */
-export function MatchDetailView({ match, now, highlight, relatedVideos = [], tab = "du-kien", hub, news, review, statsView = "hang-dau", statsTeam = "all" }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; /** The match's other clips from its reviewed channels. */ relatedVideos?: VerifiedHighlight[]; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode; /** The lead publisher story about this match. */ review?: MatchReview | null; /** Player statistics table view and team filter on the Thống kê tab. */ statsView?: PlayerStatView; statsTeam?: PlayerTeamFilter }) {
+export function MatchDetailView({ match, now, highlight, relatedVideos = [], tab = "du-kien", hub, news, fans, review, statsView = "hang-dau", statsTeam = "all" }: { match: MatchDetail; now: Date; highlight?: VerifiedHighlight | null; /** The match's other clips from its reviewed channels. */ relatedVideos?: VerifiedHighlight[]; tab?: MatchTab; hub?: MatchHub | null; /** Related stories, rendered on the Dữ kiện tab. */ news?: ReactNode; /** Fan threads about the match (a ready-made panel). */ fans?: ReactNode; /** The lead publisher story about this match. */ review?: MatchReview | null; /** Player statistics table view and team filter on the Thống kê tab. */ statsView?: PlayerStatView; statsTeam?: PlayerTeamFilter }) {
   const venueName = match.venue || match.venueInfo?.name || null;
   const weather = formatWeather(match.venueInfo);
   const finished = match.status === "FINISHED";
@@ -49,6 +49,7 @@ export function MatchDetailView({ match, now, highlight, relatedVideos = [], tab
         {hub && <FormAside match={match} hub={hub} />}
         {hub && <StandingsSnippet match={match} hub={hub} />}
         {hub && <H2HSummary match={match} hub={hub} />}
+        {fans}
       </aside>
       {news && <div className="mf-news">{news}</div>}
     </div>}

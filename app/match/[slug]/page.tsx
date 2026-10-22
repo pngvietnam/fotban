@@ -17,6 +17,8 @@ import { parsePlayerStatView, parsePlayerTeamFilter } from "@/components/matches
 import { pickMatchReview, type MatchReview } from "@/lib/match-review";
 import { matchHub, type MatchHub } from "@/services/match-hub";
 import { readFeedList } from "@/services/feed-page-data";
+import { fanThreadsForMatch } from "@/services/fan-threads";
+import { FanTalkPanel } from "@/components/fan/fan-talk";
 import { MatchNewsList, orderMatchNews } from "@/components/matches/match-news";
 
 export const metadata: Metadata = { title: "Chi tiết trận đấu | Fotban" };
@@ -38,11 +40,17 @@ export default async function MatchPage({ params, searchParams }: { params: Prom
   }
   if (!tab) notFound();
   const now = new Date();
-  let hub: MatchHub | null = null; let news: ReactNode = null; let review: MatchReview | null = null;
+  let hub: MatchHub | null = null; let news: ReactNode = null; let review: MatchReview | null = null; let fans: ReactNode = null;
   if (result.kind === "ready") {
     const { match } = result;
     try { const db = getDatabase(); if (db) hub = await matchHub(prismaSyncDatabase(db), match, now); }
     catch { logger.warn({ requestId: crypto.randomUUID() }, "matches.ui_hub_unavailable"); }
+    if (tab === "du-kien" && match.homeClub?.id && match.awayClub?.id) {
+      let threads: Awaited<ReturnType<typeof fanThreadsForMatch>> = [];
+      try { const db = getDatabase(); if (db) threads = await fanThreadsForMatch(prismaSyncDatabase(db), match.id, match.homeClub.id, match.awayClub.id, now); }
+      catch { logger.warn({ requestId: crypto.randomUUID() }, "matches.ui_fans_unavailable"); }
+      fans = <FanTalkPanel title="Fan nói gì về trận này" threads={threads} now={now} />;
+    }
     const clubIds = [match.homeClub?.id, match.awayClub?.id].filter((id): id is string => Boolean(id));
     if (tab === "du-kien" && clubIds.length) {
       const follow = { entityIds: clubIds, leagueSlugs: [] };
@@ -61,5 +69,5 @@ export default async function MatchPage({ params, searchParams }: { params: Prom
       }
     }
   }
-  return <MatchShell back={<BackToSchedule className="fb-back"><BackLabel>Lịch đấu</BackLabel></BackToSchedule>}>{result.kind === "ready" ? <MatchDetailView match={result.match} highlight={highlight} relatedVideos={relatedVideos} now={now} tab={tab} hub={hub} news={news} review={review} statsView={parsePlayerStatView(query.bang)} statsTeam={parsePlayerTeamFilter(query.doi)} /> : <><h1 className="text-2xl font-bold">Chi tiết trận đấu</h1><MatchState kind="error" /></>}</MatchShell>;
+  return <MatchShell back={<BackToSchedule className="fb-back"><BackLabel>Lịch đấu</BackLabel></BackToSchedule>}>{result.kind === "ready" ? <MatchDetailView match={result.match} highlight={highlight} relatedVideos={relatedVideos} now={now} tab={tab} hub={hub} news={news} fans={fans} review={review} statsView={parsePlayerStatView(query.bang)} statsTeam={parsePlayerTeamFilter(query.doi)} /> : <><h1 className="text-2xl font-bold">Chi tiết trận đấu</h1><MatchState kind="error" /></>}</MatchShell>;
 }

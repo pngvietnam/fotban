@@ -13,6 +13,8 @@ import { formatMatchTime, matchDayKey } from "../../lib/match-presentation";
 import { dayNumbers, timelineLeague, timelineLeagues } from "../../lib/match-timeline";
 import { matchTabHref } from "../../lib/match-tabs";
 import { newsAbsoluteTime, newsRelativeTime, storyLabels } from "../../lib/news-presentation";
+import type { FanThreadView } from "../../services/fan-threads";
+import { FanTalkHome } from "../fan/fan-talk";
 import { PlayerPhoto } from "../ui/player-photo";
 import { BiteRail, CinemaRail, MatchRibbon, OvPhoto, StandingsLeagueSelect } from "./overview-client";
 
@@ -21,7 +23,7 @@ export type OverviewData = {
   quick: FeedGroupView[]; cover: FeedGroupView | null; followups: FeedGroupView[];
   updates: FeedGroupView[]; updateTab: UpdateTab;
   deepReads: FeedGroupView[]; bites: FeedGroupView[]; transfers: FeedGroupView[];
-  standings: HomeStandings | null; highlights: ArchiveClip[];
+  standings: HomeStandings | null; highlights: ArchiveClip[]; fans: { voz: FanThreadView[]; reddit: FanThreadView[] };
   viewer: { signedIn: boolean; clubs: { id: string; name: string }[]; next: FixtureRow | null };
   briefReady: boolean;
 };
@@ -197,6 +199,7 @@ export function Overview({ data, now }: { data: OverviewData; now: Date }) {
       {data.standings && <StandingsRace standings={data.standings} />}
       <DeepReads groups={data.deepReads} />
     </aside></div>
+    <FanTalkHome voz={data.fans.voz} reddit={data.fans.reddit} now={now} />
     <Cinema clips={data.highlights} />
     <Bites groups={data.bites} now={now} />
     <div className="overview-discovery"><TransferBoard groups={data.transfers} now={now} /></div>

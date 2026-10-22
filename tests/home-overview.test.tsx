@@ -21,7 +21,7 @@ const group = (key: string, lead: FeedCardView, others: FeedCardView[] = []): Fe
 const ranked = ["A", "B", "C", "D", "E", "F"].map((name) => group(name.toLowerCase(), card(`Tin ${name}`, name === "F" ? { image: "https://i.vnecdn.net/f.jpg" } : {})));
 const data = (overrides: Partial<OverviewData> = {}): OverviewData => {
   const front = splitFront(ranked);
-  return { ribbon: [], quick: front.quick, cover: front.cover, followups: front.followups, updates: [], updateTab: "tat-ca", deepReads: [], bites: [], transfers: [], standings: null, highlights: [],
+  return { ribbon: [], quick: front.quick, cover: front.cover, followups: front.followups, updates: [], updateTab: "tat-ca", deepReads: [], bites: [], transfers: [], standings: null, highlights: [], fans: { voz: [], reddit: [] },
     viewer: { signedIn: false, clubs: [], next: null }, briefReady: false, ...overrides };
 };
 const render = (value: OverviewData) => load(renderToStaticMarkup(<Overview data={value} now={now} />));

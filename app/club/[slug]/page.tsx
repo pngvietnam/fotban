@@ -11,7 +11,8 @@ import { clubTabs } from "@/types/club-hub";
 import { clubIdFromSlug, positionGroup, positionOrder } from "@/services/club-hub";
 import { clubExtraHonours, clubHonours } from "@/services/club-honours";
 import { clubCoaches } from "@/services/club-coaches";
-import { readClub } from "@/services/club-page-data";
+import { readClub, readClubFans } from "@/services/club-page-data";
+import { FanTalkPanel } from "@/components/fan/fan-talk";
 import { readFeedList } from "@/services/feed-page-data";
 import { NewsShell } from "@/components/news/news-shell";
 import { NewsState } from "@/components/news/news-state";
@@ -61,6 +62,7 @@ export default async function ClubPage({ params, searchParams }: Props) {
     storyTab || query.tab === "tong-quan" ? readFeedList({ league: "all", offset: storyTab ? query.offset : 0, clubId, ...(storyType ? { storyType } : {}) }) : null,
     query.tab === "tong-quan" ? readFeedList({ league: "all", offset: 0, clubId, storyType: "TRANSFER" }) : null,
   ]);
+  const fans = query.tab === "tong-quan" ? await readClubFans(clubId, now) : [];
   const active = tables.find((table) => table.slug === query.giai) ?? tables.find((table) => table.row) ?? tables[0] ?? null;
   const scheduled = fixtures.upcoming.filter((fixture) => !["POSTPONED", "CANCELLED", "SUSPENDED"].includes(fixture.status));
   const next = scheduled[0] ?? null;
@@ -92,6 +94,7 @@ export default async function ClubPage({ params, searchParams }: Props) {
         <aside className="cb-side" aria-label="Bảng xếp hạng, ghi bàn và danh hiệu">
           {active && <MiniTable tables={tables} active={active} clubId={clubId} clubSlug={slug} />}
           <ClubScorers scorers={scorers} />
+          <FanTalkPanel title="Fan nói gì" threads={fans} now={now} />
           {!scorers.length && mentioned.length > 0 && <section className="dp-panel cb-panel" aria-label="Cầu thủ được nhắc nhiều"><div className="dp-section-heading"><h2>Cầu thủ được nhắc nhiều</h2></div>{mentioned.map((player) => <Link className="cb-scorer" key={player.playerId} href={playerPath(player.playerId)}><Mark url={player.photoUrl} name={player.name} size="md" round photo /><span><b>{player.name}</b><small>{[positionGroup(player.position), nationalityVi(player.nationality)].filter(Boolean).join(" · ")}</small></span></Link>)}<p className="dp-muted cb-note">Theo các tin báo chí trong 7 ngày qua.</p></section>}
           <HonoursSummary honours={honours} extras={extras} historyHref={clubHref(slug, { tab: "lich-su" })} />
         </aside>

@@ -3,6 +3,7 @@ import { getDatabase } from "../lib/db";
 import { logger } from "../lib/logger";
 import { prismaSyncDatabase } from "../lib/sync-database";
 import type { ClubFixtures, ClubProfile, ClubScorer, ClubStanding, ClubTab, ClubTable, SquadPlayer } from "../types/club-hub";
+import { fanThreadsForClub } from "./fan-threads";
 import { clubFixtures, clubProfile, clubScorers, clubSquad, clubStanding, clubTables } from "./club-hub";
 
 export type ClubData = { club: ClubProfile; standing: ClubStanding | null; fixtures: ClubFixtures; tables: ClubTable[]; scorers: ClubScorer[]; squad?: SquadPlayer[] };
@@ -34,4 +35,12 @@ export async function readClubCalendar(slug: string, now = new Date()): Promise<
       return club ? { club, upcoming: (await clubFixtures(tx, club.clubId, now, 60)).upcoming } : null;
     });
   } catch { logger.error({ requestId: crypto.randomUUID() }, "club.calendar_failed"); return null; }
+}
+
+/** Fan threads that name the club (its Voz room first); empty when they cannot be read. */
+export async function readClubFans(clubId: string, now = new Date()) {
+  try {
+    const db = getDatabase();
+    return db ? await fanThreadsForClub(prismaSyncDatabase(db), clubId, now) : [];
+  } catch { logger.warn({ requestId: crypto.randomUUID() }, "club.fans_unavailable"); return []; }
 }
