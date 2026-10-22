@@ -184,13 +184,13 @@ export function Overview({ data, now }: { data: OverviewData; now: Date }) {
     <div className="ov-columns"><div className="ov-main">
       <Focus cover={data.cover} followups={data.followups} now={now} />
       <Updates groups={data.updates} tab={data.updateTab} now={now} />
+      <FanTalkHome voz={data.fans.voz} reddit={data.fans.reddit} now={now} />
     </div><aside className="ov-right" aria-label="Không gian của tôi và bảng xếp hạng">
       <MySpacePanel signedIn={data.viewer.signedIn} mine={data.mine} suggest={data.suggest} />
       {data.standings && <StandingsRace standings={data.standings} />}
       {data.scorers && <TopScorersPanel scorers={data.scorers} />}
       <DeepReads groups={data.deepReads} />
     </aside></div>
-    <FanTalkHome voz={data.fans.voz} reddit={data.fans.reddit} now={now} />
     <Cinema clips={data.highlights} />
     <Bites groups={data.bites} now={now} />
     <div className="overview-discovery"><TransferBoard groups={data.transfers} now={now} /></div>

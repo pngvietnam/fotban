@@ -955,3 +955,10 @@ a.cb-hero-kicker:hover{text-decoration:underline}
 .cb-page .fan-panel.wide{margin:0 0 var(--fb-space-24)}
 @media(max-width:1100px){.fan-panel.wide .fan-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.fan-panel.wide .fan-list{grid-template-columns:1fr}.hot-strip{flex-direction:column;align-items:flex-start;gap:var(--fb-space-8)}.hot-strip ul{width:100%}}
+
+/* "Đọc sâu hơn": the ordinal stays on one line and the column stays short enough for the left column to match. */
+.ov-read>:is(a,button)>span{flex:none;min-width:26px;white-space:nowrap;font-size:16px;font-variant-numeric:tabular-nums;letter-spacing:0;color:var(--fb-color-muted)}
+.ov-read>:is(a,button)>div{min-width:0}
+/* The fan block now sits in the main column: one column of cards under 1150px so they never get cramped. */
+.ov-main .fan-section{margin:var(--fb-space-24) 0 0}
+@media(max-width:1150px){.ov-main .fan-grid{grid-template-columns:1fr}}

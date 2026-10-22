@@ -36,7 +36,7 @@ export default async function Home({ searchParams }: Props) {
   const taken = new Set(front.used);
   const pick = (groups: ReturnType<typeof groupsOf>, limit: number) => groups.filter((group) => !taken.has(group.key)).slice(0, limit).map((group) => { taken.add(group.key); return group; });
   const updates = pick(groupsOf(latest), 5);
-  const deepReads = pick(groupsOf(deep), 5);
+  const deepReads = pick(groupsOf(deep), 4);
   const biteGroups = pick(groupsOf(bites), 5);
   // For each club the reader follows: its next match and the newest story that names it.
   const storyGroups = [...groupsOf(ranked), ...groupsOf(latest)];
