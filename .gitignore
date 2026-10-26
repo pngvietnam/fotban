@@ -8,3 +8,6 @@ coverage/
 *.log
 .npm-cache/
 .DS_Store
+
+.vercel
+.env*
