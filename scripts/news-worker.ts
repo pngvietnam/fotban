@@ -23,6 +23,8 @@ import { syncPlayerImages, wikimediaApi } from "../services/player-images";
 import { abortableSleep, runLoop } from "../services/worker-loop";
 
 const lockKey = 91531121;
+/** WORKER_ONCE=1 runs a single pass and exits: for a scheduler (GitHub Actions) that starts the worker every few minutes instead of keeping it alive. */
+const once = process.env.WORKER_ONCE === "1";
 const intervalMs = 60_000;
 const matchTtlMs = 30 * 60_000;
 const standingsTtlMs = 6 * 3600_000;
@@ -101,6 +103,8 @@ async function main() {
           if (meetings.requests || meetings.stopped === "ERROR") logger.info({ ...meetings }, "worker.head_to_head");
         } catch { ok = false; }
       }
+      // One pass per start has no memory of the last one, so the slower jobs run in a fixed slice of the clock instead: videos in the first 5 minutes of every 20, fan threads in the first 5 of every 10.
+      if (once) { const minute = new Date().getUTCMinutes(); videosDueAt = minute % 20 < 5 ? 0 : Infinity; fansDueAt = minute % 10 < 5 ? 0 : Infinity; }
       if (Date.now() >= videosDueAt) {
         videosDueAt = Date.now() + 20 * 60_000;
         try { const videos = await videoFeeds.run(); if (videos.stored || videos.removed || videos.errors) logger.info({ ...videos }, "worker.videos"); } catch { /* Logged by the sync; retried next window. */ }
@@ -119,7 +123,7 @@ async function main() {
       }
       if (synced.length || !ok) logger.info({ synced: synced.length, created: synced.reduce((sum, result) => sum + (result.created ?? 0), 0), failed: results.filter((result) => result.status === "failed").length, busy: results.filter((result) => result.code === "BUSY").length, published: cards.published, held: cards.held }, "worker.pass");
       return { ok };
-    }, { intervalMs, maxBackoffMs: 10 * 60_000, sleep: abortableSleep, signal: controller.signal, onPass: (pass) => { if (!pass.ok) logger.error({ failures: pass.failures, nextInMs: pass.nextInMs }, "worker.pass_failed"); } });
+    }, { intervalMs, maxBackoffMs: 10 * 60_000, sleep: abortableSleep, signal: controller.signal, onPass: (pass) => { if (once) controller.abort(); if (!pass.ok) logger.error({ failures: pass.failures, nextInMs: pass.nextInMs }, "worker.pass_failed"); } });
   } finally {
     logger.info({}, "worker.stopped");
     await db.$disconnect().catch(() => {});
