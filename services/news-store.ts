@@ -11,10 +11,34 @@ import { feedUrlAllowed, publisherFeedAllowed, permittedFeedSnapshot } from "../
 
 export type NewsCounts = { created: number; duplicates: number; conflicts: number };
 export type NewsJob = { id: string; owner: string; cached: boolean; cooldown: boolean; cursor?: NewsCursor };
+type KnownArticle = { url: string; articleId: string; sourceId: string; hasPublished: boolean; hasExcerpt: boolean; plainCanonical: boolean; sourceUrl: string; snapshotId: string | null; feedUrl: string | null; termsUrl: string | null; permissionScope: string | null; attributionText: string | null; reviewedAt: Date | null; categories: string[] | null; evidenceReferences: string[] | null; imageUrl: string | null };
+/**
+ * True when saving this article again would change nothing: it is already stored from this source under every one of its
+ * URLs, nothing it carries fills a gap, and its feed snapshot already holds the same permission details. Such a repeat costs
+ * no queries, which matters when the database is far from the worker (each query is a round trip).
+ */
+function alreadyStored(article: NormalizedArticle, source: NewsSourceConfig, urls: string[], known: Map<string, KnownArticle[]>) {
+  const hits = urls.flatMap((url) => known.get(url) ?? []);
+  if (hits.length !== urls.length || new Set(hits.map((hit) => hit.articleId)).size !== 1) return false;
+  const row = hits[0];
+  if (row.sourceId !== source.id) return false;
+  if ((!row.hasPublished && article.publishedAt) || (!row.hasExcerpt && article.excerptOriginal)) return false;
+  if (row.plainCanonical && article.canonicalUrl && article.canonicalUrl !== row.sourceUrl) return false;
+  if (!article.feed) return true;
+  const same = (a: string[] | null, b: string[]) => a !== null && a.length === b.length && a.every((value, index) => value === b[index]);
+  return row.snapshotId !== null && row.feedUrl === article.feed.url && row.termsUrl === article.feed.termsUrl && row.permissionScope === article.feed.scope && row.attributionText === article.feed.attribution
+    && row.reviewedAt?.getTime() === article.feed.reviewedAt.getTime() && same(row.categories, article.feed.categories) && same(row.evidenceReferences, article.feed.evidenceReferences) && (row.imageUrl !== null || !article.feed.imageUrl);
+}
+
 export async function persistNewsArticles(tx: SqlExecutor, source: NewsSourceConfig, articles: NormalizedArticle[]): Promise<NewsCounts> {
   // Return a supported scalar: Prisma cannot deserialize PostgreSQL's void result type.
   await tx.query("SELECT 1 AS locked FROM pg_advisory_xact_lock(91531105)");
   const counts = { created: 0, duplicates: 0, conflicts: 0 };
+  // One query tells which of the batch is already stored, so repeats skip the per-article round trips below.
+  const allUrls = [...new Set(articles.flatMap((item) => [item.sourceUrl, item.canonicalUrl ?? item.sourceUrl]))];
+  const knownRows = allUrls.length ? await tx.query<KnownArticle>('SELECT u.url,u."articleId",a."sourceId",a."publishedAt" IS NOT NULL AS "hasPublished",a."excerptOriginal" IS NOT NULL AS "hasExcerpt",a."canonicalUrl"=a."sourceUrl" AS "plainCanonical",a."sourceUrl",f."articleId" AS "snapshotId",f."feedUrl",f."termsUrl",f."permissionScope",f."attributionText",f."reviewedAt",f.categories,f."evidenceReferences",f."imageUrl" FROM "ArticleUrl" u JOIN "Article" a ON a.id=u."articleId" LEFT JOIN "ArticleFeedSnapshot" f ON f."articleId"=a.id WHERE u.url=ANY($1::text[])', [allUrls]) : [];
+  const known = new Map<string, KnownArticle[]>();
+  for (const row of knownRows) known.set(row.url, [...(known.get(row.url) ?? []), { ...row, reviewedAt: row.reviewedAt ? new Date(row.reviewedAt) : null }]);
   for (const article of articles) {
     // Discovery records must use the publisher-aware quarantine store, never a
     // permitted aggregator's editorial identity or license.
@@ -24,6 +48,7 @@ export async function persistNewsArticles(tx: SqlExecutor, source: NewsSourceCon
     if (source.requiresReusableLicense && !article.license) throw new NewsError("MISSING_LICENSE");
     if (article.license) parseReusableLicense(article.license.name, article.license.url);
     const urls = [...new Set([article.sourceUrl, article.canonicalUrl ?? article.sourceUrl])];
+    if (alreadyStored(article, source, urls, known)) { counts.duplicates++; continue; }
     const found = await tx.query<{ id: string }>('SELECT DISTINCT "articleId" AS id FROM "ArticleUrl" WHERE url=ANY($1::text[])', [urls]);
     if (found.length > 1) { counts.conflicts++; continue; } // Never merge/delete conflicting editorial records.
     const id = found[0]?.id ?? randomUUID();
