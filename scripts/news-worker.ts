@@ -87,9 +87,9 @@ async function main() {
           try {
             await syncMatches(match.provider, match.store, { mode: "matches", competition, dateFrom: vietnamDay(-3), dateTo: vietnamDay(10) }, logger, { ttlMs: matchTtlMs });
             await syncMatches(match.provider, match.store, { mode: "standings", competition }, logger, { ttlMs: standingsTtlMs });
-          } catch { ok = false; } // Provider errors are recorded by the sync; keep the news loop alive.
+          } catch (error) { logger.error({ competition, error: error instanceof Error ? error.message : "unknown" }, "worker.matches_failed"); ok = false; }
           // League pages: top scorers, current matchday and emblem, every six hours per league.
-          try { if (isLeagueSlug(competition) && await syncLeagueLeaders(database, match.provider, competition)) logger.info({ competition }, "worker.league_leaders"); } catch { ok = false; }
+          try { if (isLeagueSlug(competition) && await syncLeagueLeaders(database, match.provider, competition)) logger.info({ competition }, "worker.league_leaders"); } catch (error) { logger.warn({ competition, error: error instanceof Error ? error.message : "unknown" }, "worker.league_leaders_failed"); ok = false; }
         }
       }
       // Events, lineups and statistics: only due matches cost a request; stops for the day at the allowance.
@@ -97,17 +97,17 @@ async function main() {
         try {
           const result = await syncMatchDetails(database, details);
           if (result.requests || result.stopped === "ERROR") logger.info({ ...result }, "worker.match_details");
-        } catch { ok = false; }
+        } catch (error) { logger.warn({ error: error instanceof Error ? error.message : "unknown" }, "worker.match_details_failed"); ok = false; }
         // Transfer pages: profiles of players the press is writing about, from their own small allowance.
         try {
           const profiles = await syncPlayerProfiles(database, details);
           if (profiles.requests || profiles.stopped === "ERROR") logger.info({ ...profiles }, "worker.player_profiles");
-        } catch { ok = false; }
+        } catch (error) { logger.warn({ error: error instanceof Error ? error.message : "unknown" }, "worker.player_profiles_failed"); ok = false; }
         // Match pages: earlier meetings (every competition) of clubs playing soon, from their own small allowance.
         try {
           const meetings = await syncHeadToHead(database, details);
           if (meetings.requests || meetings.stopped === "ERROR") logger.info({ ...meetings }, "worker.head_to_head");
-        } catch { ok = false; }
+        } catch (error) { logger.warn({ error: error instanceof Error ? error.message : "unknown" }, "worker.head_to_head_failed"); ok = false; }
       }
       // One pass per start has no memory of the last one, so the slower jobs run in a fixed slice of the clock instead: videos in the first 5 minutes of every 20, fan threads in the first 5 of every 10.
       if (once) { const minute = new Date().getUTCMinutes(); videosDueAt = minute % 20 < 5 ? 0 : Infinity; fansDueAt = minute % 10 < 5 ? 0 : Infinity; }

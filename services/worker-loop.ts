@@ -14,7 +14,10 @@ export async function runLoop(pass: () => Promise<PassResult>, options: LoopOpti
   let failures = 0;
   while (!options.signal.aborted) {
     let ok = false;
-    try { ok = (await pass()).ok; } catch { ok = false; }
+    try { ok = (await pass()).ok; } catch (err) {
+      console.error("Worker pass uncaught error:", err);
+      ok = false;
+    }
     failures = ok ? 0 : failures + 1;
     const nextInMs = ok ? options.intervalMs : Math.min(options.maxBackoffMs, options.intervalMs * 2 ** failures);
     options.onPass?.({ ok, failures, nextInMs });

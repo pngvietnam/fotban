@@ -41,6 +41,10 @@ export async function publishFeedCards(db: SyncDatabase, now = new Date(), windo
     const counts = { examined: rows.length, published: 0, held: 0, kept: 0, notPermitted: 0, groups: 0 };
     for (const row of rows) {
       if (!vietnameseSource(row.slug) || !permittedFeedSnapshot(row, row.source, row.snapshot)) { counts.notPermitted++; continue; }
+      if (row.cardStatus !== null) {
+        if (row.decidedById) counts.kept++; else if (row.cardStatus === "HELD") counts.held++; else counts.published++;
+        continue;
+      }
       const title = row.titleOriginal; const description = row.excerptOriginal;
       const entities = resolveEntities(`${title}\n${description ?? ""}`, catalog).filter((entity) => entity.kind !== "match");
       for (const entity of entities) await tx.query(`INSERT INTO "ArticleEntity" (id,"articleId","${column[entity.kind as keyof typeof column]}","updatedAt") VALUES ($1::uuid,$2::uuid,$3::uuid,now()) ON CONFLICT ("articleId","${column[entity.kind as keyof typeof column]}") DO NOTHING`, [randomUUID(), row.id, entity.id]);
