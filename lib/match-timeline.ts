@@ -85,3 +85,24 @@ export function sideScores(match: MatchSummary): { home: number; away: number } 
 export function compareRounds(a: string | null, b: string | null) {
   return (a ?? "").localeCompare(b ?? "", "vi", { numeric: true });
 }
+
+/** Shifts a YYYY-MM-DD day key by a given number of days. */
+export function shiftDayKey(isoDate: string, daysOffset: number): string {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d + daysOffset, 12, 0, 0));
+  return date.toISOString().slice(0, 10);
+}
+
+/** "CN", "T2", "T3" ... from a YYYY-MM-DD string. */
+export function weekdayLabel(isoDate: string): string {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const day = date.getUTCDay();
+  return day === 0 ? "CN" : `T${day + 1}`;
+}
+
+/** "27/10" from "2026-10-27". */
+export function dayShort(isoDate: string): string {
+  const parts = isoDate.split("-");
+  return `${parts[2]}/${parts[1]}`;
+}

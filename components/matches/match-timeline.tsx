@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { formatMatchTime, formatRound, isMatchStale, matchStatusLabels, teamMonogram, teamName } from "../../lib/match-presentation";
-import { compareRounds, dayNumbers, fixtureState, shortSeason, shortWeekday, sideScores, timelineHref, timelineLeague, timelineLeagues, timelineStatuses, timelineStatusValues, type TimelineView } from "../../lib/match-timeline";
+import { compareRounds, dayNumbers, dayShort, fixtureState, shiftDayKey, shortSeason, shortWeekday, sideScores, timelineHref, timelineLeague, timelineLeagues, timelineStatuses, timelineStatusValues, weekdayLabel, type TimelineView } from "../../lib/match-timeline";
 import { longDay } from "../../lib/match-filters";
 import { leagueHref } from "../../lib/league-presentation";
 import { safeCrestUrl } from "../../lib/crest";
@@ -29,19 +29,41 @@ function Fixture({ match, highlighted, now }: { match: MatchSummary; highlighted
   const home = teamName(match.homeClub, "home"); const away = teamName(match.awayClub, "away");
   const when = state === "finished" ? "FT" : state === "upcoming" ? formatMatchTime(match.kickoffAt) : state === "postponed" ? matchStatusLabels[match.status as "POSTPONED" | "CANCELLED"] : match.status === "HALFTIME" ? "HT" : "Live";
   const label = state === "finished" ? "Đã kết thúc" : state === "upcoming" ? "Sắp diễn ra" : match.status === "POSTPONED" ? "Chờ lịch mới" : match.status === "CANCELLED" ? "Đã hủy" : `${matchStatusLabels[match.status]}${isMatchStale(match, now) ? " · Có thể đã cũ" : ""}`;
+  const homeWon = Boolean(scores && scores.home > scores.away);
+  const awayWon = Boolean(scores && scores.away > scores.home);
+
   return <article className={`md-fixture-card fixture-${state}`}>
-    <FixturePin id={match.id} label={`${home} – ${away}`} />
     <Link className="md-fixture-main" href={matchTabHref(match.slug, "du-kien")} aria-label={`${home} ${scores ? `${scores.home} – ${scores.away}` : "gặp"} ${away}, ${label}`}>
-      <span className="md-fixture-clubs">
-        <span><Crest url={match.homeClub?.externalCrestUrl} team={match.homeClub} /><b>{home}</b>{scores && <strong>{scores.home}</strong>}</span>
-        <span><Crest url={match.awayClub?.externalCrestUrl} team={match.awayClub} /><b>{away}</b>{scores && <strong>{scores.away}</strong>}</span>
+      <span className="md-fixture-when">
+        <b>{when}</b>
+        <small>{shortWeekday(match.kickoffAt)}</small>
+        <span className="md-fixture-label">{label}</span>
       </span>
-      <span className="md-fixture-when"><b>{when}</b><small>{shortWeekday(match.kickoffAt)}</small><span>{label}</span></span>
+      <span className="md-fixture-matchup">
+        <span className={`md-fixture-team md-home-team ${homeWon ? "is-winner" : awayWon ? "is-loser" : ""}`}>
+          <b>{home}</b>
+          <Crest url={match.homeClub?.externalCrestUrl} team={match.homeClub} />
+        </span>
+        <span className="md-fixture-score">
+          {scores ? <>
+            <strong className={homeWon ? "is-winner" : ""}>{scores.home}</strong>
+            <span className="md-score-sep">-</span>
+            <strong className={awayWon ? "is-winner" : ""}>{scores.away}</strong>
+          </> : <span className="md-score-vs">–</span>}
+        </span>
+        <span className={`md-fixture-team md-away-team ${awayWon ? "is-winner" : homeWon ? "is-loser" : ""}`}>
+          <Crest url={match.awayClub?.externalCrestUrl} team={match.awayClub} />
+          <b>{away}</b>
+        </span>
+      </span>
     </Link>
-    {state === "finished" && <div className="md-fixture-extras">
-      <Link href={matchTabHref(match.slug, "su-kien")}><MI name="ball" size={12} />Diễn biến trận <span>→</span></Link>
-      {highlighted ? <Link href={`${matchTabHref(match.slug, "du-kien")}#match-highlight`}><MI name="play" size={11} />Xem highlight</Link> : <span><MI name="play" size={11} />Chờ highlight hợp lệ</span>}
-    </div>}
+    <div className="md-fixture-aside">
+      {state === "finished" && <div className="md-fixture-extras">
+        <Link href={matchTabHref(match.slug, "su-kien")} className="md-extra-btn" title="Diễn biến trận"><MI name="ball" size={12} /><span className="md-extra-text">Diễn biến →</span></Link>
+        {highlighted ? <Link href={`${matchTabHref(match.slug, "du-kien")}#match-highlight`} className="md-extra-btn md-highlight-btn" title="Xem highlight"><MI name="play" size={11} /><span className="md-extra-text">Xem highlight</span></Link> : <span className="md-no-highlight-badge" title="Chờ highlight hợp lệ"><MI name="play" size={11} /><span className="md-extra-text">Chờ highlight hợp lệ</span></span>}
+      </div>}
+      <FixturePin id={match.id} label={`${home} – ${away}`} />
+    </div>
   </article>;
 }
 
@@ -117,6 +139,20 @@ export function MatchTimeline({ view, data, sidebar, follow, now }: { view: Time
       {timelineLeagues.map((league) => <Link key={league.slug} href={href({ league: league.slug })} aria-current={view.league === league.slug ? "page" : undefined} className={view.league === league.slug ? "active" : ""}><span className={`md-tab-mark tab-mark-${league.tab}`}>{league.mark}</span>{league.label}</Link>)}
     </nav>
     <div className="md-layout"><div className="md-list-column">
+      <div className="md-date-strip" role="navigation" aria-label="Lịch theo ngày">
+        {[-3, -2, -1, 0, 1, 2, 3].map((offset) => {
+          const iso = shiftDayKey(view.ngay, offset);
+          const weekday = weekdayLabel(iso);
+          const shortDate = dayShort(iso);
+          const isSelected = iso === view.ngay;
+          const isToday = iso === view.today;
+          return <Link key={iso} href={href({ ngay: iso, truoc: 0, sau: 0 })} className={`md-date-chip ${isSelected ? "selected" : ""} ${isToday ? "is-today" : ""}`} aria-current={isSelected ? "date" : undefined}>
+            <span className="md-date-chip-weekday">{isToday ? "Hôm nay" : weekday}</span>
+            <strong className="md-date-chip-num">{shortDate}</strong>
+            {isToday && <span className="md-date-chip-dot" aria-hidden="true" />}
+          </Link>;
+        })}
+      </div>
       <div className="md-timeline-toolbar">
         <div><MI name="calendar" size={16} /><b>{view.ngay === view.today ? "Hôm nay" : "Ngày đang xem"}</b><span>{dayNumbers(view.ngay)}</span></div>
         <div>

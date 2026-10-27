@@ -10,4 +10,24 @@ coverage/
 .DS_Store
 
 .vercel
-.env*
+
+fotban_prototype/
+.agents/
+.augment/
+.claude/
+.codebuddy/
+.codewhale/
+.continue/
+.cursor/
+.factory/
+.gemini/
+.github/prompts/
+.kilocode/
+.kiro/
+.opencode/
+.qoder/
+.roo/
+.trae/
+.warp/
+.windsurf/
+skills-lock.json

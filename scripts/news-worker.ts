@@ -26,7 +26,7 @@ const lockKey = 91531121;
 /** WORKER_ONCE=1 runs a single pass and exits: for a scheduler (GitHub Actions) that starts the worker every few minutes instead of keeping it alive. */
 const once = process.env.WORKER_ONCE === "1";
 const intervalMs = 60_000;
-const matchTtlMs = 30 * 60_000;
+const matchTtlMs = 15 * 60_000;
 const standingsTtlMs = 6 * 3600_000;
 const vietnamDay = (offsetDays: number) => new Date(Date.now() + 7 * 3600_000 + offsetDays * 86400_000).toISOString().slice(0, 10);
 
@@ -75,7 +75,13 @@ async function main() {
       const attempted = results.filter((result) => result.status === "synced" || result.status === "failed");
       if (attempted.length > 0 && attempted.every((result) => result.status === "failed" && result.code !== "BUSY")) ok = false;
       // Publish cards on every pass: cheap, idempotent, and it regroups late arrivals.
-      const cards = await publishFeedCards(database);
+      let cards = { published: 0, held: 0 };
+      try {
+        cards = await publishFeedCards(database);
+      } catch (cardsError) {
+        logger.error({ error: cardsError instanceof Error ? cardsError.message : "unknown" }, "worker.feed_cards_failed");
+        ok = false;
+      }
       if (match) {
         for (const competition of Object.keys(competitionConfig)) {
           try {
