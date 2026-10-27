@@ -1,11 +1,11 @@
-# The freshness worker for the hosted site: one pass every five minutes (news, scores, standings, match details,
+# The freshness worker for the hosted site: one pass every 15 minutes (news, scores, standings, match details,
 # league leaders, fan threads, highlights, player photos) written straight into the production database.
 # Needs these repository secrets: DATABASE_URL (the pooler session-mode URL), FOOTBALL_DATA_API_KEY,
 # HIGHLIGHTLY_API_KEY, WIKIMEDIA_USER_AGENT and, optionally, YOUTUBE_API_KEY.
 name: Fotban worker
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 concurrency:
   group: fotban-worker
