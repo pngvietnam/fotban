@@ -11,8 +11,8 @@ import "../styles/fotban/home.css";
 import "../styles/fotban/news.css";
 import "../styles/fotban/domain.css";
 
-// Self-hosted at build time by next/font; the prototype's typeface, with Vietnamese glyphs.
-const beVietnam = Be_Vietnam_Pro({ subsets: ["vietnamese", "latin"], weight: ["400", "500", "600", "700", "800", "900"], variable: "--font-be-vietnam", display: "swap" });
+// Self-hosted at build time by next/font; the prototype's typeface, with Vietnamese glyphs. No 900: the few heavier weights render as 800.
+const beVietnam = Be_Vietnam_Pro({ subsets: ["vietnamese", "latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-be-vietnam", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Fotban",

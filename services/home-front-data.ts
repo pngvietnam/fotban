@@ -8,7 +8,7 @@ import { readLeagueLeaders } from "./league-leaders";
 import { hotNow, type HotNow } from "./hot-now";
 import type { HomeScorers } from "../components/home/home-extras";
 import { leagueHref } from "../lib/league-presentation";
-import { readRibbon, type RibbonMatch } from "./home-overview";
+import { readNewsCollectedAt, readRibbon, readWatchMatch, type RibbonMatch, type WatchMatch } from "./home-overview";
 import { latestHighlights, type ArchiveClip } from "./match-timeline";
 import { timelineLeagues } from "../lib/match-timeline";
 import { trendingFanThreads, type FanThreadView } from "./fan-threads";
@@ -26,16 +26,30 @@ export async function readHomeStandings(slug: string | string[] | undefined, now
   } catch { logger.warn({ event: "home_standings_unavailable" }); return null; }
 }
 
-/** "Trên sân cỏ" and the latest highlights; either is empty when it cannot be read. */
-export async function readHomeMatches(now = new Date()): Promise<{ ribbon: RibbonMatch[]; highlights: ArchiveClip[] }> {
+export type HomeMatches = { ribbon: RibbonMatch[]; highlights: ArchiveClip[]; watch: WatchMatch | null; collectedAt: string | null };
+/** "Trên sân cỏ", the match worth watching next, the latest highlights and the newest news collection time; each is empty when it cannot be read. */
+export async function readHomeMatches(now = new Date()): Promise<HomeMatches> {
   const db = getDatabase();
-  if (!db) return { ribbon: [], highlights: [] };
+  if (!db) return { ribbon: [], highlights: [], watch: null, collectedAt: null };
   const database = prismaSyncDatabase(db);
-  const [ribbon, highlights] = await Promise.all([
+  const [ribbon, highlights, watch, collectedAt] = await Promise.all([
     readRibbon(database, now).catch(() => { logger.warn({ event: "home_ribbon_unavailable" }); return []; }),
     latestHighlights(database, timelineLeagues.map((league) => league.slug), now, 6).catch(() => { logger.warn({ event: "home_highlights_unavailable" }); return []; }),
+    readWatchMatch(database, now).catch(() => { logger.warn({ event: "home_watch_unavailable" }); return null; }),
+    readNewsCollectedAt(database).catch(() => { logger.warn({ event: "home_freshness_unavailable" }); return null; }),
   ]);
-  return { ribbon, highlights };
+  return { ribbon, highlights, watch, collectedAt };
+}
+
+/** Short club names ("Man United") by club id, for views that carry the full name only. */
+export async function readClubShortNames(ids: string[]): Promise<Record<string, string>> {
+  const unique = [...new Set(ids)].slice(0, 100);
+  const db = getDatabase();
+  if (!unique.length || !db) return {};
+  try {
+    const rows = await prismaSyncDatabase(db).query<{ id: string; shortName: string }>(`SELECT id,"shortName" FROM "Club" WHERE id=ANY($1::uuid[]) AND "shortName" IS NOT NULL AND btrim("shortName")<>''`, [unique]);
+    return Object.fromEntries(rows.map((row) => [row.id, row.shortName.trim()]));
+  } catch { logger.warn({ event: "home_short_names_unavailable" }); return {}; }
 }
 
 /** "Fan đang nói gì": the liveliest Vietnamese threads and the newest r/soccer posts; empty when they cannot be read. */

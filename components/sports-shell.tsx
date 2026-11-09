@@ -26,7 +26,7 @@ const mainNav = [
  */
 export function SportsShell({ children, section, back }: { children: ReactNode; section: Section; back?: ReactNode }) {
   const contentId = section === "account" || section === "following" || section === "saved" ? "account-content" : section === "home" ? "morning-content" : section === "matches" ? "match-content" : section === "news" || section === "league" ? "news-content" : "transfer-content";
-  return <div className="fb-app match-surface">
+  return <div className={`fb-app match-surface fb-section-${section}`}>
     <a href={`#${contentId}`} className="fb-skip-link">Đến nội dung chính</a>
     <aside className="fb-sidebar">
       <Link className="fb-brand" href="/" aria-label="fotban — Bảng tin"><span className="fb-brandmark" aria-hidden="true">f.</span>fotban<span className="fb-brand-dot" aria-hidden="true">.</span></Link>
@@ -36,18 +36,19 @@ export function SportsShell({ children, section, back }: { children: ReactNode; 
       <Link href="/following" aria-current={section === "following" ? "page" : undefined} className={`fb-nav-item ${section === "following" ? "active" : ""}`}><Icon name="home" />Bảng tin của tôi</Link>
       <Link href="/saved" aria-current={section === "saved" ? "page" : undefined} className={`fb-nav-item ${section === "saved" ? "active" : ""}`}><Icon name="bookmark" />Tin đã lưu</Link>
       <SidebarMyTeams />
-      <div className="fb-sidebar-bottom">
+      {/* The homepage asks the reader to choose a club in its own panel, so the sidebar promo is left out there. */}
+      {section !== "home" && <div className="fb-sidebar-bottom">
         <div className="fb-mini-pitch"><Icon name="ball" size={26} /></div>
         <h4>Bóng đá. Theo cách của bạn.</h4>
         <p>Theo dõi đội bóng yêu thích.<br />Không bỏ lỡ điều quan trọng.</p>
         <Link href="/following">Tạo bảng tin của bạn <Icon name="arrow" size={16} /></Link>
-      </div>
+      </div>}
       <div className="fb-side-footer"><Link href="/about">Về Fotban</Link> · <Link href="/terms">Điều khoản</Link> · <Link href="/ghi-cong-anh">Ghi công ảnh</Link><br />© 2026 Fotban</div>
     </aside>
     <div className="fb-workspace">
       <header className="fb-topbar">
         {back ? <div className="fb-header-start">{back}<span className="fb-header-location" aria-hidden="true" /></div> : <div className="fb-header-location">Không chỉ tỷ số. <span>Cả câu chuyện.</span></div>}
-        <div className="fb-header-actions"><span className="fb-timezone">Giờ Việt Nam · UTC+7</span><TopbarAccount /></div>
+        <div className="fb-header-actions">{section !== "home" && <span className="fb-timezone">Giờ Việt Nam · UTC+7</span>}<TopbarAccount /></div>
       </header>
       <main id={contentId} tabIndex={-1} className="fb-main">{children}</main>
     </div>

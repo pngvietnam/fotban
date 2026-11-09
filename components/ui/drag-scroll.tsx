@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 
 /** Every strip that scrolls sideways and should also be draggable with a mouse: the homepage rails, tab rows, filter chips, charts. */
-export const dragScrollSelector = ".pitch-rail,.cinema-rail,.bite-rail,.hot-strip ul,.cb-bars,.dp-tabs,.lg-round-chips,.ov-leagues,.desk-filters,.social-leagues,.post-filters,.post-chips,.transfer-filter-list,.md-competition-tabs,.fan-drag";
+export const dragScrollSelector = ".pitch-rail,.pitch-toolbar,.cinema-rail,.bite-rail,.hot-strip ul,.cb-bars,.dp-tabs,.lg-round-chips,.ov-leagues,.desk-filters,.social-leagues,.post-filters,.post-chips,.transfer-filter-list,.md-competition-tabs,.fan-drag";
 const threshold = 5;
 
 /**
