@@ -52,7 +52,7 @@ export function SidebarMyTeams() {
       {item.crestUrl
         // eslint-disable-next-line @next/next/no-img-element -- hotlinked football-data crest
         ? <img src={item.crestUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
-        : <span aria-hidden="true" className="grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full bg-slate-100 text-[9px] font-bold text-slate-500">{item.name.slice(0, 2).toUpperCase()}</span>}
+        : <span aria-hidden="true" className="grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">{item.name.slice(0, 2).toUpperCase()}</span>}
       <span>{item.name}</span>
     </Link>)}
     <Link className="fb-discover" href="/following/manage">{viewer.follows.length ? "Khám phá thêm đội bóng" : "Chọn đội bóng để theo dõi"} <span aria-hidden="true">↗</span></Link>
