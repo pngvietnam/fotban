@@ -15,7 +15,8 @@ import { syncHeadToHead } from "../services/head-to-head";
 import { syncLeagueLeaders } from "../services/league-leaders";
 import { isLeagueSlug } from "../services/league-hub";
 import { VideoFeedSync } from "../services/video-feed-sync";
-import { liveFanReader, syncFanThreads } from "../services/fan-threads";
+import { purgeOldFanComments, syncFanComments } from "../services/fan-pulse";
+import { youTubeCommentApi } from "../providers/youtube/comments";
 import { VideoStore } from "../services/video-store";
 import { YouTubeFeedReader } from "../providers/youtube/rss";
 import { syncNews } from "../services/news-sync";
@@ -59,9 +60,11 @@ async function main() {
   // Highlights from the reviewed channels' public feeds: keyless, so a 20-minute cadence costs nothing.
   const videoFeeds = new VideoFeedSync(new YouTubeFeedReader(), new VideoStore(database), logger);
   let videosDueAt = 0;
-  // What fans say: titles and reply counts of public Voz and r/soccer threads, every ten minutes (both ask for gentle readers).
+  // What fans say: YouTube comments under the stored Vietnamese highlights, every 30 minutes within a small call budget.
+  // Without a key only the 30-day deletion runs, so stored comments still expire.
+  const commentApi = env.YOUTUBE_API_KEY ? youTubeCommentApi(env.YOUTUBE_API_KEY) : null;
   let fansDueAt = 0;
-  logger.info({ matches: Boolean(match), details: Boolean(details), photos: Boolean(photoApi) }, "worker.started");
+  logger.info({ matches: Boolean(match), details: Boolean(details), photos: Boolean(photoApi), fanComments: Boolean(commentApi) }, "worker.started");
   try {
     await runLoop(async () => {
       let ok = true;
@@ -109,15 +112,18 @@ async function main() {
           if (meetings.requests || meetings.stopped === "ERROR") logger.info({ ...meetings }, "worker.head_to_head");
         } catch (error) { logger.warn({ error: error instanceof Error ? error.message : "unknown" }, "worker.head_to_head_failed"); ok = false; }
       }
-      // One pass per start has no memory of the last one, so the slower jobs run in a fixed slice of the clock instead: videos in the first 5 minutes of every 20, fan threads in the first 5 of every 10.
-      if (once) { const minute = new Date().getUTCMinutes(); videosDueAt = minute % 20 < 5 ? 0 : Infinity; fansDueAt = minute % 10 < 5 ? 0 : Infinity; }
+      // One pass per start has no memory of the last one, so the slower jobs run in a fixed slice of the clock instead: videos in the first 5 minutes of every 20, fan comments in the first 15 of every 30.
+      if (once) { const minute = new Date().getUTCMinutes(); videosDueAt = minute % 20 < 5 ? 0 : Infinity; fansDueAt = minute % 30 < 15 ? 0 : Infinity; }
       if (Date.now() >= videosDueAt) {
         videosDueAt = Date.now() + 20 * 60_000;
         try { const videos = await videoFeeds.run(); if (videos.stored || videos.removed || videos.errors) logger.info({ ...videos }, "worker.videos"); } catch { /* Logged by the sync; retried next window. */ }
       }
       if (Date.now() >= fansDueAt) {
-        fansDueAt = Date.now() + 10 * 60_000;
-        try { const fans = await syncFanThreads(database, liveFanReader); if (fans.kept) logger.info({ ...fans }, "worker.fan_threads"); } catch { /* Retried next window. */ }
+        fansDueAt = Date.now() + 30 * 60_000;
+        try {
+          if (commentApi) { const fans = await syncFanComments(database, commentApi, { log: logger }); if (fans.calls || fans.purged || fans.errors) logger.info({ ...fans }, "worker.fan_comments"); }
+          else await purgeOldFanComments(database);
+        } catch (error) { logger.warn({ error: error instanceof Error ? error.message : "unknown" }, "worker.fan_comments_failed"); }
       }
       // Free-licence player photos: a small, time-boxed batch per pass; pauses for 30 minutes when Wikimedia pushes back.
       if (photoApi && Date.now() >= photosPausedUntil) {

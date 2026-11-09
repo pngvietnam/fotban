@@ -1,44 +1,81 @@
-import type { FanThreadView } from "../../services/fan-threads";
-import { newsAbsoluteTime, newsRelativeTime } from "../../lib/news-presentation";
+import Link from "next/link";
+import type { FanPulse, FanQuote, MatchFanPulse, PulseMatch } from "../../services/fan-pulse";
+import type { PulseChip } from "../../lib/fan-comments";
+import { safeCrestUrl } from "../../lib/crest";
+import { matchTabHref } from "../../lib/match-tabs";
 
 const count = (value: number) => value.toLocaleString("vi-VN");
-const window = (hours: number) => hours >= 24 ? "24 giờ" : `${hours} giờ`;
-/** A thread is "sôi nổi" when its replies grew by a few hundred in the last day: a measured change, not a guess. */
-const hot = (thread: FanThreadView) => thread.source === "VOZ" && thread.delta !== null && thread.deltaHours !== null && thread.delta / Math.max(thread.deltaHours, 1) >= 10;
+const external = { target: "_blank", rel: "noopener noreferrer nofollow" } as const;
+const NewTab = () => <span className="sr-only"> (mở thẻ mới)</span>;
+// eslint-disable-next-line @next/next/no-img-element -- hotlinked football-data crest
+const Crest = ({ url }: { url: string | null }) => { const safe = safeCrestUrl(url); return safe ? <img src={safe} alt="" width={24} height={24} loading="lazy" referrerPolicy="no-referrer" /> : null; };
+const score = (match: PulseMatch) => match.homeScore !== null && match.awayScore !== null ? `${match.homeScore} – ${match.awayScore}` : "vs";
 
-/** One community thread as a link out: where it is, its title, how lively it is. Nothing of the posts themselves. */
-export function FanThreadCard({ thread, now }: { thread: FanThreadView; now: Date }) {
-  const voz = thread.source === "VOZ";
-  return <a className={`fan-card ${voz ? "voz" : "reddit"}`} href={thread.url} target="_blank" rel="noopener noreferrer nofollow" aria-label={`${thread.title} (mở ${thread.community} ở thẻ mới)`}>
-    <span className="fan-tag"><i aria-hidden="true" />{thread.community}{thread.kind === "MATCH" ? " · Trận đấu" : thread.kind === "CLUB" ? " · Phòng fan" : ""}{hot(thread) && <b>Đang sôi nổi</b>}</span>
-    <strong lang={voz ? "vi" : "en"}>{thread.title}</strong>
-    <span className="fan-meta">
-      {voz && thread.replies !== null && <span>{count(thread.replies)} bình luận</span>}
-      {voz && thread.delta !== null && thread.deltaHours !== null && thread.delta > 0 && <span className="fan-delta">+{count(thread.delta)} trong {window(thread.deltaHours)}</span>}
-      {!voz && <span>Tiếng Anh</span>}
-      <time dateTime={thread.lastActivityAt} title={newsAbsoluteTime(thread.lastActivityAt)}>{voz ? "hoạt động " : ""}{newsRelativeTime(thread.lastActivityAt, now)}</time>
-      <span className="fan-go" aria-hidden="true">↗</span>
-    </span>
-  </a>;
+/** "8.214 bình luận trên YouTube · đọc 100 bình luận nổi bật": the public total and how many Fotban read. */
+function Counts({ pulse }: { pulse: FanPulse }) {
+  return <p className="fan-count">{pulse.total !== null ? <><b>{count(pulse.total)}</b> bình luận trên YouTube · </> : null}đọc {count(pulse.read)} bình luận nổi bật{pulse.videos > 1 ? ` của ${pulse.videos} video` : ""}</p>;
 }
 
-const Note = () => <p className="fan-note">Ý kiến của người hâm mộ trên mạng, không phải tin đã kiểm chứng. Fotban chỉ dẫn tới tiêu đề và số liệu công khai; nội dung bình luận thuộc về cộng đồng.</p>;
-
-/** A short list of threads in a side panel (match and club pages). */
-export function FanTalkPanel({ title, threads, now, wide = false }: { title: string; threads: FanThreadView[]; now: Date; /** Cards side by side across the page instead of a narrow list. */ wide?: boolean }) {
-  if (!threads.length) return null;
-  return <section className={`dp-panel fan-panel${wide ? " wide" : ""}`} aria-labelledby="fan-panel-title"><div className="dp-section-heading"><h2 id="fan-panel-title">{title}</h2></div>
-    <div className="fan-list">{threads.map((thread) => <FanThreadCard key={thread.id} thread={thread} now={now} />)}</div><Note /></section>;
+/** What the comments name most, each with how many comments name it. */
+function Chips({ chips }: { chips: PulseChip[] }) {
+  if (!chips.length) return null;
+  return <div className="fan-chips"><span className="fan-chips-label" aria-hidden="true">Fan nhắc nhiều</span>
+    <ul aria-label="Fan nhắc nhiều">{chips.map((chip) => <li key={`${chip.kind}:${chip.key}`} className={`fan-chip ${chip.kind}`}>{chip.label} <b>{count(chip.count)}</b><span className="sr-only"> bình luận</span></li>)}</ul>
+  </div>;
 }
 
-/** The homepage block: Vietnamese fans on Voz beside the world's talk on r/soccer. */
-export function FanTalkHome({ voz, reddit, now }: { voz: FanThreadView[]; reddit: FanThreadView[]; now: Date }) {
-  if (!voz.length && !reddit.length) return null;
+/** A comment word for word, its likes and a link to it on YouTube. Never the commenter's name. */
+function Quote({ quote }: { quote: FanQuote }) {
+  return <figure className="fan-quote">
+    <blockquote lang="vi"><p>{quote.text}</p></blockquote>
+    <figcaption>
+      <span className="fan-likes"><span aria-hidden="true">♥</span> {count(quote.likeCount)}<span className="sr-only"> lượt thích</span></span>
+      {quote.match && <span className="fan-quote-match">{quote.match}</span>}
+      <a className="fan-quote-link" href={quote.url} {...external}>Xem bình luận<span aria-hidden="true"> ↗</span><NewTab /></a>
+    </figcaption>
+  </figure>;
+}
+
+function YouTubeLink({ url }: { url: string | null }) {
+  return url ? <a className="fan-yt" href={url} {...external}>Xem trên YouTube<span aria-hidden="true"> ↗</span><NewTab /></a> : null;
+}
+
+const Note = () => <p className="fan-note">Ý kiến của người xem dưới video highlight trên YouTube, không phải tin đã kiểm chứng. Fotban chỉ đếm và trích nguyên văn bình luận công khai, không lưu tên người bình luận; bình luận thô tục, quảng cáo và chủ đề nặng nề được lọc bỏ.</p>;
+
+/** One match on the homepage: the score, how much fans wrote, what they name most and their two most-liked comments. */
+function PulseCard({ pulse }: { pulse: MatchFanPulse }) {
+  const { match } = pulse;
+  return <article className="fan-card">
+    <Link className="fan-match" href={matchTabHref(match.slug, "du-kien")}>
+      <span className="fan-side"><Crest url={match.home.crestUrl} /><span>{match.home.name}</span></span>
+      <b className="fan-score">{score(match)}</b>
+      <span className="fan-side away"><span>{match.away.name}</span><Crest url={match.away.crestUrl} /></span>
+    </Link>
+    <Counts pulse={pulse} />
+    <Chips chips={pulse.chips} />
+    {pulse.quotes.slice(0, 2).map((quote) => <Quote key={quote.id} quote={quote} />)}
+    <YouTubeLink url={pulse.videoUrl} />
+  </article>;
+}
+
+/** The homepage block: the matches Vietnamese viewers comment on most, summarised from their YouTube comments. */
+export function FanTalkHome({ pulses }: { pulses: MatchFanPulse[] }) {
+  if (!pulses.length) return null;
   return <section className="fan-section" aria-labelledby="ov-fans">
-    <div className="fan-head"><h2 id="ov-fans">Fan đang nói gì</h2><span>Cộng đồng mạng, cập nhật mỗi 10 phút</span></div>
-    <div className="fan-grid">
-      {voz.length > 0 && <div className="fan-col"><h3>Fan Việt trên Voz</h3><div className="fan-list">{voz.map((thread) => <FanThreadCard key={thread.id} thread={thread} now={now} />)}</div></div>}
-      {reddit.length > 0 && <div className="fan-col"><h3>Thế giới trên r/soccer</h3><div className="fan-list">{reddit.map((thread) => <FanThreadCard key={thread.id} thread={thread} now={now} />)}</div></div>}
+    <div className="fan-head"><h2 id="ov-fans">Fan đang nói gì</h2><span>Tổng hợp từ bình luận tiếng Việt dưới video highlight trên YouTube</span></div>
+    <div className="fan-row">{pulses.slice(0, 3).map((pulse) => <PulseCard key={pulse.match.id} pulse={pulse} />)}</div>
+    <Note />
+  </section>;
+}
+
+/** The match and club pages: the same summary for one match, or for a club's recent matches (`wide`: across the page). */
+export function FanTalkPanel({ title, pulse, wide = false }: { title: string; pulse: FanPulse | null; wide?: boolean }) {
+  if (!pulse) return null;
+  return <section className={`dp-panel fan-panel${wide ? " wide" : ""}`} aria-labelledby="fan-panel-title">
+    <div className="dp-section-heading"><h2 id="fan-panel-title">{title}</h2></div>
+    <div className="fan-panel-body">
+      <div className="fan-summary"><Counts pulse={pulse} /><Chips chips={pulse.chips} /><YouTubeLink url={pulse.videoUrl} /></div>
+      {pulse.quotes.length > 0 && <div className="fan-quotes">{pulse.quotes.map((quote) => <Quote key={quote.id} quote={quote} />)}</div>}
     </div>
     <Note />
   </section>;

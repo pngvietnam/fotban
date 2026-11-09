@@ -23,7 +23,7 @@ const group = (key: string, lead: FeedCardView, others: FeedCardView[] = []): Fe
 const ranked = ["A", "B", "C", "D", "E", "F"].map((name) => group(name.toLowerCase(), card(`Tin ${name}`, name === "C" ? { image: "https://i.vnecdn.net/c.jpg" } : {})));
 const empty: OverviewData = {
   mode: { kind: "between", text: "Giữa hai vòng đấu" }, collectedAt: null, ribbon: [], followedClubIds: [], watch: null, cover: null, stories: [], hot: { matches: [], topics: [] }, hotReasons: {},
-  updates: [], updateTab: "tat-ca", transfers: [], bites: [], shortNames: {}, standings: null, highlights: [], fans: { voz: [], reddit: [] }, scorers: null, mine: [], suggest: [],
+  updates: [], updateTab: "tat-ca", transfers: [], bites: [], shortNames: {}, standings: null, highlights: [], fans: [], scorers: null, mine: [], suggest: [],
   viewer: { signedIn: false, clubs: [], next: null }, briefReady: false,
 };
 const data = (overrides: Partial<OverviewData> = {}): OverviewData => {
@@ -104,19 +104,19 @@ describe("homepage story blocks", () => {
     expect($(".ms-story").attr("href")).toBe("/news/bao-A"); expect($(".qf-grid")).toHaveLength(0);
   });
   it("splits what is hot into matches and clubs/players, each club with the headline of its most-covered story", () => {
-    const mu = { kind: "club" as const, id: "c1", name: "Man United", crestUrl: null, stories: 9, threads: 2 };
+    const mu = { kind: "club" as const, id: "c1", name: "Man United", crestUrl: null, stories: 9, comments: 10, threads: 2 };
     const mention = { id: "c1", kind: "club" as const, name: "Manchester United FC", initials: "MUN" };
     const groups = [group("x", card("MU thua đau", { entities: [mention] })), group("y", card("MU khủng hoảng", { entities: [mention] }), [card("MU khủng hoảng 2"), card("MU khủng hoảng 3")]), group("z", card("Chelsea thắng"))];
     const reasons = hotReasons([mu, { ...mu, id: "c9", name: "Leeds" }], groups);
     expect(reasons).toEqual({ "club-c1": { title: "MU khủng hoảng", href: "/news/bao-MU-kh-ng-ho-ng" } });
     expect(render(data())(".hot-strip")).toHaveLength(0);
     const $ = render(data({
-      hot: { matches: [{ slug: "m9", home: "Como", away: "Man United", homeScore: 4, awayScore: 1, threads: 3 }], topics: [mu] }, hotReasons: reasons,
+      hot: { matches: [{ slug: "m9", home: "Como", away: "Man United", homeScore: 4, awayScore: 1, comments: 3, threads: 3 }], topics: [mu] }, hotReasons: reasons,
       scorers: { leagueName: "Premier League", leagueHref: "/league/premier-league?tab=thong-ke", list: [{ name: "Erling Haaland", goals: 8, assists: 1, team: "Man City", crestUrl: null, photoUrl: null, href: "/player/player-1" }] },
     }));
     expect($(".hot-group h3").map((_, node) => $(node).text()).get()).toEqual(["Trận", "Đội/Cầu thủ"]);
     expect($(".hot-strip b").map((_, node) => $(node).text()).get()).toEqual(["Como 4–1 Man United", "Man United"]);
-    expect($(".hot-strip small").map((_, node) => $(node).text()).get()).toEqual(["3 chủ đề fan", "MU khủng hoảng"]);
+    expect($(".hot-strip small").map((_, node) => $(node).text()).get()).toEqual(["3 bình luận fan", "MU khủng hoảng"]);
     expect($(".hot-strip a").first().attr("href")).toBe("/match/m9");
     expect($(".ov-scorers").text()).toContain("Erling Haaland"); expect($(".ov-scorers strong").text()).toBe("8");
   });

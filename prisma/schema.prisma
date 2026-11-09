@@ -891,6 +891,8 @@ model Video {
   videoSource         VideoSource?            @relation(fields: [videoSourceId], references: [id], onDelete: Restrict)
   sourceMapping       VideoSourceCompetition? @relation(fields: [sourceMappingId], references: [id], onDelete: Restrict)
   briefItems          BriefItem[]
+  comments            VideoComment[]
+  commentFetch        VideoCommentFetch?
 
   @@unique([provider, externalId])
   @@index([matchId, validationStatus])
@@ -1416,4 +1418,36 @@ model FanThreadSnapshot {
   thread   FanThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   @@id([threadId, takenAt])
+}
+
+/// A top-level YouTube comment under a stored Vietnamese highlight video: text (at most 500 characters), likes and time only.
+/// Commenter names, avatars and channel ids are never stored; rows older than 30 days are deleted (YouTube API policy).
+model VideoComment {
+  id          String   @id @default(uuid()) @db.Uuid
+  videoId     String   @db.Uuid
+  externalId  String   @unique
+  text        String
+  likeCount   Int      @default(0)
+  publishedAt DateTime @db.Timestamptz(3)
+  fetchedAt   DateTime @db.Timestamptz(3)
+  clubIds     String[] @default([]) @db.Uuid
+  playerIds   String[] @default([]) @db.Uuid
+  video       Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([videoId])
+  @@index([fetchedAt])
+  @@index([publishedAt])
+}
+
+/// When a video's comments were last read (at most every 2 hours), its public comment total and how many were read and kept.
+model VideoCommentFetch {
+  videoId      String   @id @db.Uuid
+  fetchedAt    DateTime @db.Timestamptz(3)
+  status       String
+  commentCount Int?
+  readCount    Int      @default(0)
+  keptCount    Int      @default(0)
+  video        Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([fetchedAt])
 }

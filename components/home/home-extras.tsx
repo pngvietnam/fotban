@@ -15,8 +15,8 @@ export type HomeScorers = { leagueName: string; leagueHref: string; list: { name
 const Flame = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4.100 2-6 .5 2.500 2 4.900 4 6.500 2 1.600 3 3.500 3 5.500a7 7 0 1 1-14 0c0-1.200.4-2.300 1-3a2.500 2.500 0 0 0 2.500 2.500Z" /></svg>;
 
 /**
- * "Đang nóng", in two groups: finished matches fans opened threads about ("Trận"), and the clubs and players named most in
- * the last day ("Đội/Cầu thủ"), each with the headline of the most-covered story naming it as the reason.
+ * "Đang nóng", in two groups: finished matches fans commented on under their highlight videos ("Trận"), and the clubs and
+ * players named most in the last day ("Đội/Cầu thủ"), each with the headline of the most-covered story naming it as the reason.
  */
 export function HotNowStrip({ hot, reasons = {} }: { hot: HotNow; reasons?: Record<string, HotReason> }) {
   if (!hot.matches.length && !hot.topics.length) return null;
@@ -24,14 +24,14 @@ export function HotNowStrip({ hot, reasons = {} }: { hot: HotNow; reasons?: Reco
     <h2 id="ov-hot" className="hot-label"><Flame />Đang nóng</h2>
     {hot.matches.length > 0 && <div className="hot-group"><h3>Trận</h3><ul>
       {hot.matches.map((match) => <li key={match.slug}><Link href={matchTabHref(match.slug, "du-kien")}>
-        <b>{match.home} {match.homeScore ?? "–"}–{match.awayScore ?? "–"} {match.away}</b><small>{match.threads} chủ đề fan</small></Link></li>)}
+        <b>{match.home} {match.homeScore ?? "–"}–{match.awayScore ?? "–"} {match.away}</b><small>{match.comments} bình luận fan</small></Link></li>)}
     </ul></div>}
     {hot.topics.length > 0 && <div className="hot-group"><h3>Đội/Cầu thủ</h3><ul>
       {hot.topics.map((topic) => {
         const reason = reasons[`${topic.kind}-${topic.id}`];
         return <li key={`${topic.kind}-${topic.id}`}><Link href={topic.kind === "club" ? clubPath(topic.id) : playerPath(topic.id)} title={reason?.title}>
           <Mark url={topic.crestUrl} name={topic.name} size="sm" />
-          <span className="hot-topic"><b>{topic.name}</b><small>{reason ? reason.title : `${topic.stories} tin${topic.threads ? ` · ${topic.threads} chủ đề fan` : ""}`}</small></span>
+          <span className="hot-topic"><b>{topic.name}</b><small>{reason ? reason.title : `${topic.stories} tin${topic.comments ? ` · ${topic.comments} bình luận fan` : ""}`}</small></span>
         </Link></li>;
       })}
     </ul></div>}

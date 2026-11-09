@@ -12,7 +12,7 @@ import { vnClock, vnShortDate } from "../../lib/home-dates";
 import { timelineLeague, timelineLeagues } from "../../lib/match-timeline";
 import { matchTabHref } from "../../lib/match-tabs";
 import { newsAbsoluteTime, newsRelativeTime, storyLabels } from "../../lib/news-presentation";
-import type { FanThreadView } from "../../services/fan-threads";
+import type { MatchFanPulse } from "../../services/fan-pulse";
 import { FanTalkHome } from "../fan/fan-talk";
 import type { HotNow } from "../../services/hot-now";
 import { HotNowStrip, MySpacePanel, TopScorersPanel, type HomeScorers, type MineClub } from "./home-extras";
@@ -27,7 +27,7 @@ export type OverviewData = {
   hot: HotNow; hotReasons: Record<string, HotReason>;
   updates: FeedGroupView[]; updateTab: UpdateTab;
   transfers: FeedGroupView[]; bites: FeedGroupView[]; shortNames: Record<string, string>;
-  standings: HomeStandings | null; highlights: ArchiveClip[]; fans: { voz: FanThreadView[]; reddit: FanThreadView[] };
+  standings: HomeStandings | null; highlights: ArchiveClip[]; fans: MatchFanPulse[];
   scorers: HomeScorers | null; mine: MineClub[]; suggest: QuickClub[];
   viewer: { signedIn: boolean; clubs: { id: string; name: string }[]; next: FixtureRow | null };
   briefReady: boolean;
@@ -186,7 +186,7 @@ export function Overview({ data, now }: { data: OverviewData; now: Date }) {
         {data.scorers && <TopScorersPanel scorers={data.scorers} />}
       </StickyAside>
     </div>
-    <div className="ov-fans"><FanTalkHome voz={data.fans.voz} reddit={data.fans.reddit} now={now} /></div>
+    <div className="ov-fans"><FanTalkHome pulses={data.fans} /></div>
     <Cinema clips={data.highlights} />
     <Explore transfers={data.transfers} bites={data.bites} shortNames={data.shortNames} now={now} />
   </div>;

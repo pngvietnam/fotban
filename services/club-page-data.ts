@@ -3,7 +3,7 @@ import { getDatabase } from "../lib/db";
 import { logger } from "../lib/logger";
 import { prismaSyncDatabase } from "../lib/sync-database";
 import type { ClubFixtures, ClubProfile, ClubScorer, ClubStanding, ClubTab, ClubTable, SquadPlayer } from "../types/club-hub";
-import { fanThreadsForClub } from "./fan-threads";
+import { fanPulseForClub, type FanPulse } from "./fan-pulse";
 import { clubFixtures, clubProfile, clubScorers, clubSquad, clubStanding, clubTables } from "./club-hub";
 
 export type ClubData = { club: ClubProfile; standing: ClubStanding | null; fixtures: ClubFixtures; tables: ClubTable[]; scorers: ClubScorer[]; squad?: SquadPlayer[] };
@@ -37,10 +37,10 @@ export async function readClubCalendar(slug: string, now = new Date()): Promise<
   } catch { logger.error({ requestId: crypto.randomUUID() }, "club.calendar_failed"); return null; }
 }
 
-/** Fan threads that name the club (its Voz room first); empty when they cannot be read. */
-export async function readClubFans(clubId: string, now = new Date()) {
+/** What fans say under the highlight videos of the club's recent matches; null when nothing is stored or it cannot be read. */
+export async function readClubFans(clubId: string, now = new Date()): Promise<FanPulse | null> {
   try {
     const db = getDatabase();
-    return db ? await fanThreadsForClub(prismaSyncDatabase(db), clubId, now) : [];
-  } catch { logger.warn({ requestId: crypto.randomUUID() }, "club.fans_unavailable"); return []; }
+    return db ? await fanPulseForClub(prismaSyncDatabase(db), clubId, now) : null;
+  } catch { logger.warn({ requestId: crypto.randomUUID() }, "club.fans_unavailable"); return null; }
 }

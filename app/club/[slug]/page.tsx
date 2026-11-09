@@ -62,7 +62,7 @@ export default async function ClubPage({ params, searchParams }: Props) {
     storyTab || query.tab === "tong-quan" ? readFeedList({ league: "all", offset: storyTab ? query.offset : 0, clubId, ...(storyType ? { storyType } : {}) }) : null,
     query.tab === "tong-quan" ? readFeedList({ league: "all", offset: 0, clubId, storyType: "TRANSFER" }) : null,
   ]);
-  const fans = query.tab === "tong-quan" ? await readClubFans(clubId, now) : [];
+  const fans = query.tab === "tong-quan" ? await readClubFans(clubId, now) : null;
   const active = tables.find((table) => table.slug === query.giai) ?? tables.find((table) => table.row) ?? tables[0] ?? null;
   const scheduled = fixtures.upcoming.filter((fixture) => !["POSTPONED", "CANCELLED", "SUSPENDED"].includes(fixture.status));
   const next = scheduled[0] ?? null;
@@ -98,7 +98,7 @@ export default async function ClubPage({ params, searchParams }: Props) {
           <HonoursSummary honours={honours} extras={extras} historyHref={clubHref(slug, { tab: "lich-su" })} />
         </aside>
       </div>
-      <FanTalkPanel title="Fan nói gì" threads={fans} now={now} wide />
+      <FanTalkPanel title={`Fan nói gì về ${display}`} pulse={fans} wide />
       <StoryRows result={feed} now={now} limit={5} title="Tin mới về đội" more={{ href: clubHref(slug, { tab: "tin-tuc" }), label: "Tất cả tin →" }} />
       <StoryRows result={transfers} now={now} limit={4} title="Chuyển nhượng" more={{ href: clubHref(slug, { tab: "chuyen-nhuong" }), label: "Tất cả →" }} />
     </>}
