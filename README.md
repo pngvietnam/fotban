@@ -53,7 +53,7 @@ Open http://localhost:3000 for the public morning homepage. Missing optional pro
 | `SPORTS_API_KEY` | Reserved legacy variable; not used by the selected provider and not a fallback. |
 | `NEWS_API_KEY` | Reserved optional future credential; free-first news ingestion does not use or require it. |
 | `WIKIMEDIA_USER_AGENT` | Server-only app/version plus actual reachable contact; required for Wikinews requests, optional for builds. No API key needed. |
-| `YOUTUBE_API_KEY` | Optional server-only YouTube Data API v3 key for reviewed highlight discovery/refresh. Missing key skips sync; fresh stored verified links remain usable. |
+| `YOUTUBE_API_KEY` | Optional server-only YouTube Data API v3 key for reviewed highlight discovery/refresh and for the fan pulse (comments under stored Vietnamese highlights, read by the worker; at most 20 units a pass and 1,500 a day). Restrict it to the YouTube Data API v3 only, not to IP addresses: the worker runs on GitHub Actions runners whose IPs change. Missing or refused key skips both; fresh stored verified links remain usable and the fan blocks are simply hidden. `npm run fan:sync` runs one pass by hand. |
 | `OPENAI_API_KEY` | Optional server-only future AI provider credential. |
 | `NEXT_PUBLIC_APP_URL` | Public HTTP(S) application URL; defaults to `http://localhost:3000`. Must not contain credentials, query parameters or fragments. |
 | `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | Optional server-only Google OAuth configuration. Missing config disables auth; production needs HTTPS. |

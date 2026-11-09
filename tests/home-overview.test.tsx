@@ -21,7 +21,7 @@ const group = (key: string, lead: FeedCardView, others: FeedCardView[] = []): Fe
 const ranked = ["A", "B", "C", "D", "E", "F"].map((name) => group(name.toLowerCase(), card(`Tin ${name}`, name === "F" ? { image: "https://i.vnecdn.net/f.jpg" } : {})));
 const data = (overrides: Partial<OverviewData> = {}): OverviewData => {
   const front = splitFront(ranked);
-  return { ribbon: [], quick: front.quick, cover: front.cover, followups: front.followups, updates: [], updateTab: "tat-ca", deepReads: [], bites: [], transfers: [], standings: null, highlights: [], fans: { voz: [], reddit: [] }, hot: { matches: [], topics: [] }, scorers: null, mine: [], suggest: [],
+  return { ribbon: [], quick: front.quick, cover: front.cover, followups: front.followups, updates: [], updateTab: "tat-ca", deepReads: [], bites: [], transfers: [], standings: null, highlights: [], fans: [], hot: { matches: [], topics: [] }, scorers: null, mine: [], suggest: [],
     viewer: { signedIn: false, clubs: [], next: null }, briefReady: false, ...overrides };
 };
 const render = (value: OverviewData) => load(renderToStaticMarkup(<Overview data={value} now={now} />));
@@ -62,7 +62,7 @@ describe("homepage blocks", () => {
   it("shows what is hot only when something is, and the top scorers beside the table", () => {
     expect(render(data())(".hot-strip")).toHaveLength(0);
     const $ = render(data({
-      hot: { matches: [{ slug: "m9", home: "Como", away: "Man United", homeScore: 4, awayScore: 1, threads: 3 }], topics: [{ kind: "club", id: "c1", name: "Man United", crestUrl: null, stories: 9, threads: 2 }] },
+      hot: { matches: [{ slug: "m9", home: "Como", away: "Man United", homeScore: 4, awayScore: 1, comments: 3, threads: 3 }], topics: [{ kind: "club", id: "c1", name: "Man United", crestUrl: null, stories: 9, comments: 2, threads: 2 }] },
       scorers: { leagueName: "Premier League", leagueHref: "/league/premier-league?tab=thong-ke", list: [{ name: "Erling Haaland", goals: 8, assists: 1, team: "Man City", crestUrl: null, photoUrl: null, href: "/player/player-1" }] },
     }));
     expect($(".hot-strip b").map((_, node) => $(node).text()).get()).toEqual(["Como 4–1 Man United", "Man United"]);

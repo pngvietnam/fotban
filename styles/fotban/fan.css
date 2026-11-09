@@ -1,0 +1,54 @@
+/* "Fan đang nói gì": what Vietnamese viewers write under the highlight videos on YouTube, counted and quoted word for word.
+   Warm accent (the old Voz colour) so the block reads as fans' voices, not the paper's news. Nothing under 12px; every link is 44px tall. */
+.fan-section,.fan-panel{--fan:#b4501f;--fan-soft:#fff3ea;--fan-heart:#b42318;container-type:inline-size}
+.fan-section{margin:var(--fb-space-32) 0}
+.ov-main .fan-section{margin:var(--fb-space-24) 0 0}
+.fan-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--fb-space-16);margin-bottom:var(--fb-space-16)}
+.fan-head h2{margin:0;font-size:var(--fb-type-section-size);font-weight:700;display:flex;align-items:center;gap:var(--fb-space-8)}
+.fan-head h2::before{content:"";width:4px;height:20px;border-radius:2px;background:var(--fb-color-brand)}
+.fan-head span{font-size:var(--fb-type-meta-size);color:var(--fb-color-muted)}
+
+/* Homepage: up to three matches side by side; one column when the block is narrow. */
+.fan-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--fb-space-16);align-items:stretch}
+.fan-card{display:flex;flex-direction:column;gap:var(--fb-space-12);min-width:0;padding:var(--fb-space-16);border:1px solid var(--fb-color-border);border-top:4px solid var(--fan);border-radius:var(--fb-radius-card);background:linear-gradient(180deg,var(--fan-soft),var(--fb-color-surface) 140px)}
+.fan-match{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:var(--fb-space-8);min-height:44px;color:var(--fb-color-ink);font-size:var(--fb-type-body-size);font-weight:700;text-decoration:none}
+.fan-side{display:flex;align-items:center;gap:var(--fb-space-8);min-width:0}
+.fan-side span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fan-side.away{justify-content:flex-end;text-align:right}
+.fan-side img{flex:none;width:24px;height:24px;object-fit:contain}
+.fan-score{padding:2px var(--fb-space-8);border:1px solid var(--fb-color-border);border-radius:var(--fb-radius-control);background:var(--fb-color-surface);font-variant-numeric:tabular-nums;white-space:nowrap;transition:background var(--fb-motion-fast),color var(--fb-motion-fast)}
+.fan-match:hover .fan-score,.fan-match:focus-visible .fan-score{background:var(--fan);border-color:var(--fan);color:#fff}
+
+/* Shared parts: counts, what fans name most, quotes and the YouTube link. */
+.fan-count{margin:0;font-size:var(--fb-type-meta-size);line-height:1.6;color:var(--fb-color-muted)}
+.fan-count b{font-size:var(--fb-type-title-size);font-variant-numeric:tabular-nums;color:var(--fb-color-ink)}
+.fan-chips{display:flex;flex-direction:column;gap:var(--fb-space-4)}
+.fan-chips-label{font-size:var(--fb-type-meta-size);font-weight:700;color:var(--fan)}
+.fan-chips ul{list-style:none;display:flex;flex-wrap:wrap;gap:var(--fb-space-4) var(--fb-space-8);margin:0;padding:0}
+.fan-chip{display:inline-flex;align-items:center;gap:var(--fb-space-4);padding:2px var(--fb-space-8);border:1px solid var(--fb-color-border);border-radius:var(--fb-radius-pill);background:var(--fb-color-surface);font-size:var(--fb-type-meta-size);color:var(--fb-color-ink)}
+.fan-chip b{font-variant-numeric:tabular-nums;color:var(--fan)}
+.fan-chip.topic{background:var(--fb-color-ivory);color:var(--fb-color-ivoryInk)}
+.fan-quote{margin:0;padding:var(--fb-space-8) var(--fb-space-12) 0;border-left:3px solid var(--fan);border-radius:0 var(--fb-radius-control) var(--fb-radius-control) 0;background:var(--fb-color-surface);min-width:0}
+.fan-quote blockquote{margin:0}
+.fan-quote p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;margin:0;font-size:var(--fb-type-body-size);line-height:1.6;color:var(--fb-color-ink);overflow-wrap:anywhere}
+.fan-quote figcaption{display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--fb-space-12);font-size:var(--fb-type-meta-size);color:var(--fb-color-muted)}
+.fan-likes{font-weight:700;font-variant-numeric:tabular-nums;color:var(--fan-heart)}
+.fan-quote-match{font-weight:600;color:var(--fb-color-ink)}
+.fan-quote-link{display:inline-flex;align-items:center;min-height:44px;margin-left:auto;color:var(--fb-color-brand);font-weight:600;text-decoration:none}
+.fan-quote-link:hover,.fan-quote-link:focus-visible{text-decoration:underline}
+.fan-yt{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;min-height:44px;margin-top:auto;padding:0 var(--fb-space-16);border:1px solid var(--fan);border-radius:var(--fb-radius-control);color:var(--fan);font-size:var(--fb-type-body-size);font-weight:700;text-decoration:none;transition:background var(--fb-motion-fast),color var(--fb-motion-fast)}
+.fan-yt:hover,.fan-yt:focus-visible{background:var(--fan);color:#fff}
+.fan-note{margin:var(--fb-space-16) 0 0;font-size:var(--fb-type-meta-size);line-height:1.6;color:var(--fb-color-muted)}
+
+/* Match page (narrow column) and club page (wide: summary beside three quotes). */
+.fan-panel-body,.fan-summary,.fan-quotes{display:flex;flex-direction:column;gap:var(--fb-space-12)}
+.fan-panel .fan-quote{background:var(--fan-soft)}
+.fan-panel .fan-yt{margin-top:0}
+.cb-page .fan-panel.wide{margin:0 0 var(--fb-space-24)}
+.fan-panel.wide .fan-panel-body{display:grid;grid-template-columns:minmax(200px,1fr) minmax(0,3fr);gap:var(--fb-space-24);align-items:start}
+.fan-panel.wide .fan-quotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+
+@container (max-width:760px){.fan-row{grid-template-columns:1fr}.fan-panel.wide .fan-panel-body{grid-template-columns:1fr}}
+@container (max-width:560px){.fan-panel.wide .fan-quotes{grid-template-columns:1fr}}
+@media(max-width:650px){.fan-head{flex-direction:column;gap:var(--fb-space-4)}}
+@media(prefers-reduced-motion:no-preference){@keyframes fan-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}.fan-row .fan-card{animation:fan-in .5s both}.fan-row .fan-card:nth-child(2){animation-delay:.06s}.fan-row .fan-card:nth-child(3){animation-delay:.12s}}

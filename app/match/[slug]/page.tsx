@@ -17,7 +17,7 @@ import { parsePlayerStatView, parsePlayerTeamFilter } from "@/components/matches
 import { pickMatchReview, type MatchReview } from "@/lib/match-review";
 import { matchHub, type MatchHub } from "@/services/match-hub";
 import { readFeedList } from "@/services/feed-page-data";
-import { fanThreadsForMatch } from "@/services/fan-threads";
+import { fanPulseForMatch } from "@/services/fan-pulse";
 import { FanTalkPanel } from "@/components/fan/fan-talk";
 import { MatchNewsList, orderMatchNews } from "@/components/matches/match-news";
 
@@ -45,11 +45,11 @@ export default async function MatchPage({ params, searchParams }: { params: Prom
     const { match } = result;
     try { const db = getDatabase(); if (db) hub = await matchHub(prismaSyncDatabase(db), match, now); }
     catch { logger.warn({ requestId: crypto.randomUUID() }, "matches.ui_hub_unavailable"); }
-    if (tab === "du-kien" && match.homeClub?.id && match.awayClub?.id) {
-      let threads: Awaited<ReturnType<typeof fanThreadsForMatch>> = [];
-      try { const db = getDatabase(); if (db) threads = await fanThreadsForMatch(prismaSyncDatabase(db), match.id, match.homeClub.id, match.awayClub.id, now); }
+    if (tab === "du-kien") {
+      let pulse: Awaited<ReturnType<typeof fanPulseForMatch>> = null;
+      try { const db = getDatabase(); if (db) pulse = await fanPulseForMatch(prismaSyncDatabase(db), match.id, now); }
       catch { logger.warn({ requestId: crypto.randomUUID() }, "matches.ui_fans_unavailable"); }
-      fans = <FanTalkPanel title="Fan nói gì về trận này" threads={threads} now={now} />;
+      fans = <FanTalkPanel title="Fan nói gì về trận này" pulse={pulse} />;
     }
     const clubIds = [match.homeClub?.id, match.awayClub?.id].filter((id): id is string => Boolean(id));
     if (tab === "du-kien" && clubIds.length) {

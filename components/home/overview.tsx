@@ -13,7 +13,7 @@ import { formatMatchTime } from "../../lib/match-presentation";
 import { timelineLeague, timelineLeagues } from "../../lib/match-timeline";
 import { matchTabHref } from "../../lib/match-tabs";
 import { newsAbsoluteTime, newsRelativeTime, storyLabels } from "../../lib/news-presentation";
-import type { FanThreadView } from "../../services/fan-threads";
+import type { MatchFanPulse } from "../../services/fan-pulse";
 import { FanTalkHome } from "../fan/fan-talk";
 import type { HotNow } from "../../services/hot-now";
 import { HotNowStrip, MySpacePanel, TopScorersPanel, type HomeScorers, type MineClub } from "./home-extras";
@@ -26,7 +26,7 @@ export type OverviewData = {
   quick: FeedGroupView[]; cover: FeedGroupView | null; followups: FeedGroupView[];
   updates: FeedGroupView[]; updateTab: UpdateTab;
   deepReads: FeedGroupView[]; bites: FeedGroupView[]; transfers: FeedGroupView[];
-  standings: HomeStandings | null; highlights: ArchiveClip[]; fans: { voz: FanThreadView[]; reddit: FanThreadView[] };
+  standings: HomeStandings | null; highlights: ArchiveClip[]; fans: MatchFanPulse[];
   hot: HotNow; scorers: HomeScorers | null; mine: MineClub[]; suggest: QuickClub[];
   viewer: { signedIn: boolean; clubs: { id: string; name: string }[]; next: FixtureRow | null };
   briefReady: boolean;
@@ -184,7 +184,7 @@ export function Overview({ data, now }: { data: OverviewData; now: Date }) {
     <div className="ov-columns"><div className="ov-main">
       <Focus cover={data.cover} followups={data.followups} now={now} />
       <Updates groups={data.updates} tab={data.updateTab} now={now} />
-      <FanTalkHome voz={data.fans.voz} reddit={data.fans.reddit} now={now} />
+      <FanTalkHome pulses={data.fans} />
     </div><aside className="ov-right" aria-label="Không gian của tôi và bảng xếp hạng">
       <MySpacePanel signedIn={data.viewer.signedIn} mine={data.mine} suggest={data.suggest} />
       {data.standings && <StandingsRace standings={data.standings} />}
